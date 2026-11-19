@@ -1,4 +1,8 @@
 import { Link, useParams } from 'react-router'
+import { DiagnosisPanel } from '@/features/diagnosis/ui/DiagnosisPanel'
+import { QuotaSummary } from '@/features/entitlement/ui/QuotaSummary'
+import { useEntitlement } from '@/features/entitlement/api/use-entitlement'
+import { EscalationPanel } from '@/features/escalation/ui/EscalationPanel'
 import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
 import { Skeleton } from '@/shared/ui/Skeleton'
@@ -74,6 +78,7 @@ export function UpdatePage() {
   const { journalId = '', updateId = '' } = useParams()
   const updates = useUpdates(journalId)
   const update = updates.data?.items.find((item) => item.id === updateId)
+  const entitlement = useEntitlement()
 
   return (
     <>
@@ -106,6 +111,15 @@ export function UpdatePage() {
           <section className={styles.section} aria-labelledby="photos-title">
             <h2 id="photos-title">Photos</h2>
             <Photos update={update} />
+          </section>
+          {entitlement.data && <QuotaSummary entitlement={entitlement.data} />}
+          <section className={styles.section} aria-labelledby="diagnosis-title">
+            <h2 id="diagnosis-title">Diagnosis</h2>
+            <DiagnosisPanel updateId={update.id} journalId={journalId} />
+          </section>
+          <section className={styles.section} aria-labelledby="expert-title">
+            <h2 id="expert-title">Expert help</h2>
+            <EscalationPanel updateId={update.id} journalId={journalId} />
           </section>
         </>
       )}
