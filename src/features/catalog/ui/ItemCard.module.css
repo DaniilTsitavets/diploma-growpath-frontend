@@ -1,0 +1,45 @@
+.card {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.meta {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.label {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+}
+
+.price {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.discount {
+  margin: 0;
+  color: var(--color-accent);
+}
