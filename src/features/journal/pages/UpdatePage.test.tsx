@@ -30,6 +30,37 @@ beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' })
   configureApi(createHttpClient({ getToken: () => 'token', onUnauthorized: () => undefined }))
 })
+beforeEach(() => {
+  server.use(
+    http.get(`${origin}/v1/updates/u1/diagnosis`, () =>
+      HttpResponse.json({
+        status: 'completed',
+        model_effort: 'low',
+        has_dominant_candidate: false,
+        clarifying_question: null,
+        clarifying_answer: null,
+        roots_photo_requested: false,
+        recommendation: null,
+        escalation_offered: false,
+        escalation_declined: false,
+        update_id: 'u1',
+        candidates: [],
+      }),
+    ),
+    http.get(`${origin}/v1/updates/u1/escalation`, () =>
+      HttpResponse.json({ title: 'Not Found', status: 404 }, { status: 404 }),
+    ),
+    http.get(`${origin}/v1/me/entitlement`, () =>
+      HttpResponse.json({
+        user_id: 'u',
+        tier: 'hobbyist',
+        tier_expires_at: null,
+        ai_quota_today: { used: 0, limit: 10 },
+        expert_quota_30_days: { used: 0, limit: 2 },
+      }),
+    ),
+  )
+})
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
@@ -116,7 +147,7 @@ describe('UpdatePage', () => {
       new File(['x'], 'notes.pdf', { type: 'application/pdf' }),
     )
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('JPEG, PNG or WebP')
+    expect(await screen.findByText('Use a JPEG, PNG or WebP photo.')).toBeInTheDocument()
   })
 
   it('says so when the update is not in the feed', async () => {
@@ -127,6 +158,6 @@ describe('UpdatePage', () => {
     )
     renderPage()
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('could not find')
+    expect(await screen.findByText('We could not find this update.')).toBeInTheDocument()
   })
 })
