@@ -32,6 +32,24 @@ export const routes: RouteObject[] = [
             }),
           },
           {
+            path: 'journals/:journalId',
+            lazy: async () => ({
+              Component: (await import('@/features/journal/pages/JournalPage')).JournalPage,
+            }),
+          },
+          {
+            path: 'journals/:journalId/updates/new',
+            lazy: async () => ({
+              Component: (await import('@/features/journal/pages/NewUpdatePage')).NewUpdatePage,
+            }),
+          },
+          {
+            path: 'journals/:journalId/updates/:updateId',
+            lazy: async () => ({
+              Component: (await import('@/features/journal/pages/UpdatePage')).UpdatePage,
+            }),
+          },
+          {
             element: <RequireExpert />,
             children: [
               {
