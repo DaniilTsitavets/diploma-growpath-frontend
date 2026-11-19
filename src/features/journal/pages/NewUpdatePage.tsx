@@ -19,8 +19,8 @@ import {
 import { photoSlots, validatePhoto } from '../model/photo'
 import type { PhotoKind } from '../model/types'
 import { PhotoPicker } from '../ui/PhotoPicker'
-import { SelectField } from '../ui/SelectField'
-import { TextField } from '../ui/TextField'
+import { SelectField } from '@/shared/ui/SelectField'
+import { TextField } from '@/shared/ui/TextField'
 import styles from './NewUpdatePage.module.css'
 
 const REQUIRED: PhotoKind[] = ['overview', 'soil']
