@@ -1,4 +1,6 @@
 import { Button } from '@/shared/ui/Button'
+import { Card } from '@/shared/ui/Card'
+import { Tag } from '@/shared/ui/Chip'
 import { discountedCents, formatPrice } from '../model/price'
 import type { Item } from '../model/types'
 import styles from './ItemCard.module.css'
@@ -17,14 +19,14 @@ function describe(item: Item): string {
 export function ItemCard({ item, onOrder }: ItemCardProps) {
   const discount = item.first_purchase_discount_pct
   return (
-    <li className={styles.card}>
+    <Card as="li" className={styles.card}>
       <h2 className={styles.title}>{item.name}</h2>
       <p className={styles.meta}>{describe(item)}</p>
       {item.labels.length > 0 && (
         <ul className={styles.labels} aria-label="Labels">
           {item.labels.map((label) => (
-            <li key={label} className={styles.label}>
-              {label}
+            <li key={label}>
+              <Tag>{label}</Tag>
             </li>
           ))}
         </ul>
@@ -39,6 +41,6 @@ export function ItemCard({ item, onOrder }: ItemCardProps) {
       <Button onClick={() => onOrder(item)} aria-label={`Order ${item.name}`}>
         Order
       </Button>
-    </li>
+    </Card>
   )
 }

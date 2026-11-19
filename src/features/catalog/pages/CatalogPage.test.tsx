@@ -73,6 +73,23 @@ describe('CatalogPage', () => {
     expect(screen.getByText('1 item')).toBeInTheDocument()
   })
 
+  it('filters by a label chip and marks it as pressed', async () => {
+    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    renderPage()
+    await screen.findByRole('heading', { name: 'Soil Sensor' })
+
+    const chip = screen.getByRole('button', { name: 'beginner' })
+    expect(chip).toHaveAttribute('aria-pressed', 'false')
+    await userEvent.click(chip)
+
+    expect(chip).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.queryByRole('heading', { name: 'Soil Sensor' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'All' }))
+    expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
+  })
+
   it('shows an error with a retry that loads the catalog', async () => {
     let calls = 0
     server.use(
