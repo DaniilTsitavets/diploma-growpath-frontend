@@ -90,9 +90,11 @@ export function DiagnosisPanel({ updateId, journalId }: DiagnosisPanelProps) {
       <ol className={styles.candidates} aria-label="Possible causes, most likely first">
         {data.candidates.map((candidate) => (
           <li key={candidate.rank}>
-            <span className={styles.cause}>{candidate.cause}</span>
-            {candidate.rank === 1 && data.has_dominant_candidate ? ' (most likely)' : ''}
-            <p className={styles.rationale}>{candidate.rationale}</p>
+            <div>
+              <span className={styles.cause}>{candidate.cause}</span>
+              {candidate.rank === 1 && data.has_dominant_candidate ? ' (most likely)' : ''}
+              <p className={styles.rationale}>{candidate.rationale}</p>
+            </div>
           </li>
         ))}
       </ol>
