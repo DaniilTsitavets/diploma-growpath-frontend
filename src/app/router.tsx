@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
+import { createBrowserRouter, type RouteObject } from 'react-router'
 import { RequireAuth, RequireExpert } from '@/features/auth/ui/RequireAuth'
 import { ErrorPage } from './ErrorPage'
 import { AppLayout } from './layouts/AppLayout'
@@ -10,21 +10,26 @@ export const routes: RouteObject[] = [
     errorElement: <ErrorPage />,
     children: [
       {
+        index: true,
+        lazy: async () => ({
+          Component: (await import('@/features/home/pages/HomePage')).HomePage,
+        }),
+      },
+      {
         path: 'login',
         lazy: async () => ({
           Component: (await import('@/features/auth/pages/LoginPage')).LoginPage,
         }),
       },
       {
+        path: 'shop',
+        lazy: async () => ({
+          Component: (await import('@/features/catalog/pages/CatalogPage')).CatalogPage,
+        }),
+      },
+      {
         element: <RequireAuth />,
         children: [
-          { index: true, element: <Navigate to="/catalog" replace /> },
-          {
-            path: 'catalog',
-            lazy: async () => ({
-              Component: (await import('@/features/catalog/pages/CatalogPage')).CatalogPage,
-            }),
-          },
           {
             path: 'journals',
             lazy: async () => ({

@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { listItems } from './catalog-api'
 
-export function useItems() {
-  return useQuery({ queryKey: ['items'], queryFn: ({ signal }) => listItems(signal) })
+/** `enabled` is false for visitors: the gateway answers 401 to a request without a token. */
+export function useItems(enabled = true) {
+  return useQuery({
+    queryKey: ['items'],
+    queryFn: ({ signal }) => listItems(signal),
+    enabled,
+  })
 }

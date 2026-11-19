@@ -54,7 +54,7 @@ export function JournalsPage() {
           {polling
             ? 'Waiting for your journal. It appears a few seconds after you order a pack.'
             : 'You have no journals yet.'}{' '}
-          <Link to="/catalog">Browse the catalog</Link>
+          <Link to="/shop">Browse the shop</Link>
         </p>
       )}
       {data && data.length > 0 && (
