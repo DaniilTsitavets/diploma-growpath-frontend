@@ -1,5 +1,4 @@
 import { Link } from 'react-router'
-import { useSession } from '@/features/auth/model/session-store'
 import { useItems } from '@/features/catalog/api/use-items'
 import { formatPrice } from '@/features/catalog/model/price'
 import { Card } from '@/shared/ui/Card'
@@ -15,10 +14,9 @@ const steps = [
 ]
 
 function FeaturedItems() {
-  const session = useSession((state) => state.session)
-  const items = useItems(Boolean(session))
+  const items = useItems()
 
-  if (!session) {
+  if (items.error) {
     return (
       <Card className={styles.teaser}>
         <p>Sign in to see the packs and their prices.</p>
@@ -101,12 +99,15 @@ export function HomePage() {
           </p>
         </Card>
         <Card as="article" className={styles.panel}>
-          <p className="eyebrow">Care chat</p>
+          <p className="eyebrow">AI chat</p>
           <h2>Answers with sources</h2>
           <p>
             Ask a care question and get an answer from our knowledge base, with the sections it came
             from.
           </p>
+          <Link to="/chat" className={styles.arrow}>
+            How the chat works →
+          </Link>
         </Card>
       </section>
     </>

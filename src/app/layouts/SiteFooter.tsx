@@ -20,6 +20,9 @@ export function SiteFooter() {
               <Link to="/shop">Shop</Link>
             </li>
             <li>
+              <Link to="/chat">AI chat</Link>
+            </li>
+            <li>
               <Link to="/journals">Journals</Link>
             </li>
           </ul>

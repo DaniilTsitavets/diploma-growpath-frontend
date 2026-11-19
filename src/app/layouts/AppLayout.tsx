@@ -23,6 +23,9 @@ export function AppLayout() {
             <NavLink to="/shop" className={styles.tab}>
               Shop
             </NavLink>
+            <NavLink to="/chat" className={styles.tab}>
+              AI chat
+            </NavLink>
             <NavLink to="/journals" className={styles.tab}>
               Journals
             </NavLink>

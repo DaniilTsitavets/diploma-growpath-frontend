@@ -28,6 +28,12 @@ export const routes: RouteObject[] = [
         }),
       },
       {
+        path: 'chat',
+        lazy: async () => ({
+          Component: (await import('@/features/chat/pages/ChatPage')).ChatPage,
+        }),
+      },
+      {
         element: <RequireAuth />,
         children: [
           {
