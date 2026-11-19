@@ -133,6 +133,16 @@ describe('CatalogPage', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
+  it('colours the label chips with different dots', async () => {
+    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    renderPage()
+    await screen.findByRole('heading', { name: 'Soil Sensor' })
+
+    const chip = screen.getByRole('button', { name: 'beginner' })
+    expect(chip.querySelector('[data-dot]')).not.toBeNull()
+    expect(screen.getByRole('button', { name: 'All' }).querySelector('[data-dot]')).toBeNull()
+  })
+
   it('asks a visitor to sign in while the gateway refuses anonymous reads', async () => {
     useSession.setState({ session: null })
     server.use(

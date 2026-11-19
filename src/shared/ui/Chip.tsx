@@ -13,13 +13,18 @@ interface ChipToggleProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
 }
 
 /** A filter chip: a toggle button whose state is announced through aria-pressed. */
-export function ChipToggle({ pressed, className = '', type = 'button', ...rest }: ChipToggleProps) {
+export function ChipToggle({
+  pressed,
+  dot,
+  className = '',
+  type = 'button',
+  children,
+  ...rest
+}: ChipToggleProps) {
   return (
-    <button
-      type={type}
-      aria-pressed={pressed}
-      className={`${styles.chip} ${className}`}
-      {...rest}
-    />
+    <button type={type} aria-pressed={pressed} className={`${styles.chip} ${className}`} {...rest}>
+      {dot !== undefined && <span className={styles.dot} data-dot={dot} aria-hidden="true" />}
+      {children}
+    </button>
   )
 }
