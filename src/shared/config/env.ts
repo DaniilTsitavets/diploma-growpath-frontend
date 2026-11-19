@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  VITE_API_BASE_URL: z.url(),
   VITE_COGNITO_ENDPOINT: z.url(),
   VITE_COGNITO_CLIENT_ID: z.string().min(1),
 })
@@ -14,7 +13,6 @@ export function parseEnv(raw: Record<string, unknown>) {
   }
   const env = result.data
   return {
-    apiBaseUrl: env.VITE_API_BASE_URL.replace(/\/+$/, ''),
     cognitoEndpoint: env.VITE_COGNITO_ENDPOINT.replace(/\/+$/, ''),
     cognitoClientId: env.VITE_COGNITO_CLIENT_ID,
   }
