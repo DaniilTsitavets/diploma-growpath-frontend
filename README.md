@@ -15,14 +15,14 @@ are implemented.
 
 ## Planned scope
 
-| Area | What the user does |
-|---|---|
-| Catalog | Browses grow packs and sensors, places an order (payment is mocked) |
+| Area         | What the user does                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------- |
+| Catalog      | Browses grow packs and sensors, places an order (payment is mocked)                         |
 | PlantJournal | Keeps a journal of a purchased plant and adds updates with photos and a short questionnaire |
-| Diagnosis | Sees ranked possible causes, answers at most one clarifying question |
-| Escalation | Sees the remaining expert quota and decides whether to open an expert ticket |
-| Care chat | Asks care questions answered from a knowledge base |
-| Expert view | Users in the `experts` group read open tickets and write one answer |
+| Diagnosis    | Sees ranked possible causes, answers at most one clarifying question                        |
+| Escalation   | Sees the remaining expert quota and decides whether to open an expert ticket                |
+| Care chat    | Asks care questions answered from a knowledge base                                          |
+| Expert view  | Users in the `experts` group read open tickets and write one answer                         |
 
 ## Stack
 
