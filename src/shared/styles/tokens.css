@@ -1,0 +1,23 @@
+:root {
+  color-scheme: light dark;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius: 0.5rem;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --tap-target: 2.75rem;
+
+  --color-bg: light-dark(#f7f8f5, #121613);
+  --color-surface: light-dark(#ffffff, #1b211d);
+  --color-text: light-dark(#1b2420, #e8eee9);
+  --color-muted: light-dark(#4a5a51, #aab8af);
+  --color-border: light-dark(#cfd8d2, #33403a);
+  --color-accent: light-dark(#1f6b42, #62c28a);
+  --color-on-accent: light-dark(#ffffff, #0c1a11);
+  --color-danger: light-dark(#a32020, #ff8a80);
+  --color-focus: light-dark(#0b57d0, #8ab4f8);
+}
