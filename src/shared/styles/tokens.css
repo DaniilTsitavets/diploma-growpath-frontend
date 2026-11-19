@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -7,17 +7,44 @@
   --space-4: 1rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
-  --radius: 0.5rem;
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --space-12: 3rem;
+  --radius-sm: 3px;
+  --radius: 6px;
   --tap-target: 2.75rem;
+  --content-width: 72rem;
 
-  --color-bg: light-dark(#f7f8f5, #121613);
-  --color-surface: light-dark(#ffffff, #1b211d);
-  --color-text: light-dark(#1b2420, #e8eee9);
-  --color-muted: light-dark(#4a5a51, #aab8af);
-  --color-border: light-dark(#cfd8d2, #33403a);
-  --color-accent: light-dark(#1f6b42, #62c28a);
-  --color-on-accent: light-dark(#ffffff, #0c1a11);
-  --color-danger: light-dark(#a32020, #ff8a80);
-  --color-focus: light-dark(#0b57d0, #8ab4f8);
+  --font-display: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Warm paper, ink text and one muted clay accent. Text pairs are at least 4.5:1,
+     control borders (--color-border-strong) at least 3:1 against the page. */
+  --color-bg: #f7f4ec;
+  --color-surface: #fdfbf6;
+  --color-surface-2: #efebe0;
+  --color-text: #1f1d18;
+  --color-muted: #5a5548;
+  --color-border: #ddd7c7;
+  --color-border-strong: #857f6c;
+  --color-accent: #a1442a;
+  --color-accent-text: #8f3a21;
+  --color-on-accent: #ffffff;
+  --color-danger: #a12a1d;
+  --color-focus: #1f5fbf;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #16140f;
+  --color-surface: #1e1b15;
+  --color-surface-2: #29251d;
+  --color-text: #ede8db;
+  --color-muted: #b5ae9c;
+  --color-border: #3a3529;
+  --color-border-strong: #8d8674;
+  --color-accent: #e08a63;
+  --color-accent-text: #eba07d;
+  --color-on-accent: #1a0e08;
+  --color-danger: #f2958a;
+  --color-focus: #8ab4f8;
 }
