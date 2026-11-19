@@ -1,0 +1,17 @@
+.idea/
+node_modules/
+dist/
+.env
+.env.local
+*.local
+coverage/
+playwright-report/
+test-results/
+.DS_Store
+
+# Local AI tooling
+.agents/
+.claude/
+skills-lock.json
+CLAUDE.md
+AGENTS.md
