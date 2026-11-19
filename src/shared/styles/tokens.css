@@ -13,38 +13,53 @@
   --tap-target: 2.75rem;
   --content-width: 72rem;
 
-  --font-display: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
+  --font-body: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  /* Warm paper, ink text and one muted clay accent. Text pairs are at least 4.5:1,
+  /* Stone paper, ink text and one muted sage accent. Text pairs are at least 4.5:1,
      control borders (--color-border-strong) at least 3:1 against the page. */
-  --color-bg: #f7f4ec;
-  --color-surface: #fdfbf6;
-  --color-surface-2: #efebe0;
-  --color-text: #1f1d18;
-  --color-muted: #5a5548;
-  --color-border: #ddd7c7;
-  --color-border-strong: #857f6c;
-  --color-accent: #a1442a;
-  --color-accent-text: #8f3a21;
+  --color-bg: #f6f5f0;
+  --color-surface: #fcfbf8;
+  --color-surface-2: #eceae1;
+  --color-text: #23261f;
+  --color-muted: #585c50;
+  --color-border: #dcdacd;
+  --color-border-strong: #83867a;
+  --color-accent: #4f6b5d;
+  --color-accent-text: #42594d;
   --color-on-accent: #ffffff;
   --color-danger: #a12a1d;
   --color-focus: #1f5fbf;
+
+  /* Decorative dots on chips; the meaning is always carried by the chip text. */
+  --dot-1: #5f7f6b;
+  --dot-2: #b0743f;
+  --dot-3: #5b7896;
+  --dot-4: #a08a2f;
+  --dot-5: #85628f;
+  --dot-6: #3f8586;
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --color-bg: #16140f;
-  --color-surface: #1e1b15;
-  --color-surface-2: #29251d;
-  --color-text: #ede8db;
-  --color-muted: #b5ae9c;
-  --color-border: #3a3529;
-  --color-border-strong: #8d8674;
-  --color-accent: #e08a63;
-  --color-accent-text: #eba07d;
-  --color-on-accent: #1a0e08;
+  --color-bg: #14170f;
+  --color-surface: #1b1f16;
+  --color-surface-2: #252a1f;
+  --color-text: #ebeee3;
+  --color-muted: #aeb4a3;
+  --color-border: #32392a;
+  --color-border-strong: #858c78;
+  --color-accent: #9dbcab;
+  --color-accent-text: #a9c6b7;
+  --color-on-accent: #0f1a13;
   --color-danger: #f2958a;
   --color-focus: #8ab4f8;
+
+  --dot-1: #8fb79e;
+  --dot-2: #e0a56b;
+  --dot-3: #8fb0d3;
+  --dot-4: #d4c066;
+  --dot-5: #c29bcc;
+  --dot-6: #79c3c4;
 }
