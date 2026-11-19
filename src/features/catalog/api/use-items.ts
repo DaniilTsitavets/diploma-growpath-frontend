@@ -1,11 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { listItems } from './catalog-api'
 
-/** `enabled` is false for visitors: the gateway answers 401 to a request without a token. */
-export function useItems(enabled = true) {
-  return useQuery({
-    queryKey: ['items'],
-    queryFn: ({ signal }) => listItems(signal),
-    enabled,
-  })
+/** Reading the shop needs no account; the gateway still answers 401 until it allows anonymous reads. */
+export function useItems() {
+  return useQuery({ queryKey: ['items'], queryFn: ({ signal }) => listItems(signal) })
 }

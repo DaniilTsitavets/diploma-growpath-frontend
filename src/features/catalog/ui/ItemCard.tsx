@@ -1,3 +1,4 @@
+import { useSession } from '@/features/auth/model/session-store'
 import { Button } from '@/shared/ui/Button'
 import { Card } from '@/shared/ui/Card'
 import { Tag } from '@/shared/ui/Chip'
@@ -17,6 +18,7 @@ function describe(item: Item): string {
 }
 
 export function ItemCard({ item, onOrder }: ItemCardProps) {
+  const signedIn = Boolean(useSession((state) => state.session))
   const discount = item.first_purchase_discount_pct
   return (
     <Card as="li" className={styles.card}>
@@ -38,8 +40,12 @@ export function ItemCard({ item, onOrder }: ItemCardProps) {
           {formatPrice(discountedCents(item.price_cents, discount))}
         </p>
       ) : null}
-      <Button onClick={() => onOrder(item)} aria-label={`Order ${item.name}`}>
-        Order
+      <Button
+        variant={signedIn ? 'primary' : 'secondary'}
+        onClick={() => onOrder(item)}
+        aria-label={`${signedIn ? 'Order' : 'Sign in to order'} ${item.name}`}
+      >
+        {signedIn ? 'Order' : 'Sign in to order'}
       </Button>
     </Card>
   )

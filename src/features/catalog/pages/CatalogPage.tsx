@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Link, useLocation, useSearchParams } from 'react-router'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useSession } from '@/features/auth/model/session-store'
 import { Card } from '@/shared/ui/Card'
+import { ApiError } from '@/shared/api/api-error'
 import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
 import { Skeleton } from '@/shared/ui/Skeleton'
@@ -41,8 +42,9 @@ function CatalogSkeleton() {
 export function CatalogPage() {
   const session = useSession((state) => state.session)
   const location = useLocation()
+  const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
-  const { data, isPending, error, refetch, isFetching } = useItems(Boolean(session))
+  const { data, isPending, error, refetch, isFetching } = useItems()
   const [type, setType] = useState(ALL_TYPES)
   const [sort, setSort] = useState<SortKey>('name')
   const [selected, setSelected] = useState<Item | null>(null)
@@ -70,15 +72,20 @@ export function CatalogPage() {
     )
   }
 
+  function orderOrSignIn(item: Item) {
+    if (session) setSelected(item)
+    else void navigate('/login', { state: { from: location.pathname + location.search } })
+  }
+
   const labels = useMemo(() => collectLabels(data ?? []), [data])
   const visible = useMemo(() => applyFilters(data ?? [], filters), [data, filters])
 
-  if (!session) {
+  if (!session && error instanceof ApiError && error.kind === 'unauthorized') {
     return (
       <>
         <h1>Shop</h1>
         <Card className={styles.gate}>
-          <p>Sign in to see the packs and their prices, and to order.</p>
+          <p>Sign in to see the packs and their prices.</p>
           <Link to="/login" state={{ from: location.pathname + location.search }}>
             Sign in
           </Link>
@@ -120,7 +127,7 @@ export function CatalogPage() {
           ) : (
             <ul className={styles.grid}>
               {visible.map((item) => (
-                <ItemCard key={item.id} item={item} onOrder={setSelected} />
+                <ItemCard key={item.id} item={item} onOrder={orderOrSignIn} />
               ))}
             </ul>
           )}

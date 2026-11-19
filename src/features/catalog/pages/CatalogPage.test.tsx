@@ -37,7 +37,12 @@ const items: Item[] = [
 const server = setupServer()
 beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' })
-  configureApi(createHttpClient({ getToken: () => 'token', onUnauthorized: () => undefined }))
+  configureApi(
+    createHttpClient({
+      getToken: () => useSession.getState().session?.idToken ?? null,
+      onUnauthorized: () => undefined,
+    }),
+  )
 })
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -109,11 +114,36 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
   })
 
-  it('asks a visitor to sign in instead of calling the gateway', () => {
+  it('lets a visitor read the shop and asks them to sign in to order', async () => {
     useSession.setState({ session: null })
+    let authorization: string | null = 'unset'
+    server.use(
+      http.get(`${origin}/v1/items`, ({ request }) => {
+        authorization = request.headers.get('Authorization')
+        return HttpResponse.json(items)
+      }),
+    )
     renderPage()
 
-    expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login')
+    expect(await screen.findByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
+    expect(authorization).toBeNull()
+    expect(
+      screen.getByRole('button', { name: "Sign in to order Beginner's Kit" }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('asks a visitor to sign in while the gateway refuses anonymous reads', async () => {
+    useSession.setState({ session: null })
+    server.use(
+      http.get(`${origin}/v1/items`, () =>
+        HttpResponse.json({ message: 'Unauthorized' }, { status: 401 }),
+      ),
+    )
+    renderPage()
+
+    const link = await screen.findByRole('link', { name: 'Sign in' })
+    expect(link).toHaveAttribute('href', '/login')
     expect(screen.queryByRole('search')).not.toBeInTheDocument()
   })
 
