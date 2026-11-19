@@ -1,0 +1,15 @@
+.picker {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger);
+}

@@ -1,13 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { PhotoKind, SubmitUpdateRequest } from '../model/types'
-import {
-  getJournal,
-  listJournals,
-  listPhotos,
-  listUpdates,
-  recordPlanting,
-  submitUpdate,
-} from './journal-api'
+import type { PhotoKind } from '../model/types'
+import { getJournal, listJournals, listPhotos, listUpdates, recordPlanting } from './journal-api'
 import { uploadPhoto } from './photo-upload'
 
 export const journalKeys = {
@@ -56,15 +49,6 @@ export function useRecordPlanting(journalId: string) {
       client.setQueryData(journalKeys.detail(journalId), journal)
       return client.invalidateQueries({ queryKey: journalKeys.all })
     },
-  })
-}
-
-export function useSubmitUpdate(journalId: string) {
-  const client = useQueryClient()
-  return useMutation({
-    mutationFn: (body: SubmitUpdateRequest) => submitUpdate(journalId, body),
-    meta: { handledInline: true },
-    onSuccess: () => client.invalidateQueries({ queryKey: journalKeys.updates(journalId) }),
   })
 }
 
