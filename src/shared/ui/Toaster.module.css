@@ -1,0 +1,34 @@
+.region {
+  position: fixed;
+  inset: auto var(--space-4) var(--space-4) auto;
+  display: grid;
+  gap: var(--space-2);
+  max-width: min(24rem, calc(100vw - 2 * var(--space-4)));
+  z-index: 10;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 0.35rem solid var(--color-accent);
+  border-radius: var(--radius);
+}
+
+.error {
+  border-left-color: var(--color-danger);
+}
+
+.close {
+  min-width: var(--tap-target);
+  min-height: var(--tap-target);
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
