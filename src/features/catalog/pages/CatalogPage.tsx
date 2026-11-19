@@ -1,9 +1,20 @@
 import { useMemo, useState } from 'react'
+import { Link, useLocation, useSearchParams } from 'react-router'
+import { useSession } from '@/features/auth/model/session-store'
+import { Card } from '@/shared/ui/Card'
 import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { useItems } from '../api/use-items'
-import { applyFilters, collectLabels, defaultFilters } from '../model/catalog-view'
+import {
+  ALL_LABELS,
+  ALL_TYPES,
+  applyFilters,
+  collectLabels,
+  defaultFilters,
+  type CatalogFilters,
+  type SortKey,
+} from '../model/catalog-view'
 import type { Item } from '../model/types'
 import { CatalogToolbar } from '../ui/CatalogToolbar'
 import { ItemCard } from '../ui/ItemCard'
@@ -28,20 +39,62 @@ function CatalogSkeleton() {
 }
 
 export function CatalogPage() {
-  const { data, isPending, error, refetch, isFetching } = useItems()
-  const [filters, setFilters] = useState(defaultFilters)
+  const session = useSession((state) => state.session)
+  const location = useLocation()
+  const [params, setParams] = useSearchParams()
+  const { data, isPending, error, refetch, isFetching } = useItems(Boolean(session))
+  const [type, setType] = useState(ALL_TYPES)
+  const [sort, setSort] = useState<SortKey>('name')
   const [selected, setSelected] = useState<Item | null>(null)
+
+  const search = params.get('q') ?? ''
+  const label = params.get('label') ?? ALL_LABELS
+  const filters = useMemo<CatalogFilters>(
+    () => ({ search, label, type, sort }),
+    [search, label, type, sort],
+  )
+
+  function changeFilters(next: CatalogFilters) {
+    setType(next.type)
+    setSort(next.sort)
+    setParams(
+      (current) => {
+        const updated = new URLSearchParams(current)
+        if (next.search) updated.set('q', next.search)
+        else updated.delete('q')
+        if (next.label !== ALL_LABELS) updated.set('label', next.label)
+        else updated.delete('label')
+        return updated
+      },
+      { replace: true },
+    )
+  }
 
   const labels = useMemo(() => collectLabels(data ?? []), [data])
   const visible = useMemo(() => applyFilters(data ?? [], filters), [data, filters])
 
+  if (!session) {
+    return (
+      <>
+        <h1>Shop</h1>
+        <Card className={styles.gate}>
+          <p>Sign in to see the packs and their prices, and to order.</p>
+          <Link to="/login" state={{ from: location.pathname + location.search }}>
+            Sign in
+          </Link>
+        </Card>
+      </>
+    )
+  }
+
   return (
     <>
-      <h1>Catalog</h1>
+      <p className="eyebrow">Starter packs and sensors</p>
+      <h1>Shop</h1>
       {isPending && (
         <div aria-busy="true">
           <p className="visually-hidden" role="status">
-            Loading the catalog
+            Loading the shop
           </p>
           <CatalogSkeleton />
         </div>
@@ -56,12 +109,12 @@ export function CatalogPage() {
       )}
       {data && (
         <>
-          <CatalogToolbar filters={filters} labels={labels} onChange={setFilters} />
+          <CatalogToolbar filters={filters} labels={labels} onChange={changeFilters} />
           <p className={styles.status} role="status">
             {visible.length === 1 ? '1 item' : `${visible.length} items`}
           </p>
           {visible.length === 0 ? (
-            <Button variant="secondary" onClick={() => setFilters(defaultFilters)}>
+            <Button variant="secondary" onClick={() => changeFilters(defaultFilters)}>
               Clear filters
             </Button>
           ) : (

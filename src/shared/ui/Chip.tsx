@@ -8,6 +8,8 @@ export function Tag({ className = '', ...rest }: HTMLAttributes<HTMLSpanElement>
 
 interface ChipToggleProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-pressed'> {
   pressed: boolean
+  /** Colour slot 1 to 6 for a decorative dot; the label text carries the meaning. */
+  dot?: number
 }
 
 /** A filter chip: a toggle button whose state is announced through aria-pressed. */

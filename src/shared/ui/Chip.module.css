@@ -12,6 +12,7 @@
 .chip {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: var(--tap-target);
   padding: 0 var(--space-3);
   font: inherit;
@@ -31,4 +32,39 @@
   color: var(--color-bg);
   background: var(--color-text);
   border-color: var(--color-text);
+}
+
+.dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.dot[data-dot='1'] {
+  background: var(--dot-1);
+}
+
+.dot[data-dot='2'] {
+  background: var(--dot-2);
+}
+
+.dot[data-dot='3'] {
+  background: var(--dot-3);
+}
+
+.dot[data-dot='4'] {
+  background: var(--dot-4);
+}
+
+.dot[data-dot='5'] {
+  background: var(--dot-5);
+}
+
+.dot[data-dot='6'] {
+  background: var(--dot-6);
+}
+
+.chip[aria-pressed='true'] .dot {
+  box-shadow: 0 0 0 2px var(--color-bg);
 }

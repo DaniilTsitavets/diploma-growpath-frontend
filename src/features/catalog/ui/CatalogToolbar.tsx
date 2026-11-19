@@ -1,5 +1,6 @@
 import type { CatalogFilters, SortKey } from '../model/catalog-view'
 import { ALL_LABELS } from '../model/catalog-view'
+import { labelDot } from '../model/label-dot'
 import { ChipToggle } from '@/shared/ui/Chip'
 import styles from './CatalogToolbar.module.css'
 
@@ -61,6 +62,7 @@ export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProp
           {labels.map((label) => (
             <ChipToggle
               key={label}
+              dot={labelDot(label)}
               pressed={filters.label === label}
               onClick={() => onChange({ ...filters, label })}
             >

@@ -3,6 +3,8 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
+import { MemoryRouter } from 'react-router'
+import { useSession } from '@/features/auth/model/session-store'
 import { configureApi } from '@/shared/api/client'
 import { createHttpClient } from '@/shared/api/http'
 import type { Item } from '../model/types'
@@ -40,21 +42,38 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
-function renderPage() {
+function signIn() {
+  useSession.setState({
+    session: {
+      idToken: 't',
+      refreshToken: 'r',
+      email: 'a@b.test',
+      groups: ['users'],
+      expiresAt: Date.now() + 3_600_000,
+    },
+  })
+}
+
+function renderPage(path = '/shop') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
-      <CatalogPage />
+      <MemoryRouter initialEntries={[path]}>
+        <CatalogPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   )
 }
+
+beforeEach(signIn)
+afterEach(() => useSession.setState({ session: null }))
 
 describe('CatalogPage', () => {
   it('shows a loading state and then the items', async () => {
     server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
     renderPage()
 
-    expect(screen.getByText('Loading the catalog')).toBeInTheDocument()
+    expect(screen.getByText('Loading the shop')).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
     expect(screen.getByText('2 items')).toBeInTheDocument()
   })
@@ -88,6 +107,23 @@ describe('CatalogPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'All' }))
     expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
+  })
+
+  it('asks a visitor to sign in instead of calling the gateway', () => {
+    useSession.setState({ session: null })
+    renderPage()
+
+    expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login')
+    expect(screen.queryByRole('search')).not.toBeInTheDocument()
+  })
+
+  it('starts filtered by the search text in the address', async () => {
+    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    renderPage('/shop?q=soil')
+
+    expect(await screen.findByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: "Beginner's Kit" })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Search')).toHaveValue('soil')
   })
 
   it('shows an error with a retry that loads the catalog', async () => {
