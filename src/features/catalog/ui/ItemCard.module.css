@@ -1,21 +1,23 @@
 .card {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2);
-  align-content: start;
   padding: var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+}
+
+.card > button:last-child {
+  margin-top: auto;
 }
 
 .title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
 }
 
 .meta {
   margin: 0;
   color: var(--color-muted);
+  font-style: italic;
 }
 
 .labels {
@@ -27,19 +29,15 @@
   list-style: none;
 }
 
-.label {
-  padding: 0 var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  font-size: 0.875rem;
-}
-
 .price {
-  font-size: 1.25rem;
-  font-weight: 700;
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .discount {
   margin: 0;
-  color: var(--color-accent);
+  color: var(--color-accent-text);
+  font-weight: 600;
 }

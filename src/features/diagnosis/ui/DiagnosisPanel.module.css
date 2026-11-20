@@ -5,9 +5,27 @@
 
 .candidates {
   display: grid;
-  gap: var(--space-3);
   margin: 0;
-  padding-inline-start: var(--space-6);
+  padding: 0;
+  list-style: none;
+  counter-reset: cause;
+  border-top: 1px solid var(--color-border);
+}
+
+.candidates li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border);
+  counter-increment: cause;
+}
+
+.candidates li::before {
+  content: counter(cause);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--color-accent-text);
 }
 
 .cause {
@@ -21,9 +39,9 @@
 
 .recommendation {
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  background: var(--color-surface-2);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
 }
 
 .note {
@@ -48,8 +66,8 @@
   font: inherit;
   color: inherit;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
 }
 
 .textarea[aria-invalid='true'] {

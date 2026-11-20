@@ -1,5 +1,7 @@
 import type { CatalogFilters, SortKey } from '../model/catalog-view'
 import { ALL_LABELS } from '../model/catalog-view'
+import { labelDot } from '../model/label-dot'
+import { ChipToggle } from '@/shared/ui/Chip'
 import styles from './CatalogToolbar.module.css'
 
 interface CatalogToolbarProps {
@@ -36,22 +38,6 @@ export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProp
         </select>
       </div>
       <div className={styles.field}>
-        <label htmlFor="catalog-label">Label</label>
-        <select
-          id="catalog-label"
-          className={styles.control}
-          value={filters.label}
-          onChange={(event) => onChange({ ...filters, label: event.target.value })}
-        >
-          <option value={ALL_LABELS}>All</option>
-          {labels.map((label) => (
-            <option key={label} value={label}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className={styles.field}>
         <label htmlFor="catalog-sort">Sort by</label>
         <select
           id="catalog-sort"
@@ -63,6 +49,27 @@ export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProp
           <option value="price-asc">Price, low to high</option>
           <option value="price-desc">Price, high to low</option>
         </select>
+      </div>
+      <div className={styles.chips} role="group" aria-label="Filter by label">
+        <p className="eyebrow">Browse by need</p>
+        <div className={styles.chipRow}>
+          <ChipToggle
+            pressed={filters.label === ALL_LABELS}
+            onClick={() => onChange({ ...filters, label: ALL_LABELS })}
+          >
+            All
+          </ChipToggle>
+          {labels.map((label) => (
+            <ChipToggle
+              key={label}
+              dot={labelDot(label)}
+              pressed={filters.label === label}
+              onClick={() => onChange({ ...filters, label })}
+            >
+              {label}
+            </ChipToggle>
+          ))}
+        </div>
       </div>
     </form>
   )

@@ -28,13 +28,14 @@ function idToken(groups: string[]) {
   return `${encode({ alg: 'none' })}.${encode({ sub: 'u', email: 'a@b.test', 'cognito:groups': groups, exp })}.s`
 }
 
-function renderLogin() {
+function renderLogin(from?: string) {
   const router = createMemoryRouter(
     [
       { path: '/login', element: <LoginPage /> },
-      { path: '/catalog', element: <h1>Catalog page</h1> },
+      { path: '/', element: <h1>Home page</h1> },
+      { path: '/shop', element: <h1>Shop page</h1> },
     ],
-    { initialEntries: ['/login'] },
+    { initialEntries: [{ pathname: '/login', state: from ? { from } : null }] },
   )
   render(
     <QueryClientProvider client={new QueryClient()}>
@@ -52,7 +53,7 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true')
   })
 
-  it('stores the session and opens the catalog on success', async () => {
+  it('stores the session and opens the home page on success', async () => {
     server.use(
       http.post('http://cognito.test/', () =>
         HttpResponse.json({
@@ -65,8 +66,24 @@ describe('LoginPage', () => {
     await userEvent.type(screen.getByLabelText('Password'), 'secret')
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    expect(await screen.findByRole('heading', { name: 'Catalog page' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Home page' })).toBeInTheDocument()
     expect(useSession.getState().session?.email).toBe('a@b.test')
+  })
+
+  it('returns to the page the user came from', async () => {
+    server.use(
+      http.post('http://cognito.test/', () =>
+        HttpResponse.json({
+          AuthenticationResult: { IdToken: idToken(['users']), RefreshToken: 'refresh' },
+        }),
+      ),
+    )
+    renderLogin('/shop?q=basil')
+    await userEvent.type(screen.getByLabelText('Email'), 'a@b.test')
+    await userEvent.type(screen.getByLabelText('Password'), 'secret')
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+
+    expect(await screen.findByRole('heading', { name: 'Shop page' })).toBeInTheDocument()
   })
 
   it('shows a clear message for wrong credentials', async () => {

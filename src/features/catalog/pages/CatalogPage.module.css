@@ -23,3 +23,14 @@
 .error {
   color: var(--color-danger);
 }
+
+.gate {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding: var(--space-6);
+}
+
+.gate p {
+  margin: 0;
+}

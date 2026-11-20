@@ -1,11 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { Navigate, useLocation, useNavigate } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { describeError } from '@/shared/api/messages'
 import { getConfig } from '@/shared/config/config'
+import { Button } from '@/shared/ui/Button'
+import { Card } from '@/shared/ui/Card'
+import { TextField } from '@/shared/ui/TextField'
 import { signIn } from '../api/cognito'
 import { loginSchema, type LoginValues } from '../model/login-schema'
+import { safeReturnPath } from '../model/return-path'
 import { useSession } from '../model/session-store'
 import styles from './LoginPage.module.css'
 
@@ -13,7 +17,7 @@ export function LoginPage() {
   const session = useSession((state) => state.session)
   const setTokens = useSession((state) => state.setTokens)
   const navigate = useNavigate()
-  const from = (useLocation().state as { from?: string } | null)?.from ?? '/catalog'
+  const returnTo = safeReturnPath((useLocation().state as { from?: string } | null)?.from)
 
   const {
     register,
@@ -28,65 +32,56 @@ export function LoginPage() {
     },
     onSuccess: (tokens) => {
       setTokens(tokens)
-      void navigate(from, { replace: true })
+      void navigate(returnTo, { replace: true })
     },
     meta: { handledInline: true },
   })
 
-  if (session) return <Navigate to={from} replace />
+  if (session) return <Navigate to={returnTo} replace />
 
   return (
-    <>
-      <h1>Sign in</h1>
-      <form
-        className={styles.form}
-        noValidate
-        onSubmit={(event) => void handleSubmit((v) => login.mutate(v))(event)}
-      >
-        <div className={styles.field}>
-          <label htmlFor="email">Email</label>
-          <input
+    <div className={styles.page}>
+      <Card className={styles.card}>
+        <p className="eyebrow">Welcome back</p>
+        <h1>Sign in</h1>
+        <p className={styles.lead}>
+          Use your GrowPath account to order packs and keep your journals.
+        </p>
+        <form
+          className={styles.form}
+          noValidate
+          onSubmit={(event) => void handleSubmit((values) => login.mutate(values))(event)}
+        >
+          <TextField
             id="email"
             type="email"
+            label="Email"
             autoComplete="username"
             spellCheck={false}
-            className={styles.input}
-            aria-invalid={errors.email ? 'true' : undefined}
-            aria-describedby={errors.email ? 'email-error' : undefined}
+            error={errors.email?.message}
             {...register('email')}
           />
-          {errors.email && (
-            <p id="email-error" className={styles.error}>
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="password">Password</label>
-          <input
+          <TextField
             id="password"
             type="password"
+            label="Password"
             autoComplete="current-password"
-            className={styles.input}
-            aria-invalid={errors.password ? 'true' : undefined}
-            aria-describedby={errors.password ? 'password-error' : undefined}
+            error={errors.password?.message}
             {...register('password')}
           />
-          {errors.password && (
-            <p id="password-error" className={styles.error}>
-              {errors.password.message}
+          {login.error && (
+            <p role="alert" className={styles.error}>
+              {describeError(login.error)}
             </p>
           )}
-        </div>
-        {login.error && (
-          <p role="alert" className={styles.error}>
-            {describeError(login.error)}
-          </p>
-        )}
-        <button type="submit" className={styles.button} disabled={login.isPending}>
-          {login.isPending ? 'Signing in…' : 'Sign in'}
-        </button>
-      </form>
-    </>
+          <Button type="submit" className={styles.submit} disabled={login.isPending}>
+            {login.isPending ? 'Signing in…' : 'Sign in'}
+          </Button>
+        </form>
+        <p className={styles.back}>
+          <Link to="/">Back to the home page</Link>
+        </p>
+      </Card>
+    </div>
   )
 }
