@@ -75,6 +75,12 @@ export const routes: RouteObject[] = [
                   Component: (await import('@/features/expert/pages/TicketsPage')).TicketsPage,
                 }),
               },
+              {
+                path: 'expert/tickets/:ticketId',
+                lazy: async () => ({
+                  Component: (await import('@/features/expert/pages/TicketPage')).TicketPage,
+                }),
+              },
             ],
           },
         ],
