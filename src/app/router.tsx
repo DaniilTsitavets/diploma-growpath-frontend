@@ -49,6 +49,12 @@ export const routes: RouteObject[] = [
             }),
           },
           {
+            path: 'journals/:journalId/chat',
+            lazy: async () => ({
+              Component: (await import('@/features/chat/pages/JournalChatPage')).JournalChatPage,
+            }),
+          },
+          {
             path: 'journals/:journalId/updates/new',
             lazy: async () => ({
               Component: (await import('@/features/journal/pages/NewUpdatePage')).NewUpdatePage,

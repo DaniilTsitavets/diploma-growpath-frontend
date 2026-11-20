@@ -38,15 +38,9 @@ function RelatedSections({ sections }: { sections: RelatedSection[] }) {
   )
 }
 
-/** `related` is only present on the reply to a question just asked; stored history carries sources. */
-export function ChatTurnView({
-  turn,
-  related = [],
-}: {
-  turn: ChatTurn
-  related?: RelatedSection[]
-}) {
-  const sections = turn.related.length > 0 ? turn.related : related
+/** A `sources_only` reply is not stored: it carries the matching sections itself and is shown once. */
+export function ChatTurnView({ turn }: { turn: ChatTurn }) {
+  const sections = turn.related
   return (
     <article className={styles.turn}>
       <p className={styles.question}>{turn.question}</p>

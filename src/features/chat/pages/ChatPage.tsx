@@ -25,7 +25,7 @@ function JournalPicker() {
         <ul className={styles.journals}>
           {journals.data.map((journal) => (
             <li key={journal.id}>
-              <Link to={`/journals/${journal.id}`}>{journal.species}</Link>
+              <Link to={`/journals/${journal.id}/chat`}>{journal.species}</Link>
             </li>
           ))}
         </ul>

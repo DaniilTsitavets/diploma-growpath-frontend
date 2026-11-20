@@ -12,15 +12,15 @@ import {
   chatQuestionSchema,
   type ChatQuestionValues,
 } from '../model/question-schema'
-import type { RelatedSection } from '../model/types'
+import type { ChatTurn } from '../model/types'
 import styles from './AskForm.module.css'
 
 interface AskFormProps {
   journalId: string
-  onAnswered: (related: RelatedSection[]) => void
+  onReply: (turn: ChatTurn) => void
 }
 
-export function AskForm({ journalId, onAnswered }: AskFormProps) {
+export function AskForm({ journalId, onReply }: AskFormProps) {
   const ask = useAskQuestion(journalId)
   const entitlement = useEntitlement()
   const {
@@ -39,7 +39,7 @@ export function AskForm({ journalId, onAnswered }: AskFormProps) {
   const onSubmit = (values: ChatQuestionValues) =>
     ask.mutate(values.question, {
       onSuccess: (turn) => {
-        onAnswered(turn.related)
+        onReply(turn)
         if (turn.outcome !== 'sources_only') reset({ question: '' })
       },
     })
