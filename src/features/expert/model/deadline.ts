@@ -7,3 +7,9 @@ export function timeLeft(expiresAt: string, now = Date.now()): string {
   if (hours < 24) return `${hours} h ${minutes % 60} min`
   return `${Math.floor(hours / 24)} d ${hours % 24} h`
 }
+
+export const URGENT_MINUTES = 6 * 60
+
+export function isUrgent(expiresAt: string, now: number): boolean {
+  return (new Date(expiresAt).getTime() - now) / 60_000 < URGENT_MINUTES
+}
