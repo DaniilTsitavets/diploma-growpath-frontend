@@ -1,0 +1,17 @@
+.form {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 40rem;
+}
+
+.note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger);
+  font-weight: 600;
+}

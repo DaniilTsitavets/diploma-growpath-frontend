@@ -57,6 +57,14 @@ export function JournalPage() {
         )}
       </section>
 
+      <section className={styles.section} aria-labelledby="chat-title">
+        <div className={styles.heading}>
+          <h2 id="chat-title">Care chat</h2>
+          <Link to={`/journals/${journalId}/chat`}>Ask a care question</Link>
+        </div>
+        <p>Answers come from the care knowledge base, with the sections they are based on.</p>
+      </section>
+
       <section className={styles.section} aria-labelledby="updates-title">
         <div className={styles.heading}>
           <h2 id="updates-title">Updates</h2>

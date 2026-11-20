@@ -1,0 +1,18 @@
+.layout {
+  display: grid;
+  gap: var(--space-8);
+  max-width: 44rem;
+}
+
+.history {
+  display: grid;
+  border-top: 1px solid var(--color-border);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.empty {
+  color: var(--color-muted);
+}
