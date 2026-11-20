@@ -1,17 +1,69 @@
 .form {
   display: grid;
-  gap: var(--space-3);
-  max-width: 40rem;
+  gap: var(--space-2);
+}
+
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+}
+
+.composer:focus-within {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.input {
+  flex: 1;
+  min-height: 2.75rem;
+  max-height: 10rem;
+  padding: var(--space-3);
+  font: inherit;
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  resize: none;
+}
+
+.send {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.send:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.send svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .note {
   margin: 0;
+  text-align: center;
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .error {
   margin: 0;
   color: var(--color-danger);
   font-weight: 600;
+  font-size: 0.9375rem;
 }

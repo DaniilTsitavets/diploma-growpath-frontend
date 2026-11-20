@@ -1,44 +1,87 @@
 .turn {
   display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: flex;
   gap: var(--space-3);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--color-border);
+  align-items: flex-start;
 }
 
-.question {
-  margin: 0;
-  font-weight: 600;
+.user {
+  justify-content: flex-end;
 }
 
-.answer {
+.avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-radius: var(--radius);
+}
+
+.avatar svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.bubble {
+  display: grid;
+  gap: var(--space-3);
+  max-width: min(36rem, 100%);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius) var(--radius) var(--radius) var(--space-1);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+}
+
+.userBubble {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  border-radius: var(--radius) var(--radius) var(--space-1) var(--radius);
+}
+
+.text {
   margin: 0;
   white-space: pre-wrap;
 }
 
 .notice {
   margin: 0;
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-text);
-  background: var(--color-surface-2);
-  border-left: 3px solid var(--color-accent);
-  border-radius: var(--radius-sm);
+}
+
+.sourcesTitle {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
 }
 
 .sources {
-  display: grid;
-  gap: var(--space-1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.sourcesTitle {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-muted);
+.source {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 var(--space-2);
+  font-size: 0.875rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
 }
 
 .related {
