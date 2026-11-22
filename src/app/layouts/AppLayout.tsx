@@ -5,11 +5,16 @@ import styles from './AppLayout.module.css'
 import { HeaderSearch } from './HeaderSearch'
 import { SiteFooter } from './SiteFooter'
 
+/** A journal's chat belongs to the AI chat tab, even though its address sits under /journals. */
+const CHAT_PATH = /^\/(chat|journals\/[^/]+\/chat)(\/|$)/
+
 export function AppLayout() {
   const session = useSession((state) => state.session)
   const clear = useSession((state) => state.clear)
   const navigate = useNavigate()
   const location = useLocation()
+  const inChat = CHAT_PATH.test(location.pathname)
+  const inJournals = location.pathname.startsWith('/journals')
 
   return (
     <>
@@ -25,12 +30,16 @@ export function AppLayout() {
             <NavLink to="/shop" className={styles.tab}>
               Shop
             </NavLink>
-            <NavLink to="/chat" className={styles.tab}>
+            <Link to="/chat" className={styles.tab} aria-current={inChat ? 'page' : undefined}>
               AI chat
-            </NavLink>
-            <NavLink to="/journals" className={styles.tab}>
+            </Link>
+            <Link
+              to="/journals"
+              className={styles.tab}
+              aria-current={inJournals && !inChat ? 'page' : undefined}
+            >
               Journals
-            </NavLink>
+            </Link>
             {isExpert(session) && (
               <NavLink to="/expert/tickets" className={styles.tab}>
                 Expert tickets

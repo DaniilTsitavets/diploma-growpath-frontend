@@ -42,7 +42,6 @@ export function JournalChatPage() {
         <header className={styles.head}>
           <AssistantAvatar className={styles.avatar} />
           <span className={styles.title}>GrowPath assistant</span>
-          <span className={styles.badge}>AI · BETA</span>
         </header>
 
         <div
