@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
+import { Icon } from '@/shared/ui/Icon'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { useJournals } from '../api/queries'
 import { formatDate } from '../model/dates'
@@ -61,14 +62,23 @@ export function JournalsPage() {
         <ul className={styles.list}>
           {data.map((journal) => (
             <li key={journal.id} className={styles.card}>
-              <h2>
-                <Link to={`/journals/${journal.id}`}>{journal.species}</Link>
-              </h2>
-              <p className={styles.meta}>
-                {journal.planted_on
-                  ? `Planted on ${formatDate(journal.planted_on)}`
-                  : 'Not planted yet'}
-              </p>
+              <span className={styles.icon}>
+                <Icon name="leaf" size={24} />
+              </span>
+              <div className={styles.body}>
+                <h2>
+                  <Link to={`/journals/${journal.id}`} className={styles.link}>
+                    {journal.species}
+                  </Link>
+                </h2>
+                <p className={styles.meta}>
+                  <Icon name="calendar" size={16} />
+                  {journal.planted_on
+                    ? `Planted on ${formatDate(journal.planted_on)}`
+                    : 'Not planted yet'}
+                </p>
+              </div>
+              <Icon name="arrow" className={styles.arrow} />
             </li>
           ))}
         </ul>

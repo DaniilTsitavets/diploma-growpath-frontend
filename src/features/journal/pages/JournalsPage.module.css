@@ -1,6 +1,6 @@
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
   gap: var(--space-4);
   margin: 0;
   padding: 0;
@@ -8,12 +8,33 @@
 }
 
 .card {
-  display: grid;
-  gap: var(--space-2);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
+}
+
+.card:hover {
+  background: var(--color-surface-2);
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  color: var(--color-bg);
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.body {
+  flex: 1;
 }
 
 .card h2 {
@@ -21,8 +42,22 @@
   font-size: 1.125rem;
 }
 
+.link::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+
 .meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
   margin: 0;
+  color: var(--color-muted);
+}
+
+.arrow {
+  flex: none;
   color: var(--color-muted);
 }
 
