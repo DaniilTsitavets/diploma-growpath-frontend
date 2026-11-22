@@ -19,7 +19,7 @@ export function JournalPage() {
         <p className="visually-hidden" role="status">
           Loading the journal
         </p>
-        <Skeleton height="2rem" width="40%" />
+        <Skeleton height="title" width={40} />
       </div>
     )
   }
@@ -70,7 +70,7 @@ export function JournalPage() {
           <h2 id="updates-title">Updates</h2>
           <Link to={`/journals/${journalId}/updates/new`}>Add an update</Link>
         </div>
-        {updates.isPending && <Skeleton height="3rem" />}
+        {updates.isPending && <Skeleton height="row" />}
         {updates.error && (
           <div role="alert">
             <p className={styles.error}>{describeError(updates.error)}</p>

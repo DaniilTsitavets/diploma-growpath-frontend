@@ -91,7 +91,7 @@ export function UpdatePage() {
           <p className="visually-hidden" role="status">
             Loading the update
           </p>
-          <Skeleton height="6rem" />
+          <Skeleton height="panel" />
         </div>
       )}
       {updates.error && (

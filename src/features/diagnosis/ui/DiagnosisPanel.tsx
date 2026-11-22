@@ -19,7 +19,7 @@ export function DiagnosisPanel({ updateId, journalId }: DiagnosisPanelProps) {
   const run = useRunDiagnosis(updateId, journalId)
   const entitlement = useEntitlement()
 
-  if (diagnosis.isPending) return <Skeleton height="6rem" />
+  if (diagnosis.isPending) return <Skeleton height="panel" />
   if (diagnosis.error) {
     return (
       <div role="alert">
