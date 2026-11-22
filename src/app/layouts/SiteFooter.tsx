@@ -32,6 +32,9 @@ export function SiteFooter() {
           <ul className={styles.list}>
             <li>Diploma project</li>
             <li>European Humanities University</li>
+            <li>
+              <Link to="/credits">Credits</Link>
+            </li>
           </ul>
         </div>
         <div>
