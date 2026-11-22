@@ -37,10 +37,11 @@ function signedIn(groups: string[]) {
 afterEach(() => useSession.setState({ session: null }))
 
 describe('AppLayout', () => {
-  it('shows the tabs and a Sign in link to a visitor, with no tab active on the home page', () => {
+  it('shows the tabs and a Sign in link to a visitor, with Home as the current tab on the home page', () => {
     renderLayout('/')
 
     const nav = screen.getByRole('navigation', { name: 'Main' })
+    expect(within(nav).getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page')
     expect(within(nav).getByRole('link', { name: 'Shop' })).not.toHaveAttribute('aria-current')
     expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login')
     expect(screen.queryByRole('button', { name: 'Sign out' })).not.toBeInTheDocument()
@@ -50,6 +51,7 @@ describe('AppLayout', () => {
     renderLayout('/shop')
     const nav = screen.getByRole('navigation', { name: 'Main' })
     expect(within(nav).getByRole('link', { name: 'Shop' })).toHaveAttribute('aria-current', 'page')
+    expect(within(nav).getByRole('link', { name: 'Home' })).not.toHaveAttribute('aria-current')
   })
 
   it('shows Sign out and no expert link for a regular user', () => {

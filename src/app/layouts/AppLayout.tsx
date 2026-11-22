@@ -19,6 +19,9 @@ export function AppLayout() {
             GrowPath
           </Link>
           <nav aria-label="Main" className={styles.tabs}>
+            <NavLink to="/" end className={styles.tab}>
+              Home
+            </NavLink>
             <NavLink to="/shop" className={styles.tab}>
               Shop
             </NavLink>
