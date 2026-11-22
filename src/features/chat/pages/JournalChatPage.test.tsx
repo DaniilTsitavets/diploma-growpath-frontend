@@ -104,18 +104,18 @@ describe('JournalChatPage', () => {
     )
   })
 
-  it('says so when there are no questions and shows the AI checks left', async () => {
+  it('greets the user when there are no questions and shows the AI checks left', async () => {
     history([])
     renderPage()
 
-    expect(await screen.findByText(/No questions yet/)).toBeInTheDocument()
+    expect(await screen.findByText(/Hi! Ask me anything about your Basil/)).toBeInTheDocument()
     expect(await screen.findByText(/Left today: 2 of 3/)).toBeInTheDocument()
   })
 
   it('requires a question before sending', async () => {
     history([])
     renderPage()
-    await userEvent.click(await screen.findByRole('button', { name: 'Ask' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Send question' }))
 
     expect(await screen.findByText('Write your question')).toBeInTheDocument()
   })
@@ -138,13 +138,30 @@ describe('JournalChatPage', () => {
       await screen.findByLabelText('Your question'),
       'How often should I water basil?',
     )
-    await userEvent.click(screen.getByRole('button', { name: 'Ask' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Send question' }))
 
     expect(
       await screen.findByText('Water when the top centimetre of soil is dry.'),
     ).toBeInTheDocument()
     expect(body.id).toMatch(/^[0-9a-f-]{36}$/)
     expect(screen.getByLabelText('Your question')).toHaveValue('')
+  })
+
+  it('sends on Enter and keeps a new line on Shift+Enter', async () => {
+    const questions: string[] = []
+    history([])
+    server.use(
+      http.post(`${origin}/v1/journals/j1/chat/turns`, async ({ request }) => {
+        const body = (await request.json()) as { id: string; question: string }
+        questions.push(body.question)
+        return HttpResponse.json(turn({ id: body.id, question: body.question }), { status: 201 })
+      }),
+    )
+    renderPage()
+    const input = await screen.findByLabelText('Your question')
+    await userEvent.type(input, 'First line{Shift>}{Enter}{/Shift}second line{Enter}')
+
+    await vi.waitFor(() => expect(questions).toEqual(['First line\nsecond line']))
   })
 
   it('explains a question outside plant care', async () => {
@@ -183,11 +200,11 @@ describe('JournalChatPage', () => {
     )
     renderPage()
     await userEvent.type(await screen.findByLabelText('Your question'), 'Water?')
-    await userEvent.click(screen.getByRole('button', { name: 'Ask' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Send question' }))
     expect(await screen.findByText(/Nothing was charged/)).toBeInTheDocument()
     expect(screen.getByText('Let the top layer dry.')).toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Ask' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Send question' }))
     await vi.waitFor(() => expect(ids).toHaveLength(2))
     expect(ids[1]).toBe(ids[0])
   })
@@ -204,7 +221,7 @@ describe('JournalChatPage', () => {
     )
     renderPage()
     await userEvent.type(await screen.findByLabelText('Your question'), 'Water?')
-    await userEvent.click(screen.getByRole('button', { name: 'Ask' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Send question' }))
 
     const alert = await screen.findByRole('alert')
     expect(alert).toHaveTextContent('question was not sent')
