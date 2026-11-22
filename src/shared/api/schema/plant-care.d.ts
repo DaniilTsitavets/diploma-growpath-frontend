@@ -264,6 +264,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/plants/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Plant
+         * @description The public plant page; needs no sign-in.
+         */
+        get: operations["get_plant_v1_plants__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -475,6 +495,11 @@ export interface components {
          * @enum {string}
          */
         FingerTest: "dry" | "slightly_moist" | "wet";
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthStatus */
         HealthStatus: {
             /**
@@ -530,6 +555,64 @@ export interface components {
             photos: components["schemas"]["PhotoResponse"][];
             /** Missing Required */
             missing_required: components["schemas"]["PhotoKind"][];
+        };
+        /**
+         * PlantProfileResponse
+         * @description Absent facts are left out of the JSON, not sent as null.
+         */
+        PlantProfileResponse: {
+            /** Slug */
+            slug: string;
+            /** Species */
+            species: string;
+            /** Sources */
+            sources: components["schemas"]["PlantSourceResponse"][];
+            /**
+             * Updated At
+             * Format: date
+             */
+            updated_at: string;
+            /** Common Name */
+            common_name?: string | null;
+            /** Scientific Name */
+            scientific_name?: string | null;
+            /** Family */
+            family?: string | null;
+            /** Difficulty */
+            difficulty?: string | null;
+            /** Summary */
+            summary?: string | null;
+            /** Quick Answer */
+            quick_answer?: string | null;
+            /** Key Takeaways */
+            key_takeaways?: string[] | null;
+            /** Light */
+            light?: string | null;
+            /** Sunlight Hours */
+            sunlight_hours?: string | null;
+            /** Watering */
+            watering?: string | null;
+            /** Placement */
+            placement?: string | null;
+            /** Soil */
+            soil?: string | null;
+            /** Humidity */
+            humidity?: string | null;
+            /** Temperature */
+            temperature?: string | null;
+            /** Pruning */
+            pruning?: string | null;
+            /** Toxicity */
+            toxicity?: string | null;
+        };
+        /** PlantSourceResponse */
+        PlantSourceResponse: {
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+            /** License */
+            license: string;
         };
         /** PlantingRequest */
         PlantingRequest: {
@@ -636,6 +719,19 @@ export interface components {
             /** Expires In Seconds */
             expires_in_seconds: number;
         };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
+        };
         /**
          * Problem
          * @description Problem details (RFC 7807); members such as `code` or `errors` may follow.
@@ -676,15 +772,6 @@ export interface operations {
                     "application/json": components["schemas"]["HealthStatus"];
                 };
             };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
         };
     };
     ready_health_ready_get: {
@@ -703,15 +790,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthStatus"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -736,22 +814,13 @@ export interface operations {
                     "application/json": components["schemas"]["JournalResponse"][];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -778,22 +847,13 @@ export interface operations {
                     "application/json": components["schemas"]["JournalResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -824,22 +884,13 @@ export interface operations {
                     "application/json": components["schemas"]["JournalResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -869,22 +920,13 @@ export interface operations {
                     "application/json": components["schemas"]["FeedResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -924,22 +966,13 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -966,22 +999,13 @@ export interface operations {
                     "application/json": components["schemas"]["PhotosResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1012,22 +1036,13 @@ export interface operations {
                     "application/json": components["schemas"]["UploadResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1054,22 +1069,13 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1096,22 +1102,13 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1142,22 +1139,13 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1184,22 +1172,13 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1226,22 +1205,13 @@ export interface operations {
                     "application/json": components["schemas"]["EscalationDetailResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1281,22 +1251,13 @@ export interface operations {
                     "application/json": components["schemas"]["EscalationDetailResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1326,22 +1287,13 @@ export interface operations {
                     "application/json": components["schemas"]["ChatHistoryResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1381,8 +1333,40 @@ export interface operations {
                     "application/json": components["schemas"]["ChatTurnResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_plant_v1_plants__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlantProfileResponse"];
+                };
+            };
+            /** @description No such plant */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1390,9 +1374,20 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Problem details */
-            default: {
+            /** @description Validation Error */
+            422: {
                 headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description The database is unavailable; retry after the given time */
+            503: {
+                headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
                     [name: string]: unknown;
                 };
                 content: {

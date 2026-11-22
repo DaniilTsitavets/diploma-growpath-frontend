@@ -15,6 +15,8 @@ const item = (index: number): Item => ({
   id: `id-${index}`,
   item_type: 'pack',
   name: `Pack ${index}`,
+  slug: `pack-${index}`,
+  plant_slug: `pack-${index}`,
   plant_species: `Plant ${index}`,
   seed_count: 5,
   price_cents: 1000 + index,
