@@ -1,7 +1,8 @@
-import type { CatalogFilters, SortKey } from '../model/catalog-view'
-import { ALL_LABELS } from '../model/catalog-view'
-import { labelDot } from '../model/label-dot'
 import { ChipToggle } from '@/shared/ui/Chip'
+import { ChoiceChips } from '@/shared/ui/ChoiceChips'
+import type { CatalogFilters, SortKey } from '../model/catalog-view'
+import { ALL_LABELS, ALL_TYPES } from '../model/catalog-view'
+import { labelDot } from '../model/label-dot'
 import styles from './CatalogToolbar.module.css'
 
 interface CatalogToolbarProps {
@@ -10,10 +11,22 @@ interface CatalogToolbarProps {
   onChange: (filters: CatalogFilters) => void
 }
 
+const sortOptions: readonly { value: SortKey; label: string }[] = [
+  { value: 'name', label: 'Name' },
+  { value: 'price-asc', label: 'Price, low to high' },
+  { value: 'price-desc', label: 'Price, high to low' },
+]
+
+const typeOptions = [
+  { value: ALL_TYPES, label: 'All' },
+  { value: 'pack', label: 'Grow packs' },
+  { value: 'sensor', label: 'Sensors' },
+]
+
 export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProps) {
   return (
     <form className={styles.toolbar} role="search" onSubmit={(event) => event.preventDefault()}>
-      <div className={styles.field}>
+      <div className={styles.search}>
         <label htmlFor="catalog-search">Search</label>
         <input
           id="catalog-search"
@@ -24,33 +37,21 @@ export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProp
           onChange={(event) => onChange({ ...filters, search: event.target.value })}
         />
       </div>
-      <div className={styles.field}>
-        <label htmlFor="catalog-type">Type</label>
-        <select
-          id="catalog-type"
-          className={styles.control}
-          value={filters.type}
-          onChange={(event) => onChange({ ...filters, type: event.target.value })}
-        >
-          <option value="all">All</option>
-          <option value="pack">Grow packs</option>
-          <option value="sensor">Sensors</option>
-        </select>
-      </div>
-      <div className={styles.field}>
-        <label htmlFor="catalog-sort">Sort by</label>
-        <select
-          id="catalog-sort"
-          className={styles.control}
-          value={filters.sort}
-          onChange={(event) => onChange({ ...filters, sort: event.target.value as SortKey })}
-        >
-          <option value="name">Name</option>
-          <option value="price-asc">Price, low to high</option>
-          <option value="price-desc">Price, high to low</option>
-        </select>
-      </div>
-      <div className={styles.chips} role="group" aria-label="Filter by label">
+      <ChoiceChips
+        legend="Type"
+        name="catalog-type"
+        value={filters.type}
+        options={typeOptions}
+        onChange={(type) => onChange({ ...filters, type })}
+      />
+      <ChoiceChips
+        legend="Sort by"
+        name="catalog-sort"
+        value={filters.sort}
+        options={sortOptions}
+        onChange={(sort) => onChange({ ...filters, sort })}
+      />
+      <div className={styles.needs} role="group" aria-label="Filter by label">
         <p className="eyebrow">Browse by need</p>
         <div className={styles.chipRow}>
           <ChipToggle
