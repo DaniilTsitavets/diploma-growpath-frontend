@@ -23,16 +23,6 @@
   font-weight: 600;
 }
 
-.badge {
-  padding: 0 var(--space-2);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-muted);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-}
-
 .avatar {
   display: grid;
   flex: none;
