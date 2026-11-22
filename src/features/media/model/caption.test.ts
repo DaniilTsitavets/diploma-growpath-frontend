@@ -1,0 +1,31 @@
+import { photoCaption } from './caption'
+
+const credit = (author: string, source: string) => ({
+  slug: 's',
+  key: 's.webp',
+  author,
+  license: 'x',
+  source,
+})
+
+describe('photoCaption', () => {
+  it('words a Pixabay photo the way its licence asks', () => {
+    expect(photoCaption(credit('Laura_O', 'https://pixabay.com/photos/x-1/'))).toEqual({
+      text: 'Photo by Laura_O on Pixabay',
+      href: 'https://pixabay.com/photos/x-1/',
+    })
+  })
+
+  it('words a Magnific image', () => {
+    expect(
+      photoCaption(credit('rawpixel.com', 'https://www.magnific.com/free-photo/x_1.htm')).text,
+    ).toBe('Image by rawpixel.com on Magnific')
+  })
+
+  it('names the host for another site and survives a source that is not a URL', () => {
+    expect(photoCaption(credit('A', 'https://example.org/p')).text).toBe(
+      'Photo by A on example.org',
+    )
+    expect(photoCaption(credit('A', 'not a url'))).toEqual({ text: 'Photo by A', href: null })
+  })
+})
