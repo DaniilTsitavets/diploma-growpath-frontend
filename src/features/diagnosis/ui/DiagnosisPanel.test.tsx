@@ -62,9 +62,29 @@ describe('DiagnosisPanel', () => {
     show(base)
 
     const list = await screen.findByRole('list', { name: /Possible causes/ })
-    expect(list).toHaveTextContent('Overwatering (most likely)')
+    expect(list).toHaveTextContent('Overwatering')
     expect(list).toHaveTextContent('Low light')
     expect(screen.getByText('Water less often.')).toBeInTheDocument()
+    expect(screen.getByText('There is a clear main cause.')).toBeInTheDocument()
+  })
+
+  it('says the cause is ambiguous and asks for the clarifying answer', async () => {
+    show({
+      ...base,
+      status: 'awaiting_clarification',
+      has_dominant_candidate: false,
+      clarifying_question: 'How often do you water?',
+      candidates: [],
+    })
+
+    expect(
+      await screen.findByText(/The cause is ambiguous, so the AI needs one more detail/),
+    ).toBeInTheDocument()
+  })
+
+  it('notes an ambiguous result among the causes', async () => {
+    show({ ...base, has_dominant_candidate: false })
+    expect(await screen.findByText('The cause is ambiguous.')).toBeInTheDocument()
   })
 
   it('asks the clarifying question and sends the answer for free', async () => {

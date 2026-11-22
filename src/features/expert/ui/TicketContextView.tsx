@@ -5,6 +5,7 @@ import {
   potWeightLabels,
 } from '@/features/journal/model/labels'
 import { formatDate } from '@/features/journal/model/dates'
+import { dominanceNote } from '@/features/diagnosis/model/dominance'
 import { humanize, type TicketContext } from '../model/ticket-context'
 import styles from './TicketContextView.module.css'
 
@@ -43,6 +44,9 @@ export function TicketContextView({ context }: { context: TicketContext }) {
           <h2 id="ctx-diagnosis">What the AI found</h2>
           {diagnosis.status && (
             <p className={styles.note}>{humanize(statusLabels, diagnosis.status)}</p>
+          )}
+          {dominanceNote(diagnosis.has_dominant_candidate) && (
+            <p className={styles.note}>{dominanceNote(diagnosis.has_dominant_candidate)}</p>
           )}
           {diagnosis.candidates.length > 0 ? (
             <ol className={styles.causes} aria-label="Possible causes, most likely first">

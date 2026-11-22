@@ -4,6 +4,7 @@ import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { useDiagnosis, useRunDiagnosis } from '../api/queries'
+import { dominanceNote } from '../model/dominance'
 import { isAiQuotaExhausted } from '../model/errors'
 import { ClarificationForm } from './ClarificationForm'
 import styles from './DiagnosisPanel.module.css'
@@ -54,7 +55,11 @@ export function DiagnosisPanel({ updateId, journalId }: DiagnosisPanelProps) {
   if (data.status === 'awaiting_clarification' && data.clarifying_question) {
     return (
       <div className={styles.panel}>
-        <p>The AI needs one more detail.</p>
+        <p>
+          {data.has_dominant_candidate === false
+            ? 'The cause is ambiguous, so the AI needs one more detail. Please answer its question.'
+            : 'The AI needs one more detail.'}
+        </p>
         {data.roots_photo_requested && (
           <p className={styles.note}>
             It also asks for a photo of the roots and drainage. Add it under Photos above.
@@ -87,12 +92,14 @@ export function DiagnosisPanel({ updateId, journalId }: DiagnosisPanelProps) {
 
   return (
     <div className={styles.panel}>
+      {dominanceNote(data.has_dominant_candidate) && (
+        <p className={styles.note}>{dominanceNote(data.has_dominant_candidate)}</p>
+      )}
       <ol className={styles.candidates} aria-label="Possible causes, most likely first">
         {data.candidates.map((candidate) => (
           <li key={candidate.rank}>
             <div>
               <span className={styles.cause}>{candidate.cause}</span>
-              {candidate.rank === 1 && data.has_dominant_candidate ? ' (most likely)' : ''}
               <p className={styles.rationale}>{candidate.rationale}</p>
             </div>
           </li>
