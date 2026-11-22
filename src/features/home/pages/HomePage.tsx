@@ -6,7 +6,7 @@ import { Card } from '@/shared/ui/Card'
 import { Tag } from '@/shared/ui/Chip'
 import styles from './HomePage.module.css'
 
-const FEATURED_COUNT = 3
+const FEATURED_COUNT = 8
 
 const steps = [
   { title: 'Start with a pack', text: 'Seeds and a soil sensor, chosen for beginners.' },
