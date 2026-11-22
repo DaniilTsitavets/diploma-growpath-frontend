@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { expectNoAccessibilityViolations } from './support'
 
-for (const path of ['/', '/shop', '/chat', '/login']) {
+for (const path of ['/', '/shop', '/login']) {
   test(`${path} fits a 375 px wide screen without sideways scrolling`, async ({ page }) => {
     await page.goto(path)
     await expect(page.locator('main')).toBeVisible()

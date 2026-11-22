@@ -93,7 +93,7 @@ dependent module to the one it uses, and there are no cycles.
 | ---------------------------------------- | -------------------------------------------------------- | -------------------------------- | ---------------------------- |
 | `/`                                      | Home                                                     | public                           | site                         |
 | `/shop`                                  | Shop (filters are kept in the address: `?q=`, `?label=`) | public to read, sign-in to order | site                         |
-| `/chat`                                  | How the AI chat works, list of journals                  | public                           | site                         |
+| `/chat`                                  | Pick a journal to ask about                              | signed in                        | site                         |
 | `/login`                                 | Sign-in window                                           | public                           | focus (no header, no footer) |
 | `/journals`                              | Journals list                                            | signed in                        | site                         |
 | `/journals/:journalId`                   | Journal: planting, checkpoints, updates                  | signed in                        | site                         |

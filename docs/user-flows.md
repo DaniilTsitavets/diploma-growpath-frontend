@@ -21,12 +21,12 @@ flowchart LR
   ticket["Ticket /expert/tickets/:id"]
 
   home -->|Browse the shop, See everything| shop
-  home -->|How the chat works| chat
+  home -->|Open the chat| chat
   shop -->|Sign in to order| login
   login -->|back to where the user came from| shop
   login -->|default| home
-  chat -->|signed in: pick a journal| jchat
-  chat -->|visitor| login
+  chat -->|pick a journal| jchat
+  chat -->|guard: visitor| login
   journals -->|guard: visitor| login
   journals --> journal
   journal --> jchat
@@ -36,7 +36,7 @@ flowchart LR
   tickets --> ticket
 ```
 
-Guards: `/journals/*` need a signed-in user and redirect a visitor to the sign-in window, remembering the page.
+Guards: `/chat` and `/journals/*` need a signed-in user and redirect a visitor straight to the sign-in window, remembering the page.
 `/expert/tickets/*` need the `experts` group; a signed-in user outside it sees a "no access" message.
 
 ## Flow 1: from a visitor to an order
