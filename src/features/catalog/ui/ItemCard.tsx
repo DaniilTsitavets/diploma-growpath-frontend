@@ -25,7 +25,7 @@ export function ItemCard({ item, onOrder, imagePriority }: ItemCardProps) {
   const discount = item.first_purchase_discount_pct
   return (
     <Card as="li" className={styles.card}>
-      <ItemImage itemType={item.item_type} priority={imagePriority} />
+      <ItemImage itemType={item.item_type} slug={item.slug} priority={imagePriority} />
       <div className={styles.body}>
         <h2 className={styles.title}>{item.name}</h2>
         <p className={styles.meta}>{describe(item)}</p>

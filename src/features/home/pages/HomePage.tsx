@@ -33,7 +33,7 @@ function FeaturedItems() {
     <ul className={styles.grid}>
       {items.data.slice(0, FEATURED_COUNT).map((item) => (
         <Card as="li" key={item.id} className={styles.featured}>
-          <ItemImage itemType={item.item_type} />
+          <ItemImage itemType={item.item_type} slug={item.slug} />
           <div className={styles.featuredBody}>
             <h3>{item.name}</h3>
             <p className={styles.meta}>{item.plant_species ?? 'Soil sensor'}</p>
