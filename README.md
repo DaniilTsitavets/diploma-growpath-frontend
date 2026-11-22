@@ -26,6 +26,7 @@ Gateway. This client talks to the backend only through that gateway.
 2. [API client](docs/api.md): how the client talks to the gateway, endpoints, schemas and examples.
 3. [User flows and navigation](docs/user-flows.md): diagrams of the main journeys.
 4. [Stack justification](docs/stack.md): why each tool was chosen and what was rejected.
+5. [Testing](docs/testing.md): unit, integration and end-to-end tests and how to run them.
 
 Also: [credits](docs/credits.md) (fonts and images) and [to be done](docs/to-be-done.md).
 
@@ -51,17 +52,17 @@ backend repository again and copy the printed values. Test users exist only on L
 
 ## Scripts
 
-| Command                | What it does                                             |
-| ---------------------- | -------------------------------------------------------- |
-| `npm run dev`          | Dev server on `127.0.0.1:5173` with the `/v1` proxy      |
-| `npm run build`        | Type-check and production build into `dist/`             |
-| `npm run preview`      | Serves the build on `127.0.0.1:4173`                     |
-| `npm run lint`         | ESLint (type-aware)                                      |
-| `npm run format:check` | Prettier check (`npm run format` fixes)                  |
-| `npm run typecheck`    | TypeScript without emit                                  |
-| `npm test`             | Unit and integration tests (Vitest)                      |
-| `npm run test:e2e`     | End-to-end tests (Playwright) against the running stack  |
-| `npm run gen:api`      | Regenerates API types from the backend OpenAPI contracts |
+| Command                | What it does                                                                                              |
+| ---------------------- | --------------------------------------------------------------------------------------------------------- |
+| `npm run dev`          | Dev server on `127.0.0.1:5173` with the `/v1` proxy                                                       |
+| `npm run build`        | Type-check and production build into `dist/`                                                              |
+| `npm run preview`      | Serves the build on `127.0.0.1:4173`                                                                      |
+| `npm run lint`         | ESLint (type-aware)                                                                                       |
+| `npm run format:check` | Prettier check (`npm run format` fixes)                                                                   |
+| `npm run typecheck`    | TypeScript without emit                                                                                   |
+| `npm test`             | Unit and integration tests (Vitest)                                                                       |
+| `npm run test:e2e`     | End-to-end tests (Playwright) against the running stack; run `npx playwright install chromium` once first |
+| `npm run gen:api`      | Regenerates API types from the backend OpenAPI contracts                                                  |
 
 ## Folder structure
 

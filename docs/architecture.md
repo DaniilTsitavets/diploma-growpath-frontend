@@ -79,6 +79,7 @@ flowchart LR
   chat --> journal
   chat --> auth
   expert --> journal
+  expert --> diagnosis
   catalog --> auth
   home --> catalog
 ```
@@ -122,8 +123,7 @@ TanStack Query already caches and invalidates. See [stack justification](stack.m
 ### Design kit
 
 Colours, spacing, radii and fonts are CSS custom properties in `src/shared/styles/tokens.css`, with a light
-and a dark set. Components are styled with CSS Modules that read only those tokens; there are no inline styles
-except one dynamic size in the skeleton. The shared components (`Button`, `Card`, `Chip`, `TextField`,
+and a dark set. Components are styled with CSS Modules that read only those tokens; there are no inline styles (the skeleton's sizes are named classes of the kit). The shared components (`Button`, `Card`, `Chip`, `TextField`,
 `SelectField`, `TextAreaField`, `ConfirmDialog`, `Toaster`, `Skeleton`, `ThemeToggle`) are used by every
 feature.
 
