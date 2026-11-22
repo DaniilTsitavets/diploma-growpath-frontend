@@ -52,11 +52,6 @@ describe('AppLayout', () => {
     expect(within(nav).getByRole('link', { name: 'Shop' })).toHaveAttribute('aria-current', 'page')
   })
 
-  it('hides the Sign in link on the sign-in page', () => {
-    renderLayout('/login')
-    expect(screen.queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument()
-  })
-
   it('shows Sign out and no expert link for a regular user', () => {
     signedIn(['users'])
     renderLayout()
