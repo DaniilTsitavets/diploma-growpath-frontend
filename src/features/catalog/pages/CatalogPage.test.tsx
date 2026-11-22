@@ -208,7 +208,7 @@ describe('CatalogPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Confirm order' }))
 
     expect(await screen.findByRole('heading', { name: 'Order placed' })).toBeInTheDocument()
-    expect(screen.getByText('20.00')).toBeInTheDocument()
+    expect(screen.getByText('€20.00')).toBeInTheDocument()
     await waitFor(() => expect(key).toMatch(/^[0-9a-f-]{36}$/))
   })
 })
