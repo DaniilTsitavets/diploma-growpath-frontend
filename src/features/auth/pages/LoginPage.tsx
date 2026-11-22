@@ -40,48 +40,46 @@ export function LoginPage() {
   if (session) return <Navigate to={returnTo} replace />
 
   return (
-    <div className={styles.page}>
-      <Card className={styles.card}>
-        <p className="eyebrow">Welcome back</p>
-        <h1>Sign in</h1>
-        <p className={styles.lead}>
-          Use your GrowPath account to order packs and keep your journals.
-        </p>
-        <form
-          className={styles.form}
-          noValidate
-          onSubmit={(event) => void handleSubmit((values) => login.mutate(values))(event)}
-        >
-          <TextField
-            id="email"
-            type="email"
-            label="Email"
-            autoComplete="username"
-            spellCheck={false}
-            error={errors.email?.message}
-            {...register('email')}
-          />
-          <TextField
-            id="password"
-            type="password"
-            label="Password"
-            autoComplete="current-password"
-            error={errors.password?.message}
-            {...register('password')}
-          />
-          {login.error && (
-            <p role="alert" className={styles.error}>
-              {describeError(login.error)}
-            </p>
-          )}
-          <Button type="submit" className={styles.submit} disabled={login.isPending}>
-            {login.isPending ? 'Signing in…' : 'Sign in'}
-          </Button>
-        </form>
-        <p className={styles.back}>
-          <Link to="/">Back to the home page</Link>
-        </p>
-      </Card>
-    </div>
+    <Card className={styles.card}>
+      <p className="eyebrow">Welcome back</p>
+      <h1>Sign in</h1>
+      <p className={styles.lead}>
+        Use your GrowPath account to order packs and keep your journals.
+      </p>
+      <form
+        className={styles.form}
+        noValidate
+        onSubmit={(event) => void handleSubmit((values) => login.mutate(values))(event)}
+      >
+        <TextField
+          id="email"
+          type="email"
+          label="Email"
+          autoComplete="username"
+          spellCheck={false}
+          error={errors.email?.message}
+          {...register('email')}
+        />
+        <TextField
+          id="password"
+          type="password"
+          label="Password"
+          autoComplete="current-password"
+          error={errors.password?.message}
+          {...register('password')}
+        />
+        {login.error && (
+          <p role="alert" className={styles.error}>
+            {describeError(login.error)}
+          </p>
+        )}
+        <Button type="submit" className={styles.submit} disabled={login.isPending}>
+          {login.isPending ? 'Signing in…' : 'Sign in'}
+        </Button>
+      </form>
+      <p className={styles.back}>
+        <Link to="/">Back to the home page</Link>
+      </p>
+    </Card>
   )
 }

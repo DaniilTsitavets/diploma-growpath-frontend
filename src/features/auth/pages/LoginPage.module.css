@@ -1,12 +1,5 @@
-.page {
-  display: grid;
-  place-items: center;
-  min-height: calc(100vh - 14rem);
-  padding: var(--space-6) 0;
-}
-
 .card {
-  width: min(26rem, 100%);
+  width: min(26rem, calc(100vw - 2rem));
   padding: var(--space-8);
 }
 

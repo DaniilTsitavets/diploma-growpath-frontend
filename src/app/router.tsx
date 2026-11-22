@@ -2,8 +2,21 @@ import { createBrowserRouter, type RouteObject } from 'react-router'
 import { RequireAuth, RequireExpert } from '@/features/auth/ui/RequireAuth'
 import { ErrorPage } from './ErrorPage'
 import { AppLayout } from './layouts/AppLayout'
+import { FocusLayout } from './layouts/FocusLayout'
 
 export const routes: RouteObject[] = [
+  {
+    element: <FocusLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: 'login',
+        lazy: async () => ({
+          Component: (await import('@/features/auth/pages/LoginPage')).LoginPage,
+        }),
+      },
+    ],
+  },
   {
     path: '/',
     element: <AppLayout />,
@@ -13,12 +26,6 @@ export const routes: RouteObject[] = [
         index: true,
         lazy: async () => ({
           Component: (await import('@/features/home/pages/HomePage')).HomePage,
-        }),
-      },
-      {
-        path: 'login',
-        lazy: async () => ({
-          Component: (await import('@/features/auth/pages/LoginPage')).LoginPage,
         }),
       },
       {

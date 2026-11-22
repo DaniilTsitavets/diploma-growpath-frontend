@@ -10,7 +10,6 @@ export function AppLayout() {
   const clear = useSession((state) => state.clear)
   const navigate = useNavigate()
   const location = useLocation()
-  const onLoginPage = location.pathname === '/login'
 
   return (
     <>
@@ -50,15 +49,13 @@ export function AppLayout() {
                 Sign out
               </button>
             ) : (
-              !onLoginPage && (
-                <Link
-                  to="/login"
-                  state={{ from: location.pathname + location.search }}
-                  className={styles.signIn}
-                >
-                  Sign in
-                </Link>
-              )
+              <Link
+                to="/login"
+                state={{ from: location.pathname + location.search }}
+                className={styles.signIn}
+              >
+                Sign in
+              </Link>
             )}
           </div>
         </div>
