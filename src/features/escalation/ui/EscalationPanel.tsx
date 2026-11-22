@@ -41,7 +41,7 @@ export function EscalationPanel({ updateId, journalId }: EscalationPanelProps) {
     formState: { errors },
   } = useForm<QuestionValues>({ resolver, defaultValues: { question: '' } })
 
-  if (escalation.isPending || diagnosis.isPending) return <Skeleton height="4rem" />
+  if (escalation.isPending || diagnosis.isPending) return <Skeleton height="block" />
   if (escalation.error) {
     return (
       <div role="alert">

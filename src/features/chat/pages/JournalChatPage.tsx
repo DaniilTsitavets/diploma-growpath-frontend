@@ -65,7 +65,7 @@ export function JournalChatPage() {
               <p className="visually-hidden" role="status">
                 Loading the conversation
               </p>
-              <Skeleton height="4rem" />
+              <Skeleton height="block" />
             </div>
           )}
           {history.error && (

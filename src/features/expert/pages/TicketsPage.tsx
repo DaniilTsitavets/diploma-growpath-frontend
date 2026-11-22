@@ -28,7 +28,7 @@ export function TicketsPage() {
           <p className="visually-hidden" role="status">
             Loading the tickets
           </p>
-          <Skeleton height="4rem" />
+          <Skeleton height="block" />
         </div>
       )}
       {queue.error && (

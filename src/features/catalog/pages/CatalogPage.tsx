@@ -30,10 +30,10 @@ function CatalogSkeleton() {
     <ul className={styles.grid} aria-hidden="true">
       {Array.from({ length: SKELETON_COUNT }, (_, index) => (
         <li key={index} className={styles.skeletonCard}>
-          <Skeleton height="1.25rem" width="60%" />
-          <Skeleton width="40%" />
-          <Skeleton height="1.5rem" width="30%" />
-          <Skeleton height="2.75rem" />
+          <Skeleton height="heading" width={60} />
+          <Skeleton width={40} />
+          <Skeleton height="price" width={30} />
+          <Skeleton height="button" />
         </li>
       ))}
     </ul>

@@ -26,7 +26,7 @@ export function TicketPage() {
         <p className="visually-hidden" role="status">
           Loading the ticket
         </p>
-        <Skeleton height="2rem" width="40%" />
+        <Skeleton height="title" width={40} />
       </div>
     )
   }

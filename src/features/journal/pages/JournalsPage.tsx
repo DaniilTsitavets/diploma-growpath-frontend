@@ -34,8 +34,8 @@ export function JournalsPage() {
           <ul className={styles.list} aria-hidden="true">
             {[0, 1, 2].map((index) => (
               <li key={index} className={styles.card}>
-                <Skeleton height="1.25rem" width="50%" />
-                <Skeleton width="70%" />
+                <Skeleton height="heading" width={50} />
+                <Skeleton width={70} />
               </li>
             ))}
           </ul>
