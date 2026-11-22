@@ -1,9 +1,9 @@
 import { discountedCents, formatPrice } from './price'
 
 describe('price', () => {
-  it('formats cents with two decimals', () => {
-    expect(formatPrice(2500)).toBe('25.00')
-    expect(formatPrice(1805)).toBe('18.05')
+  it('formats cents in euros', () => {
+    expect(formatPrice(2500)).toBe('€25.00')
+    expect(formatPrice(1805)).toBe('€18.05')
   })
 
   it('applies a percentage discount', () => {
