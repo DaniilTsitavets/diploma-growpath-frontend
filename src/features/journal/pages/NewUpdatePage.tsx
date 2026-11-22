@@ -19,7 +19,7 @@ import {
 import { photoSlots, validatePhoto } from '../model/photo'
 import type { PhotoKind } from '../model/types'
 import { PhotoPicker } from '../ui/PhotoPicker'
-import { SelectField } from '@/shared/ui/SelectField'
+import { ChoiceField } from '@/shared/ui/ChoiceField'
 import { TextField } from '@/shared/ui/TextField'
 import styles from './NewUpdatePage.module.css'
 
@@ -116,28 +116,28 @@ export function NewUpdatePage() {
           error={errors.watering_interval_days?.message}
           {...register('watering_interval_days')}
         />
-        <SelectField
+        <ChoiceField
           id="drainage"
           label="Drainage"
           options={drainageLabels}
           error={errors.drainage?.message}
           {...register('drainage')}
         />
-        <SelectField
+        <ChoiceField
           id="lighting"
           label="Lighting"
           options={lightingLabels}
           error={errors.lighting?.message}
           {...register('lighting')}
         />
-        <SelectField
+        <ChoiceField
           id="finger-test"
           label="Soil by finger test"
           options={fingerTestLabels}
           error={errors.finger_test?.message}
           {...register('finger_test')}
         />
-        <SelectField
+        <ChoiceField
           id="pot-weight"
           label="Pot weight"
           options={potWeightLabels}
