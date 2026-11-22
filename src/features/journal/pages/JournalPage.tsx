@@ -1,8 +1,11 @@
 import { Link, useParams } from 'react-router'
 import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
+import { Icon } from '@/shared/ui/Icon'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { useJournal, useUpdates } from '../api/queries'
+import { formatDate } from '../model/dates'
+import { ActionLink } from '../ui/ActionLink'
 import { CheckpointList } from '../ui/CheckpointList'
 import { PlantingForm } from '../ui/PlantingForm'
 import { UpdateList } from '../ui/UpdateList'
@@ -41,7 +44,29 @@ export function JournalPage() {
       <p>
         <Link to="/journals">All journals</Link>
       </p>
+      <p className="eyebrow">Plant journal</p>
       <h1>{journal.data.species}</h1>
+      <p className={styles.meta}>
+        <Icon name="calendar" size={18} />
+        {journal.data.planted_on
+          ? `Planted on ${formatDate(journal.data.planted_on)}`
+          : 'Not planted yet: record the planting date below'}
+      </p>
+
+      <div className={styles.actions}>
+        <ActionLink
+          to={`/journals/${journalId}/updates/new`}
+          icon="camera"
+          title="Add an update"
+          description="Photos and a short questionnaire; the AI looks for the cause of a problem"
+        />
+        <ActionLink
+          to={`/journals/${journalId}/chat`}
+          icon="chat"
+          title="Ask a care question"
+          description="Answers come from the care guides, with the sections they are based on"
+        />
+      </div>
 
       <section className={styles.section} aria-labelledby="planting-title">
         <h2 id="planting-title">Planting</h2>
@@ -57,19 +82,8 @@ export function JournalPage() {
         )}
       </section>
 
-      <section className={styles.section} aria-labelledby="chat-title">
-        <div className={styles.heading}>
-          <h2 id="chat-title">Care chat</h2>
-          <Link to={`/journals/${journalId}/chat`}>Ask a care question</Link>
-        </div>
-        <p>Answers come from the care knowledge base, with the sections they are based on.</p>
-      </section>
-
       <section className={styles.section} aria-labelledby="updates-title">
-        <div className={styles.heading}>
-          <h2 id="updates-title">Updates</h2>
-          <Link to={`/journals/${journalId}/updates/new`}>Add an update</Link>
-        </div>
+        <h2 id="updates-title">Updates</h2>
         {updates.isPending && <Skeleton height="row" />}
         {updates.error && (
           <div role="alert">
@@ -77,7 +91,9 @@ export function JournalPage() {
             <Button onClick={() => void updates.refetch()}>Try again</Button>
           </div>
         )}
-        {updates.data && updates.data.items.length === 0 && <p>No updates yet.</p>}
+        {updates.data && updates.data.items.length === 0 && (
+          <p>No updates yet. Add the first one to get a diagnosis.</p>
+        )}
         {updates.data && updates.data.items.length > 0 && (
           <UpdateList journalId={journalId} updates={updates.data.items} />
         )}

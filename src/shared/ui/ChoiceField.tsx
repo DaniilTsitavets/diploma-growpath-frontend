@@ -1,36 +1,42 @@
 import type { ComponentProps } from 'react'
-import styles from './form-fields.module.css'
+import chips from './ChoiceChips.module.css'
+import fields from './form-fields.module.css'
 
-interface SelectFieldProps extends ComponentProps<'select'> {
+interface ChoiceFieldProps extends Omit<ComponentProps<'input'>, 'type' | 'value' | 'id'> {
+  id: string
   label: string
   options: Record<string, string>
   error?: string
 }
 
-export function SelectField({ label, options, error, id, ...rest }: SelectFieldProps) {
+/** A required single choice in a form: radios shown as chips, so there is no native dropdown to restyle. Works with `register`. */
+export function ChoiceField({ id, label, options, error, ...rest }: ChoiceFieldProps) {
   const errorId = `${id}-error`
   return (
-    <div className={styles.field}>
-      <label htmlFor={id}>{label}</label>
-      <select
-        id={id}
-        className={styles.input}
-        aria-invalid={error ? 'true' : undefined}
-        aria-describedby={error ? errorId : undefined}
-        {...rest}
-      >
-        <option value="">Choose…</option>
+    <fieldset
+      className={chips.group}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={error ? errorId : undefined}
+    >
+      <legend className={fields.legend}>{label}</legend>
+      <div className={chips.row}>
         {Object.entries(options).map(([value, text]) => (
-          <option key={value} value={value}>
-            {text}
-          </option>
+          <label key={value} className={chips.choice}>
+            <input
+              type="radio"
+              value={value}
+              className={`visually-hidden ${chips.input}`}
+              {...rest}
+            />
+            <span className={`${chips.text} ${error ? chips.invalid : ''}`}>{text}</span>
+          </label>
         ))}
-      </select>
+      </div>
       {error && (
-        <p id={errorId} className={styles.error}>
+        <p id={errorId} className={fields.error}>
           {error}
         </p>
       )}
-    </div>
+    </fieldset>
   )
 }

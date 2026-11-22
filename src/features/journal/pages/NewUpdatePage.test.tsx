@@ -6,6 +6,7 @@ import { setupServer } from 'msw/node'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { configureApi } from '@/shared/api/client'
 import { createHttpClient } from '@/shared/api/http'
+import { drainageLabels, fingerTestLabels, lightingLabels, potWeightLabels } from '../model/labels'
 import { NewUpdatePage } from './NewUpdatePage'
 
 const origin = window.location.origin
@@ -43,10 +44,10 @@ function renderPage() {
 }
 
 async function fillQuestionnaire() {
-  await userEvent.selectOptions(screen.getByLabelText('Drainage'), 'poor')
-  await userEvent.selectOptions(screen.getByLabelText('Lighting'), 'low')
-  await userEvent.selectOptions(screen.getByLabelText('Soil by finger test'), 'wet')
-  await userEvent.selectOptions(screen.getByLabelText('Pot weight'), 'heavier')
+  await userEvent.click(screen.getByRole('radio', { name: drainageLabels.poor }))
+  await userEvent.click(screen.getByRole('radio', { name: lightingLabels.low }))
+  await userEvent.click(screen.getByRole('radio', { name: fingerTestLabels.wet }))
+  await userEvent.click(screen.getByRole('radio', { name: potWeightLabels.heavier }))
 }
 
 const png = () => new File(['x'], 'p.png', { type: 'image/png' })
@@ -66,7 +67,7 @@ describe('NewUpdatePage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
 
     expect(await screen.findAllByText('Choose an option')).toHaveLength(4)
-    expect(screen.getByLabelText('Drainage')).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('group', { name: 'Drainage' })).toHaveAttribute('aria-invalid', 'true')
   })
 
   it('requires both mandatory photos before sending anything', async () => {
