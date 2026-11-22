@@ -110,7 +110,7 @@ export function HomePage() {
             from.
           </p>
           <Link to="/chat" className={styles.arrow}>
-            How the chat works →
+            Open the chat →
           </Link>
         </Card>
       </section>

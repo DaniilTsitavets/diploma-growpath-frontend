@@ -23,12 +23,17 @@ describe('routes', () => {
   })
 
   it('keeps the header and footer on the other pages', async () => {
-    renderAt('/chat')
+    renderAt('/nothing-here')
 
-    expect(
-      await screen.findByRole('heading', { name: 'Ask about your plants' }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
     expect(screen.getByRole('banner')).toBeInTheDocument()
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
+  })
+
+  it.each(['/journals', '/chat'])('sends a visitor from %s to the sign-in window', async (path) => {
+    renderAt(path)
+
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument()
   })
 })

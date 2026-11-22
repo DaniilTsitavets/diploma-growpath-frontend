@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { expectNoAccessibilityViolations, setTheme, signIn } from './support'
 
-const visitorPages = ['/', '/shop', '/chat', '/login']
+const visitorPages = ['/', '/shop', '/login']
 
 for (const theme of ['light', 'dark'] as const) {
   test.describe(`${theme} theme`, () => {
@@ -14,13 +14,18 @@ for (const theme of ['light', 'dark'] as const) {
       })
     }
 
-    test('journals have no WCAG 2.1 AA violations for a signed-in user', async ({ page }) => {
-      await signIn(page)
-      await page.goto('/journals')
-      await setTheme(page, theme)
-      await expect(page.getByRole('heading', { name: 'Journals', level: 1 })).toBeVisible()
-      await expectNoAccessibilityViolations(page)
-    })
+    for (const [path, heading] of [
+      ['/journals', 'Journals'],
+      ['/chat', 'Ask about your plants'],
+    ] as const) {
+      test(`${path} has no WCAG 2.1 AA violations for a signed-in user`, async ({ page }) => {
+        await signIn(page)
+        await page.goto(path)
+        await setTheme(page, theme)
+        await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible()
+        await expectNoAccessibilityViolations(page)
+      })
+    }
   })
 }
 

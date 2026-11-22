@@ -64,4 +64,25 @@ test.describe('visitor', () => {
     await expect(page).toHaveURL(/\/journals$/)
     await expect(page.getByRole('heading', { name: 'Journals', level: 1 })).toBeVisible()
   })
+
+  for (const [tab, path] of [
+    ['AI chat', '/chat'],
+    ['Journals', '/journals'],
+  ] as const) {
+    test(`the ${tab} tab sends a visitor straight to the sign-in window, like every signed-in page`, async ({
+      page,
+    }) => {
+      await page.goto('/')
+      await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: tab }).click()
+
+      await expect(page).toHaveURL(/\/login$/)
+      await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
+
+      const { email, password } = credentials('user')
+      await page.getByLabel('Email').fill(email)
+      await page.getByLabel('Password').fill(password)
+      await page.getByRole('button', { name: 'Sign in' }).click()
+      await expect(page).toHaveURL(new RegExp(`${path}$`))
+    })
+  }
 })
