@@ -1,28 +1,44 @@
 import { render } from '@testing-library/react'
+import { useTheme } from '@/shared/theme/theme-store'
 import { ItemImage } from './ItemImage'
 
-function sources(itemType: string) {
-  const { container } = render(<ItemImage itemType={itemType} />)
-  return [...container.querySelectorAll('img')].map((img) => img.getAttribute('src') ?? '')
+afterEach(() => useTheme.setState({ theme: 'light' }))
+
+function image(itemType: string, priority?: 'high' | 'normal' | 'lazy') {
+  const { container } = render(<ItemImage itemType={itemType} priority={priority} />)
+  return container.querySelector('img') as HTMLImageElement
 }
 
 describe('ItemImage', () => {
-  it('shows the leaves for a pack in both themes', () => {
-    const [light, dark] = sources('pack')
-    expect(light).toContain('pack-light')
-    expect(dark).toContain('pack-dark')
+  it('shows the leaves for a pack and the gears for a sensor', () => {
+    expect(image('pack').getAttribute('src')).toContain('pack-light')
+    expect(image('sensor').getAttribute('src')).toContain('sensor-light')
   })
 
-  it('shows the gears for a sensor in both themes', () => {
-    const [light, dark] = sources('sensor')
-    expect(light).toContain('sensor-light')
-    expect(dark).toContain('sensor-dark')
+  it('loads only the picture of the active theme', () => {
+    useTheme.setState({ theme: 'dark' })
+    const { container } = render(<ItemImage itemType="pack" />)
+
+    expect(container.querySelectorAll('img')).toHaveLength(1)
+    expect(container.querySelector('img')?.getAttribute('src')).toContain('pack-dark')
   })
 
-  it('falls back to the pack picture for an unknown item type and hides it from screen readers', () => {
-    const { container } = render(<ItemImage itemType="mystery" />)
-    const images = [...container.querySelectorAll('img')]
-    expect(images[0]?.getAttribute('src')).toContain('pack-light')
-    expect(images.every((img) => img.getAttribute('alt') === '')).toBe(true)
+  it('falls back to the pack picture and hides it from screen readers', () => {
+    const img = image('mystery')
+    expect(img.getAttribute('src')).toContain('pack-light')
+    expect(img.getAttribute('alt')).toBe('')
+  })
+
+  it('reserves its size, so the card does not jump when it loads', () => {
+    const img = image('pack')
+    expect(img).toHaveAttribute('width', '512')
+    expect(img).toHaveAttribute('height', '384')
+  })
+
+  it('applies the priority it is given', () => {
+    expect(image('pack', 'high')).toHaveAttribute('fetchpriority', 'high')
+    expect(image('pack', 'high')).not.toHaveAttribute('loading')
+    expect(image('pack', 'normal')).not.toHaveAttribute('loading')
+    expect(image('pack', 'lazy')).toHaveAttribute('loading', 'lazy')
   })
 })

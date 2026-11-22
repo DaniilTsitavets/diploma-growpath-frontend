@@ -12,15 +12,3 @@
   height: 100%;
   object-fit: cover;
 }
-
-.dark {
-  display: none;
-}
-
-:root[data-theme='dark'] .light {
-  display: none;
-}
-
-:root[data-theme='dark'] .dark {
-  display: block;
-}

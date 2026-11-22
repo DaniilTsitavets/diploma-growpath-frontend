@@ -16,6 +16,7 @@ import {
   type CatalogFilters,
   type SortKey,
 } from '../model/catalog-view'
+import { priorityForIndex } from '../model/image-priority'
 import type { Item } from '../model/types'
 import { CatalogToolbar } from '../ui/CatalogToolbar'
 import { ItemCard } from '../ui/ItemCard'
@@ -126,8 +127,13 @@ export function CatalogPage() {
             </Button>
           ) : (
             <ul className={styles.grid}>
-              {visible.map((item) => (
-                <ItemCard key={item.id} item={item} onOrder={orderOrSignIn} />
+              {visible.map((item, index) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  onOrder={orderOrSignIn}
+                  imagePriority={priorityForIndex(index)}
+                />
               ))}
             </ul>
           )}
