@@ -52,10 +52,12 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
   await page.getByRole('button', { name: 'Submit update' }).click()
   await expect(page.getByText('Choose an option').first()).toBeVisible()
 
-  await page.getByLabel('Drainage').selectOption('poor')
-  await page.getByLabel('Lighting').selectOption('low')
-  await page.getByLabel('Soil by finger test').selectOption('wet')
-  await page.getByLabel('Pot weight').selectOption('heavier')
+  await page
+    .getByRole('radio', { name: 'Poor, water drains slowly', exact: true })
+    .check({ force: true })
+  await page.getByRole('radio', { name: 'Low light', exact: true }).check({ force: true })
+  await page.getByRole('radio', { name: 'Wet', exact: true }).check({ force: true })
+  await page.getByRole('radio', { name: 'Heavier than usual', exact: true }).check({ force: true })
   await page
     .getByLabel(/^Whole plant/)
     .setInputFiles({ name: 'plant.png', mimeType: 'image/png', buffer: tinyPng })

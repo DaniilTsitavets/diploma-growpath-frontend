@@ -54,3 +54,7 @@
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+.invalid {
+  border-color: var(--color-danger);
+}
