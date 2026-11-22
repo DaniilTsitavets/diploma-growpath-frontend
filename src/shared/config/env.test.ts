@@ -17,4 +17,11 @@ describe('parseEnv', () => {
       /VITE_COGNITO_CLIENT_ID/,
     )
   })
+
+  it('reads the media base URL without a trailing slash, and allows it to be absent', () => {
+    expect(
+      parseEnv({ ...valid, VITE_MEDIA_BASE_URL: 'http://localhost:4566/growpath-media/' }),
+    ).toMatchObject({ mediaBaseUrl: 'http://localhost:4566/growpath-media' })
+    expect(parseEnv(valid).mediaBaseUrl).toBeNull()
+  })
 })
