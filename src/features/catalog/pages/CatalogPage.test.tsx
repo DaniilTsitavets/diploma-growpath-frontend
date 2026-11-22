@@ -88,7 +88,7 @@ describe('CatalogPage', () => {
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
-    await userEvent.selectOptions(screen.getByLabelText('Sort by'), 'price-asc')
+    await userEvent.click(screen.getByRole('radio', { name: 'Price, low to high' }))
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
     expect(headings).toEqual(['Soil Sensor', "Beginner's Kit"])
 
@@ -131,6 +131,18 @@ describe('CatalogPage', () => {
       screen.getByRole('button', { name: "Sign in to order Beginner's Kit" }),
     ).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('filters by type with the Type chips', async () => {
+    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    renderPage()
+    await screen.findByRole('heading', { name: 'Soil Sensor' })
+
+    expect(screen.getByRole('radio', { name: 'All' })).toBeChecked()
+    await userEvent.click(screen.getByRole('radio', { name: 'Sensors' }))
+
+    expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: "Beginner's Kit" })).not.toBeInTheDocument()
   })
 
   it('colours the label chips with different dots', async () => {
