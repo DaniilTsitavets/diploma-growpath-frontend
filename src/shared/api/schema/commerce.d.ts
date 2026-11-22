@@ -45,8 +45,31 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Items */
+        /**
+         * List Items
+         * @description Public: the gateway sets no identity for this route.
+         */
         get: operations["list_items_v1_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/items/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Item
+         * @description Public: the gateway sets no identity for this route.
+         */
+        get: operations["get_item_v1_items__slug__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -87,6 +110,11 @@ export interface components {
              */
             item_id: string;
         };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** HealthStatus */
         HealthStatus: {
             /**
@@ -107,6 +135,10 @@ export interface components {
             item_type: string;
             /** Name */
             name: string;
+            /** Slug */
+            slug: string;
+            /** Plant Slug */
+            plant_slug: string | null;
             /** Plant Species */
             plant_species: string | null;
             /** Seed Count */
@@ -141,6 +173,19 @@ export interface components {
              * Format: date-time
              */
             placed_at: string;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
         /**
          * Problem
@@ -182,15 +227,6 @@ export interface operations {
                     "application/json": components["schemas"]["HealthStatus"];
                 };
             };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
         };
     };
     ready_health_ready_get: {
@@ -211,15 +247,6 @@ export interface operations {
                     "application/json": components["schemas"]["HealthStatus"];
                 };
             };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
         };
     };
     list_items_v1_items_get: {
@@ -233,32 +260,83 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful Response */
+            /** @description Active items */
             200: {
                 headers: {
+                    /** @description The catalog is public and may be cached for a minute */
+                    "Cache-Control"?: "public, max-age=60";
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["ItemResponse"][];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
-            /** @description Problem details */
-            default: {
+            /** @description The catalog database is unreachable */
+            503: {
+                headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_item_v1_items__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The active item */
+            200: {
+                headers: {
+                    /** @description The catalog is public and may be cached for a minute */
+                    "Cache-Control"?: "public, max-age=60";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemResponse"];
+                };
+            };
+            /** @description No active item has this slug, or the slug is malformed */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+            /** @description The catalog database is unreachable */
+            503: {
+                headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -296,22 +374,13 @@ export interface operations {
                     "application/json": components["schemas"]["OrderResponse"];
                 };
             };
-            /** @description Problem details */
+            /** @description Validation Error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description Problem details */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

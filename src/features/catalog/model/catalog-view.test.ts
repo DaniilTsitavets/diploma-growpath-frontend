@@ -6,6 +6,8 @@ function item(overrides: Partial<Item>): Item {
     id: crypto.randomUUID(),
     item_type: 'pack',
     name: 'Pack',
+    slug: 'pack',
+    plant_slug: 'pack',
     plant_species: 'Basil',
     seed_count: 5,
     price_cents: 1000,
