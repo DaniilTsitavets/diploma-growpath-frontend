@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { useItems } from '@/features/catalog/api/use-items'
 import { formatPrice } from '@/features/catalog/model/price'
+import { ItemImage } from '@/features/catalog/ui/ItemImage'
 import { Card } from '@/shared/ui/Card'
 import { Tag } from '@/shared/ui/Chip'
 import styles from './HomePage.module.css'
@@ -32,19 +33,22 @@ function FeaturedItems() {
     <ul className={styles.grid}>
       {items.data.slice(0, FEATURED_COUNT).map((item) => (
         <Card as="li" key={item.id} className={styles.featured}>
-          <h3>{item.name}</h3>
-          <p className={styles.meta}>{item.plant_species ?? 'Soil sensor'}</p>
-          {item.labels.length > 0 && (
-            <ul className={styles.tags} aria-label="Labels">
-              {item.labels.map((label) => (
-                <li key={label}>
-                  <Tag>{label}</Tag>
-                </li>
-              ))}
-            </ul>
-          )}
-          <p className={styles.price}>{formatPrice(item.price_cents)}</p>
-          <Link to={`/shop?q=${encodeURIComponent(item.name)}`}>View in the shop</Link>
+          <ItemImage itemType={item.item_type} />
+          <div className={styles.featuredBody}>
+            <h3>{item.name}</h3>
+            <p className={styles.meta}>{item.plant_species ?? 'Soil sensor'}</p>
+            {item.labels.length > 0 && (
+              <ul className={styles.tags} aria-label="Labels">
+                {item.labels.map((label) => (
+                  <li key={label}>
+                    <Tag>{label}</Tag>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className={styles.price}>{formatPrice(item.price_cents)}</p>
+            <Link to={`/shop?q=${encodeURIComponent(item.name)}`}>View in the shop</Link>
+          </div>
         </Card>
       ))}
     </ul>

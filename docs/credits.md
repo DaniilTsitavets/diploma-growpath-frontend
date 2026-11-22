@@ -12,5 +12,11 @@ served from this application; nothing is loaded from a CDN.
 
 ## Images
 
-The interface currently uses no photographs or illustrations. Any image added later is listed here with its
-source and license.
+| File                                                            | Use                                                                            | Author and source                                                                         | License                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | --------------------------------- |
+| `src/assets/placeholders/pack-light.webp`, `pack-dark.webp`     | Placeholder for a grow pack without a photo (two leaves, light and dark theme) | Created by the project author with Google Gemini (AI Studio) from the author's own prompt | Own work; no third-party material |
+| `src/assets/placeholders/sensor-light.webp`, `sensor-dark.webp` | Placeholder for a sensor without a photo (two gears, light and dark theme)     | Created by the project author with Google Gemini (AI Studio) from the author's own prompt | Own work; no third-party material |
+
+The placeholders are AI-generated illustrations. They were cropped to 4:3 and converted to WebP, and a small
+decorative dot was removed from the leaf pictures. Product photos from the media bucket will be listed here from
+the attribution file that the backend provides (slug, url, author, license).
