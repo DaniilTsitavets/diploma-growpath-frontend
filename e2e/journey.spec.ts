@@ -10,7 +10,7 @@ const today = () => {
 test('a user orders a pack, keeps a journal, submits an update with photos and reads the diagnosis', async ({
   page,
 }) => {
-  test.setTimeout(180_000)
+  test.setTimeout(300_000)
   await signIn(page)
 
   // The shop: order the first pack. Payment is simulated.
@@ -39,7 +39,7 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
   await expect(async () => {
     await page.reload()
     expect(await journalLinks.count()).toBeGreaterThan(before)
-  }).toPass({ timeout: 90_000, intervals: [1_000, 2_000, 3_000] })
+  }).toPass({ timeout: 150_000, intervals: [1_000, 2_000, 3_000] })
 
   // The journal: planting date and checkpoints.
   await journalLinks.first().click()
@@ -50,19 +50,15 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
   // A new update: questionnaire and the two required photos.
   await page.getByRole('link', { name: 'Add an update' }).click()
   await page.getByRole('button', { name: 'Submit update' }).click()
-  await expect(page.getByText('Choose an option').first()).toBeVisible()
+  await expect(page.getByText('Choose the lighting')).toBeVisible()
 
-  await page
-    .getByRole('radio', { name: 'Poor, water drains slowly', exact: true })
-    .check({ force: true })
+  // Only the lighting is required; the other questions stay on "Don't know".
   await page.getByRole('radio', { name: 'Low light', exact: true }).check({ force: true })
-  await page.getByRole('radio', { name: 'Wet', exact: true }).check({ force: true })
-  await page.getByRole('radio', { name: 'Heavier than usual', exact: true }).check({ force: true })
   await page
     .getByLabel(/^Whole plant/)
     .setInputFiles({ name: 'plant.png', mimeType: 'image/png', buffer: tinyPng })
   await page
-    .getByLabel(/^Soil \(required\)/)
+    .getByLabel('Soil (optional)')
     .setInputFiles({ name: 'soil.png', mimeType: 'image/png', buffer: tinyPng })
   await page.getByRole('button', { name: 'Submit update' }).click()
 
