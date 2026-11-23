@@ -62,7 +62,7 @@
 }
 
 .card:hover {
-  background: var(--color-surface-2);
+  border-color: var(--color-accent);
 }
 
 .body > button {
