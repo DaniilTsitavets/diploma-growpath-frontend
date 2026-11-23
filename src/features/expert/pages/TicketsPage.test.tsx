@@ -57,7 +57,7 @@ describe('TicketsPage', () => {
     const afters: (string | null)[] = []
     server.use(
       http.get(`${origin}/v1/expert/tickets`, ({ request }) => {
-        const after = new URL(request.url).searchParams.get('after')
+        const after = new URL(request.url).searchParams.get('cursor')
         afters.push(after)
         return HttpResponse.json(
           after

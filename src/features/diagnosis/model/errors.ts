@@ -1,7 +1,7 @@
 import { ApiError } from '@/shared/api/api-error'
 
-/** The backend uses "ai-quota-exhausted"; the architecture notes spell it "quota_exhausted". */
-const AI_QUOTA_CODES = ['ai-quota-exhausted', 'quota_exhausted']
+/** Problem codes are kebab-case; the entitlement service itself says "quota-exhausted". */
+const AI_QUOTA_CODES = ['ai-quota-exhausted', 'quota-exhausted']
 
 export const isAiQuotaExhausted = (error: unknown) =>
   error instanceof ApiError &&

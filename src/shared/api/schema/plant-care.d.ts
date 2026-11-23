@@ -47,7 +47,7 @@ export interface paths {
         };
         /**
          * List Journals
-         * @description The journals of the user, newest first.
+         * @description The journals of the user, newest first; pass `next_cursor` of a page as `cursor` for more.
          */
         get: operations["list_journals_v1_journals_get"];
         put?: never;
@@ -104,7 +104,7 @@ export interface paths {
         };
         /**
          * List Updates
-         * @description The update feed, newest first; pass `next_cursor` of a page as `before` for the next one.
+         * @description The update feed, newest first; pass `next_cursor` of a page as `cursor` for the next one.
          */
         get: operations["list_updates_v1_journals__journal_id__updates_get"];
         put?: never;
@@ -245,7 +245,7 @@ export interface paths {
         };
         /**
          * List Turns
-         * @description The chat history of the journal, newest first; pass `next_cursor` as `before` for more.
+         * @description The chat history of the journal, newest first; pass `next_cursor` as `cursor` for more.
          */
         get: operations["list_turns_v1_journals__journal_id__chat_turns_get"];
         put?: never;
@@ -495,11 +495,6 @@ export interface components {
          * @enum {string}
          */
         FingerTest: "dry" | "slightly_moist" | "wet";
-        /** HTTPValidationError */
-        HTTPValidationError: {
-            /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
-        };
         /** HealthStatus */
         HealthStatus: {
             /**
@@ -508,6 +503,13 @@ export interface components {
              * @constant
              */
             status: "ok";
+        };
+        /** JournalListResponse */
+        JournalListResponse: {
+            /** Items */
+            items: components["schemas"]["JournalResponse"][];
+            /** Next Cursor */
+            next_cursor: string | null;
         };
         /** JournalResponse */
         JournalResponse: {
@@ -719,22 +721,9 @@ export interface components {
             /** Expires In Seconds */
             expires_in_seconds: number;
         };
-        /** ValidationError */
-        ValidationError: {
-            /** Location */
-            loc: (string | number)[];
-            /** Message */
-            msg: string;
-            /** Error Type */
-            type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
-        };
         /**
          * Problem
-         * @description Problem details (RFC 7807); members such as `code` or `errors` may follow.
+         * @description Problem details (RFC 7807); `code` is a stable kebab-case identifier of the problem, `errors` lists the invalid fields of a validation error.
          */
         Problem: {
             type: string;
@@ -742,7 +731,7 @@ export interface components {
             status: number;
             detail?: string | null;
             correlation_id?: string | null;
-            code?: string;
+            code: string;
             errors?: Record<string, never>[];
         };
     };
@@ -772,6 +761,15 @@ export interface operations {
                     "application/json": components["schemas"]["HealthStatus"];
                 };
             };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
         };
     };
     ready_health_ready_get: {
@@ -792,13 +790,40 @@ export interface operations {
                     "application/json": components["schemas"]["HealthStatus"];
                 };
             };
+            /** @description The database or a message queue is unavailable */
+            503: {
+                headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "service-unavailable";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
         };
     };
     list_journals_v1_journals_get: {
         parameters: {
-            query?: never;
+            query?: {
+                limit?: number | null;
+                cursor?: string | null;
+            };
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -811,16 +836,52 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["JournalResponse"][];
+                    "application/json": components["schemas"]["JournalListResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description A query parameter is invalid, or the cursor is not valid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error" | "invalid-cursor";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -830,6 +891,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 journal_id: string;
@@ -847,13 +909,61 @@ export interface operations {
                     "application/json": components["schemas"]["JournalResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such journal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description A path or body parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -863,6 +973,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 journal_id: string;
@@ -884,13 +995,61 @@ export interface operations {
                     "application/json": components["schemas"]["JournalResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such journal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description A path or body parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -899,10 +1058,11 @@ export interface operations {
         parameters: {
             query?: {
                 limit?: number | null;
-                before?: string | null;
+                cursor?: string | null;
             };
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 journal_id: string;
@@ -920,13 +1080,61 @@ export interface operations {
                     "application/json": components["schemas"]["FeedResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such journal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description A query parameter is invalid, or the cursor is not valid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error" | "invalid-cursor";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -936,6 +1144,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 journal_id: string;
@@ -966,13 +1175,73 @@ export interface operations {
                     "application/json": components["schemas"]["UpdateResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such journal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description The AI quota of the current period is used up */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "ai-quota-exhausted";
+                    };
+                };
+            };
+            /** @description A path or body parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -982,6 +1251,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -999,13 +1269,61 @@ export interface operations {
                     "application/json": components["schemas"]["PhotosResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description A path parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1015,6 +1333,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -1036,13 +1355,73 @@ export interface operations {
                     "application/json": components["schemas"]["UploadResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description No roots photo was asked for */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "roots-photo-not-requested";
+                    };
+                };
+            };
+            /** @description A path or body parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1052,6 +1431,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -1069,13 +1449,61 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update, or the update has no diagnosis */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description A path parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1085,6 +1513,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -1102,13 +1531,73 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update, or the update has no diagnosis */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description Another attempt is running, or the AI quota of the current period is used up */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "diagnosis-conflict" | "ai-quota-exhausted";
+                    };
+                };
+            };
+            /** @description A path parameter is invalid, or the required photos are missing */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1118,6 +1607,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -1139,13 +1629,73 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update, or the update has no diagnosis */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description The diagnosis is not waiting for a clarification */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "diagnosis-conflict";
+                    };
+                };
+            };
+            /** @description The body is invalid, or the answer is unusable */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1155,6 +1705,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -1172,13 +1723,73 @@ export interface operations {
                     "application/json": components["schemas"]["DiagnosisDetailResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update, or the update has no diagnosis */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description No expert escalation is on offer */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "diagnosis-conflict";
+                    };
+                };
+            };
+            /** @description A path parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1188,6 +1799,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -1205,13 +1817,61 @@ export interface operations {
                     "application/json": components["schemas"]["EscalationDetailResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update, or the update has no escalation */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description A path parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1221,6 +1881,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 update_id: string;
@@ -1251,13 +1912,87 @@ export interface operations {
                     "application/json": components["schemas"]["EscalationDetailResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description No expert is on offer, or the expert quota of the current period is used up */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "escalation-not-offered" | "expert-quota-exhausted";
+                    };
+                };
+            };
+            /** @description A path or body parameter is invalid, or the question is unusable */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description The quota service did not answer */
+            503: {
+                headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "service-unavailable";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1266,10 +2001,11 @@ export interface operations {
         parameters: {
             query?: {
                 limit?: number | null;
-                before?: string | null;
+                cursor?: string | null;
             };
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 journal_id: string;
@@ -1287,13 +2023,61 @@ export interface operations {
                     "application/json": components["schemas"]["ChatHistoryResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such journal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description A query parameter is invalid, or the cursor is not valid */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error" | "invalid-cursor";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1303,6 +2087,7 @@ export interface operations {
             query?: never;
             header?: {
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path: {
                 journal_id: string;
@@ -1333,13 +2118,73 @@ export interface operations {
                     "application/json": components["schemas"]["ChatTurnResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such journal, or the turn id belongs to another journal */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description The AI quota of the current period is used up */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "ai-quota-exhausted";
+                    };
+                };
+            };
+            /** @description A path or body parameter is invalid, or the question is unusable */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };
@@ -1371,16 +2216,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/problem+json": components["schemas"]["Problem"];
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
                 };
             };
-            /** @description Validation Error */
+            /** @description Problem details */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
             /** @description The database is unavailable; retry after the given time */
@@ -1388,6 +2236,18 @@ export interface operations {
                 headers: {
                     /** @description Seconds to wait before retrying */
                     "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "service-unavailable";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
                     [name: string]: unknown;
                 };
                 content: {

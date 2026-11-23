@@ -16,6 +16,7 @@ const item = (index: number): Item => ({
   item_type: 'pack',
   name: `Pack ${index}`,
   slug: `pack-${index}`,
+  currency: 'EUR',
   plant_slug: `pack-${index}`,
   plant_species: `Plant ${index}`,
   seed_count: 5,
@@ -47,7 +48,10 @@ describe('HomePage', () => {
   it('shows the first eight items of the shop and a link to all of them', async () => {
     server.use(
       http.get(`${origin}/v1/items`, () =>
-        HttpResponse.json(Array.from({ length: 12 }, (_, index) => item(index + 1))),
+        HttpResponse.json({
+          items: Array.from({ length: 12 }, (_, index) => item(index + 1)),
+          next_cursor: null,
+        }),
       ),
     )
     renderPage()

@@ -110,11 +110,6 @@ export interface components {
              */
             item_id: string;
         };
-        /** HTTPValidationError */
-        HTTPValidationError: {
-            /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
-        };
         /** HealthStatus */
         HealthStatus: {
             /**
@@ -123,6 +118,13 @@ export interface components {
              * @constant
              */
             status: "ok";
+        };
+        /** ItemPage */
+        ItemPage: {
+            /** Items */
+            items: components["schemas"]["ItemResponse"][];
+            /** Next Cursor */
+            next_cursor: string | null;
         };
         /** ItemResponse */
         ItemResponse: {
@@ -145,6 +147,12 @@ export interface components {
             seed_count: number | null;
             /** Price Cents */
             price_cents: number;
+            /**
+             * Currency
+             * @default EUR
+             * @constant
+             */
+            currency: "EUR";
             /** First Purchase Discount Pct */
             first_purchase_discount_pct: number | null;
             /** Labels */
@@ -169,36 +177,38 @@ export interface components {
             /** Total Paid Cents */
             total_paid_cents: number;
             /**
+             * Currency
+             * @default EUR
+             * @constant
+             */
+            currency: "EUR";
+            /**
              * Placed At
              * Format: date-time
              */
             placed_at: string;
         };
-        /** ValidationError */
-        ValidationError: {
-            /** Location */
-            loc: (string | number)[];
-            /** Message */
-            msg: string;
-            /** Error Type */
-            type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
-        };
         /**
          * Problem
-         * @description Problem details (RFC 7807); members such as `code` or `errors` may follow.
+         * @description Problem details (RFC 7807) with a stable kebab-case `code`.
          */
         Problem: {
+            /** Type */
             type: string;
+            /** Title */
             title: string;
+            /** Status */
             status: number;
-            detail?: string | null;
-            correlation_id?: string | null;
-            code?: string;
-            errors?: Record<string, never>[];
+            /** Detail */
+            detail: string | null;
+            /** Correlation Id */
+            correlation_id: string | null;
+            /** Code */
+            code: string;
+            /** Errors */
+            errors?: {
+                [key: string]: unknown;
+            }[] | null;
         };
     };
     responses: never;
@@ -227,6 +237,15 @@ export interface operations {
                     "application/json": components["schemas"]["HealthStatus"];
                 };
             };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
         };
     };
     ready_health_ready_get: {
@@ -247,12 +266,34 @@ export interface operations {
                     "application/json": components["schemas"]["HealthStatus"];
                 };
             };
+            /** @description A dependency is unreachable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
         };
     };
     list_items_v1_items_get: {
         parameters: {
             query?: {
                 label?: string | null;
+                /** @description Page size; defaults to 50 and is clamped to 100 */
+                limit?: number | null;
+                /** @description Opaque `next_cursor` of the previous page; the items are ordered by slug */
+                cursor?: string | null;
             };
             header?: never;
             path?: never;
@@ -260,7 +301,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Active items */
+            /** @description A page of active items */
             200: {
                 headers: {
                     /** @description The catalog is public and may be cached for a minute */
@@ -268,16 +309,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ItemResponse"][];
+                    "application/json": components["schemas"]["ItemPage"];
                 };
             };
-            /** @description Validation Error */
+            /** @description The request does not match the contract */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
             /** @description The catalog database is unreachable */
@@ -287,7 +328,18 @@ export interface operations {
                     "Retry-After"?: number;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
             };
         };
     };
@@ -313,20 +365,13 @@ export interface operations {
                     "application/json": components["schemas"]["ItemResponse"];
                 };
             };
-            /** @description No active item has this slug, or the slug is malformed */
+            /** @description The resource does not exist */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
             /** @description The catalog database is unreachable */
@@ -336,7 +381,18 @@ export interface operations {
                     "Retry-After"?: number;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
             };
         };
     };
@@ -346,6 +402,7 @@ export interface operations {
             header: {
                 "idempotency-key": string;
                 "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
             };
             path?: never;
             cookie?: never;
@@ -374,13 +431,58 @@ export interface operations {
                     "application/json": components["schemas"]["OrderResponse"];
                 };
             };
-            /** @description Validation Error */
+            /** @description The X-User-Id header is missing or malformed */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Payment was declined */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The role of the caller cannot use this endpoint */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resource does not exist */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the contract */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
         };

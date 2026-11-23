@@ -7,6 +7,7 @@ function item(overrides: Partial<Item>): Item {
     item_type: 'pack',
     name: 'Pack',
     slug: 'pack',
+    currency: 'EUR',
     plant_slug: 'pack',
     plant_species: 'Basil',
     seed_count: 5,

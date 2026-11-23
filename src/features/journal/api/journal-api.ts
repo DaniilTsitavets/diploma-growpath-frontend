@@ -1,4 +1,5 @@
 import { api } from '@/shared/api/client'
+import { listAllPages } from '@/shared/api/pagination'
 import type {
   Journal,
   PhotoKind,
@@ -9,8 +10,7 @@ import type {
   UploadTicket,
 } from '../model/types'
 
-export const listJournals = (signal?: AbortSignal) =>
-  api.request<Journal[]>('GET', '/v1/journals', { signal })
+export const listJournals = (signal?: AbortSignal) => listAllPages<Journal>('/v1/journals', signal)
 
 export const getJournal = (journalId: string, signal?: AbortSignal) =>
   api.request<Journal>('GET', `/v1/journals/${journalId}`, { signal })
