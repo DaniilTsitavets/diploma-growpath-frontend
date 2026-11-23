@@ -25,7 +25,7 @@ There are over 130 tests. Examples of what they cover:
 - **Forms** (login, planting date, update questionnaire, clarification, chat, expert question and answer): the
   message appears under the field, `aria-invalid` is set, nothing is sent while the form is invalid, and the
   request body is exactly what the contract expects.
-- **Screens with MSW**: the shop (loading skeleton, filtering, sorting, label chips, visitor and signed-in
+- **Screens with MSW**: the shop (loading skeleton, filtering, sorting, the filter panel (type, need, sort, URL), visitor and signed-in
   buttons, order with an idempotency key and the receipt), journals (the draft that arrives late), the update
   page (presigned upload, wrong file type), diagnosis (every status, retry, exhausted quota), expert help
   (Starter blocked with the next plan named, confirmation before spending), chat (every outcome, retry with the

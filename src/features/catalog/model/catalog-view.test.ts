@@ -1,4 +1,10 @@
-import { applyFilters, collectLabels, defaultFilters } from './catalog-view'
+import {
+  applyFilters,
+  collectLabels,
+  countActiveFilters,
+  defaultFilters,
+  hasActiveFilters,
+} from './catalog-view'
 import type { Item } from './types'
 
 function item(overrides: Partial<Item>): Item {
@@ -56,15 +62,38 @@ describe('applyFilters', () => {
     expect(applyFilters(all, { ...defaultFilters, search: '  soil ' })).toEqual([sensor])
   })
 
-  it('filters by item type and label', () => {
-    expect(applyFilters(all, { ...defaultFilters, type: 'sensor' })).toEqual([sensor])
-    expect(applyFilters(all, { ...defaultFilters, label: 'low-maintenance' })).toEqual([mint])
+  it('matches any ticked type and ignores the type when none is ticked', () => {
+    expect(applyFilters(all, { ...defaultFilters, types: ['sensor'] })).toEqual([sensor])
+    expect(applyFilters(all, { ...defaultFilters, types: ['pack', 'sensor'] })).toHaveLength(3)
+    expect(applyFilters(all, defaultFilters)).toHaveLength(3)
+  })
+
+  it('requires every ticked label', () => {
+    expect(applyFilters(all, { ...defaultFilters, labels: ['beginner'] })).toEqual([basil, mint])
+    expect(
+      applyFilters(all, { ...defaultFilters, labels: ['beginner', 'low-maintenance'] }),
+    ).toEqual([mint])
   })
 
   it('does not change the input array', () => {
     const input = [mint, basil]
     applyFilters(input, defaultFilters)
     expect(input).toEqual([mint, basil])
+  })
+})
+
+describe('countActiveFilters', () => {
+  it('counts ticked types, labels and a changed sort, but not the search', () => {
+    expect(countActiveFilters(defaultFilters)).toBe(0)
+    expect(countActiveFilters({ ...defaultFilters, search: 'x' })).toBe(0)
+    expect(
+      countActiveFilters({ search: '', types: ['pack'], labels: ['a', 'b'], sort: 'price-asc' }),
+    ).toBe(4)
+  })
+
+  it('reports any active filter, the search included', () => {
+    expect(hasActiveFilters(defaultFilters)).toBe(false)
+    expect(hasActiveFilters({ ...defaultFilters, search: 'x' })).toBe(true)
   })
 })
 

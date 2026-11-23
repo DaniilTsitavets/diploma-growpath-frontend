@@ -1,13 +1,11 @@
 .toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4) var(--space-8);
+  display: grid;
+  gap: var(--space-4);
   margin-block: var(--space-4);
 }
 
 .search {
   display: grid;
-  flex: 1 1 100%;
   gap: var(--space-1);
 }
 
@@ -26,12 +24,29 @@
   border-radius: var(--radius-sm);
 }
 
-.needs {
-  flex: 1 1 100%;
+.panel {
+  min-width: 0;
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) * 2);
 }
 
-.chipRow {
+.summary {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  align-items: center;
+  min-height: var(--tap-target);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.summary:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.groups {
+  display: grid;
+  gap: var(--space-6);
+  padding-top: var(--space-2);
 }

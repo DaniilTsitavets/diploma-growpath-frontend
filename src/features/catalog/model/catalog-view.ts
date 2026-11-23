@@ -1,26 +1,35 @@
 import type { Item } from './types'
 
-export const ALL_TYPES = 'all'
 export type SortKey = 'name' | 'price-asc' | 'price-desc'
 
 export interface CatalogFilters {
   search: string
-  type: string
-  label: string
+  /** An item matches when its type is any of these; empty means no type filtering. */
+  types: string[]
+  /** An item must carry every one of these labels; empty means no label filtering. */
+  labels: string[]
   sort: SortKey
 }
 
-export const ALL_LABELS = 'all'
-
 export const defaultFilters: CatalogFilters = {
   search: '',
-  type: ALL_TYPES,
-  label: ALL_LABELS,
+  types: [],
+  labels: [],
   sort: 'name',
 }
 
 export function collectLabels(items: Item[]): string[] {
   return [...new Set(items.flatMap((item) => item.labels))].sort((a, b) => a.localeCompare(b))
+}
+
+/** The filters set in the panel; the search box has its own field and is not counted. */
+export function countActiveFilters(filters: CatalogFilters): number {
+  const sortChanged = filters.sort === defaultFilters.sort ? 0 : 1
+  return filters.types.length + filters.labels.length + sortChanged
+}
+
+export function hasActiveFilters(filters: CatalogFilters): boolean {
+  return countActiveFilters(filters) > 0 || filters.search !== ''
 }
 
 function matchesSearch(item: Item, query: string): boolean {
@@ -37,8 +46,8 @@ const comparators: Record<SortKey, (a: Item, b: Item) => number> = {
 export function applyFilters(items: Item[], filters: CatalogFilters): Item[] {
   const query = filters.search.trim().toLowerCase()
   return items
-    .filter((item) => filters.type === ALL_TYPES || item.item_type === filters.type)
-    .filter((item) => filters.label === ALL_LABELS || item.labels.includes(filters.label))
+    .filter((item) => filters.types.length === 0 || filters.types.includes(item.item_type))
+    .filter((item) => filters.labels.every((label) => item.labels.includes(label)))
     .filter((item) => query === '' || matchesSearch(item, query))
     .sort(comparators[filters.sort])
 }

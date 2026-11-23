@@ -132,7 +132,7 @@ TanStack Query already caches and invalidates. See [stack justification](stack.m
 
 Colours, spacing, radii and fonts are CSS custom properties in `src/shared/styles/tokens.css`, with a light
 and a dark set. Components are styled with CSS Modules that read only those tokens; there are no inline styles (the skeleton's sizes are named classes of the kit). The shared components (`Button`, `Card`, `Chip`, `TextField`,
-`SelectField`, `TextAreaField`, `ConfirmDialog`, `Toaster`, `Skeleton`, `ThemeToggle`) are used by every
+`SelectField`, `TextAreaField`, `ConfirmDialog`, `Toaster`, `Skeleton`, `ThemeToggle`, `CheckboxGroup` and `RadioGroup` for the shop filter panel) are used by every
 feature.
 
 ## 2. Approach
