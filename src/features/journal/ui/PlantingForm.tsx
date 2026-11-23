@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
 import { useRecordPlanting } from '../api/queries'
-import { todayIso } from '../model/dates'
+import { formatDate, todayIso } from '../model/dates'
+import { describePlantingError } from '../model/planting-errors'
 import { plantingSchema, type PlantingValues } from '../model/planting-schema'
 import styles from './PlantingForm.module.css'
 
@@ -22,6 +22,16 @@ export function PlantingForm({ journalId, plantedOn }: PlantingFormProps) {
     resolver: zodResolver(plantingSchema),
     defaultValues: { planted_on: plantedOn ?? '' },
   })
+
+  // The backend keeps the first recorded date and refuses another one, so a saved date is shown and not edited.
+  if (plantedOn) {
+    return (
+      <p className={styles.saved}>
+        Planted on <strong>{formatDate(plantedOn)}</strong>. The planting date is saved and cannot
+        be changed.
+      </p>
+    )
+  }
 
   return (
     <form
@@ -47,11 +57,11 @@ export function PlantingForm({ journalId, plantedOn }: PlantingFormProps) {
         )}
       </div>
       <Button type="submit" disabled={planting.isPending}>
-        {plantedOn ? 'Change date' : 'Record planting'}
+        Record planting
       </Button>
       {planting.error && (
         <p role="alert" className={styles.error}>
-          {describeError(planting.error)}
+          {describePlantingError(planting.error)}
         </p>
       )}
     </form>
