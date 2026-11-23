@@ -96,6 +96,8 @@ Types are the generated ones; "Auth" says whether a token is needed.
 | Method and path                                      | Auth    | Used for                                         | Request                            | Response                                         |
 | ---------------------------------------------------- | ------- | ------------------------------------------------ | ---------------------------------- | ------------------------------------------------ |
 | `GET /v1/items`                                      | none    | Shop and home                                    | none                               | `ItemResponse[]`                                 |
+| `GET /v1/items/{slug}`                               | none    | Item page                                        | none                               | `ItemResponse`                                   |
+| `GET /v1/plants/{slug}`                              | none    | Care information on the item page                | none                               | `PlantProfileResponse`                           |
 | `POST /v1/orders`                                    | token   | Order an item (header `Idempotency-Key`)         | `{ item_id }`                      | `OrderResponse` (201, or 200 for a repeated key) |
 | `GET /v1/me/entitlement`                             | token   | Tier and quotas                                  | none                               | `EntitlementResponse`                            |
 | `GET /v1/journals`                                   | token   | Journals list                                    | none                               | `JournalResponse[]`                              |

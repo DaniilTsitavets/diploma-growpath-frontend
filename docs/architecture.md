@@ -49,18 +49,20 @@ Rules the code follows:
 
 ### Feature modules
 
-| Module        | Responsibility                                       | Main pieces                                                                      |
-| ------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `auth`        | Cognito sign-in, session, route guards               | `LoginPage`, `session-store`, `cognito` client, `RequireAuth`, `RequireExpert`   |
-| `catalog`     | Shop: list, search, filter, sort, order              | `CatalogPage`, `ItemCard`, `CatalogToolbar`, `OrderDialog`, `catalog-view` rules |
-| `home`        | Landing page with a few shop items                   | `HomePage`                                                                       |
-| `journal`     | Journals, checkpoints, updates, photo upload         | `JournalsPage`, `JournalPage`, `NewUpdatePage`, `UpdatePage`, `PhotoSlot`        |
-| `diagnosis`   | Diagnosis panel, clarification, retry                | `DiagnosisPanel`, `ClarificationForm`, quota error checks                        |
-| `escalation`  | Expert help: availability, confirmation, answer      | `EscalationPanel`, `expertAvailability`                                          |
-| `entitlement` | Tier and quotas, shown next to every spending action | `useEntitlement`, `QuotaSummary`, tier rules                                     |
-| `chat`        | Care chat inside a journal                           | `JournalChatPage`, `ChatTurnView`, `AskForm`                                     |
-| `expert`      | Expert view: queue, ticket, one written answer       | `TicketsPage`, `TicketPage`, `ticket-context` parser                             |
-| `not-found`   | Unknown address                                      | `NotFoundPage`                                                                   |
+| Module        | Responsibility                                       | Main pieces                                                                    |
+| ------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `auth`        | Cognito sign-in, session, route guards               | `LoginPage`, `session-store`, `cognito` client, `RequireAuth`, `RequireExpert` |
+| `catalog`     | Shop: list, item page, search, filter, sort, order   | `CatalogPage`, `ItemPage`, `ItemCard`, `CatalogToolbar`, `OrderDialog`         |
+| `plants`      | Care information of a plant (open, no token)         | `PlantCare`, `usePlant`, `care-blocks` rules                                   |
+| `media`       | Item pictures: credits list, captions, credits page  | `CreditsPage`, `useMediaCredits`, `photoCaption`                               |
+| `home`        | Landing page with a few shop items                   | `HomePage`                                                                     |
+| `journal`     | Journals, checkpoints, updates, photo upload         | `JournalsPage`, `JournalPage`, `NewUpdatePage`, `UpdatePage`, `PhotoSlot`      |
+| `diagnosis`   | Diagnosis panel, clarification, retry                | `DiagnosisPanel`, `ClarificationForm`, quota error checks                      |
+| `escalation`  | Expert help: availability, confirmation, answer      | `EscalationPanel`, `expertAvailability`                                        |
+| `entitlement` | Tier and quotas, shown next to every spending action | `useEntitlement`, `QuotaSummary`, tier rules                                   |
+| `chat`        | Care chat inside a journal                           | `JournalChatPage`, `ChatTurnView`, `AskForm`                                   |
+| `expert`      | Expert view: queue, ticket, one written answer       | `TicketsPage`, `TicketPage`, `ticket-context` parser                           |
+| `not-found`   | Unknown address                                      | `NotFoundPage`                                                                 |
 
 Dependencies between modules are explicit imports of another module's `api`, `model` or `ui`:
 
@@ -81,6 +83,8 @@ flowchart LR
   expert --> journal
   expert --> diagnosis
   catalog --> auth
+  catalog --> plants
+  catalog --> media
   home --> catalog
 ```
 
@@ -93,6 +97,8 @@ dependent module to the one it uses, and there are no cycles.
 | ---------------------------------------- | -------------------------------------------------------- | -------------------------------- | ---------------------------- |
 | `/`                                      | Home                                                     | public                           | site                         |
 | `/shop`                                  | Shop (filters are kept in the address: `?q=`, `?label=`) | public to read, sign-in to order | site                         |
+| `/shop/:slug`                            | Item page: picture, price, order, care information       | public to read, sign-in to order | site                         |
+| `/credits`                               | Photo credits and data licence                           | public                           | site                         |
 | `/chat`                                  | Pick a journal to ask about                              | signed in                        | site                         |
 | `/login`                                 | Sign-in window                                           | public                           | focus (no header, no footer) |
 | `/journals`                              | Journals list                                            | signed in                        | site                         |
