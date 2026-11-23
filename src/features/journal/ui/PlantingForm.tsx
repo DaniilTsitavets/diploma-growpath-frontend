@@ -21,7 +21,7 @@ export function PlantingForm({ journalId, plantedOn }: PlantingFormProps) {
     formState: { errors },
   } = useForm<PlantingValues>({
     resolver: zodResolver(plantingSchema),
-    defaultValues: { planted_on: plantedOn ?? '' },
+    defaultValues: { planted_on: plantedOn ?? todayIso() },
   })
 
   // The backend keeps the first recorded date and refuses another one, so a saved date is shown and not edited.

@@ -6,7 +6,7 @@ import { setupServer } from 'msw/node'
 import { configureApi } from '@/shared/api/client'
 import { createHttpClient } from '@/shared/api/http'
 import { formatDayName } from '@/shared/lib/calendar'
-import { todayIso } from '../model/dates'
+import { formatDate, todayIso } from '../model/dates'
 import { PlantingForm } from './PlantingForm'
 
 const origin = window.location.origin
@@ -36,11 +36,26 @@ function renderForm(plantedOn: string | null = null) {
 }
 
 describe('PlantingForm', () => {
-  it('requires a date before sending', async () => {
+  it('starts on today and records it with one click', async () => {
+    let body: unknown
+    server.use(
+      http.put(`${origin}/v1/journals/j1/planting`, async ({ request }) => {
+        body = await request.json()
+        return HttpResponse.json({
+          id: 'j1',
+          order_id: 'o1',
+          species: 'Basil',
+          planted_on: todayIso(),
+          created_at: '2026-11-01T10:00:00Z',
+          checkpoints: [],
+        })
+      }),
+    )
     renderForm()
+    expect(screen.getByLabelText('Planting date')).toHaveTextContent(formatDate(todayIso()))
     await userEvent.click(screen.getByRole('button', { name: 'Record planting' }))
 
-    expect(await screen.findByText('Choose the planting date')).toBeInTheDocument()
+    await vi.waitFor(() => expect(body).toEqual({ planted_on: todayIso() }))
   })
 
   it('sends the chosen planting date', async () => {
