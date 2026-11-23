@@ -171,7 +171,7 @@ reports no WCAG 2.1 AA violations on the main pages in both themes.
 
 ## 3. Advanced directions (for the maximum grade)
 
-| Direction             | What is done                                                                                                                                                                                                    |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Advanced architecture | Feature modules with a fixed slice layout, every page lazy-loaded, an explicit and acyclic dependency graph between modules, shared code with no feature knowledge                                              |
-| UI/UX                 | Own design kit on design tokens, light and dark themes with a remembered choice, WCAG 2.1 AA (labels, ARIA, keyboard, focus, contrast), responsive layout, loading skeletons, deliberate empty and error states |
+| Direction             | What is done                                                                                                                                                                                                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Advanced architecture | Feature modules with a fixed slice layout, every page lazy-loaded, an explicit and acyclic dependency graph between modules, shared code with no feature knowledge                                                                                                                          |
+| UI/UX                 | Own design kit on design tokens, light and dark themes with a remembered choice, WCAG 2.1 AA (labels, ARIA, keyboard, focus, contrast), a keyboard-operable calendar `DatePicker` instead of the native date input, responsive layout, loading skeletons, deliberate empty and error states |

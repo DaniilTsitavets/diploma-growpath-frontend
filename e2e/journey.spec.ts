@@ -1,12 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { expectNoAccessibilityViolations, setTheme, signIn, tinyPng } from './support'
 
-const today = () => {
-  const now = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-}
-
 test('a user orders a pack, keeps a journal, submits an update with photos and reads the diagnosis', async ({
   page,
 }) => {
@@ -43,7 +37,8 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
 
   // The journal: planting date and checkpoints.
   await journalLinks.first().click()
-  await page.getByLabel('Planting date').fill(today())
+  await page.getByLabel('Planting date').click()
+  await page.locator('[aria-current="date"]').click()
   await page.getByRole('button', { name: /Record planting|Change date/ }).click()
   await expect(page.getByRole('list', { name: 'Checkpoints' })).toBeVisible()
 
