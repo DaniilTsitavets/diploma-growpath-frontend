@@ -33,24 +33,27 @@ describe('JournalsPage', () => {
   it('lists journals with their planting state', async () => {
     server.use(
       http.get(`${origin}/v1/journals`, () =>
-        HttpResponse.json([
-          {
-            id: 'j1',
-            order_id: 'o1',
-            species: 'Basil',
-            planted_on: '2026-11-01',
-            created_at: '2026-11-01T10:00:00Z',
-            checkpoints: [],
-          },
-          {
-            id: 'j2',
-            order_id: 'o2',
-            species: 'Mint',
-            planted_on: null,
-            created_at: '2026-11-02T10:00:00Z',
-            checkpoints: [],
-          },
-        ]),
+        HttpResponse.json({
+          items: [
+            {
+              id: 'j1',
+              order_id: 'o1',
+              species: 'Basil',
+              planted_on: '2026-11-01',
+              created_at: '2026-11-01T10:00:00Z',
+              checkpoints: [],
+            },
+            {
+              id: 'j2',
+              order_id: 'o2',
+              species: 'Mint',
+              planted_on: null,
+              created_at: '2026-11-02T10:00:00Z',
+              checkpoints: [],
+            },
+          ],
+          next_cursor: null,
+        }),
       ),
     )
     renderPage()
@@ -64,7 +67,9 @@ describe('JournalsPage', () => {
   })
 
   it('explains that the journal is still being created when the list is empty', async () => {
-    server.use(http.get(`${origin}/v1/journals`, () => HttpResponse.json([])))
+    server.use(
+      http.get(`${origin}/v1/journals`, () => HttpResponse.json({ items: [], next_cursor: null })),
+    )
     renderPage()
 
     expect(await screen.findByText(/Waiting for your journal/)).toBeInTheDocument()

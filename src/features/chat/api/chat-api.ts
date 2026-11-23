@@ -6,8 +6,8 @@ export const askQuestion = (journalId: string, turnId: string, question: string)
     body: { id: turnId, question },
   })
 
-export const listTurns = (journalId: string, before?: string, signal?: AbortSignal) =>
+export const listTurns = (journalId: string, cursor?: string, signal?: AbortSignal) =>
   api.request<ChatHistory>('GET', `/v1/journals/${journalId}/chat/turns`, {
-    query: { before },
+    query: { cursor },
     signal,
   })

@@ -55,7 +55,10 @@ describe('ChatPage', () => {
   it('links every plant to its chat and shows the AI checks left', async () => {
     server.use(
       http.get(`${origin}/v1/journals`, () =>
-        HttpResponse.json([journal('j1', 'Cactus'), journal('j2', 'Aloe Vera')]),
+        HttpResponse.json({
+          items: [journal('j1', 'Cactus'), journal('j2', 'Aloe Vera')],
+          next_cursor: null,
+        }),
       ),
     )
     renderPage()
@@ -80,7 +83,9 @@ describe('ChatPage', () => {
   })
 
   it('sends a user without journals to the shop', async () => {
-    server.use(http.get(`${origin}/v1/journals`, () => HttpResponse.json([])))
+    server.use(
+      http.get(`${origin}/v1/journals`, () => HttpResponse.json({ items: [], next_cursor: null })),
+    )
     renderPage()
 
     expect(await screen.findByRole('link', { name: 'Order a pack' })).toHaveAttribute(

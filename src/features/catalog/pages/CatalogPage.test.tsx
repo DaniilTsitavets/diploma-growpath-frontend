@@ -17,6 +17,7 @@ const items: Item[] = [
     item_type: 'pack',
     name: "Beginner's Kit",
     slug: 'beginners-kit',
+    currency: 'EUR',
     plant_slug: 'basil',
     plant_species: 'Basil',
     seed_count: 5,
@@ -29,6 +30,7 @@ const items: Item[] = [
     item_type: 'sensor',
     name: 'Soil Sensor',
     slug: 'soil-sensor',
+    currency: 'EUR',
     plant_slug: null,
     plant_species: null,
     seed_count: null,
@@ -79,7 +81,9 @@ afterEach(() => useSession.setState({ session: null }))
 
 describe('CatalogPage', () => {
   it('shows a loading state and then the items', async () => {
-    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
     renderPage()
 
     expect(screen.getByText('Loading the shop')).toBeInTheDocument()
@@ -88,7 +92,9 @@ describe('CatalogPage', () => {
   })
 
   it('filters by search text and sorts by price', async () => {
-    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
@@ -102,7 +108,9 @@ describe('CatalogPage', () => {
   })
 
   it('filters by a label chip and marks it as pressed', async () => {
-    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
@@ -124,7 +132,7 @@ describe('CatalogPage', () => {
     server.use(
       http.get(`${origin}/v1/items`, ({ request }) => {
         authorization = request.headers.get('Authorization')
-        return HttpResponse.json(items)
+        return HttpResponse.json({ items, next_cursor: null })
       }),
     )
     renderPage()
@@ -138,7 +146,9 @@ describe('CatalogPage', () => {
   })
 
   it('filters by type with the Type chips', async () => {
-    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
@@ -150,7 +160,9 @@ describe('CatalogPage', () => {
   })
 
   it('colours the label chips with different dots', async () => {
-    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
@@ -174,7 +186,9 @@ describe('CatalogPage', () => {
   })
 
   it('starts filtered by the search text in the address', async () => {
-    server.use(http.get(`${origin}/v1/items`, () => HttpResponse.json(items)))
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
     renderPage('/shop?q=soil')
 
     expect(await screen.findByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
@@ -189,7 +203,7 @@ describe('CatalogPage', () => {
         calls += 1
         return calls === 1
           ? HttpResponse.json({ title: 'Service Unavailable', status: 503 }, { status: 503 })
-          : HttpResponse.json(items)
+          : HttpResponse.json({ items, next_cursor: null })
       }),
     )
     renderPage()
@@ -203,7 +217,7 @@ describe('CatalogPage', () => {
   it('places an order with an idempotency key and shows the receipt', async () => {
     let key: string | null = null
     server.use(
-      http.get(`${origin}/v1/items`, () => HttpResponse.json(items)),
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
       http.post(`${origin}/v1/orders`, ({ request }) => {
         key = request.headers.get('Idempotency-Key')
         return HttpResponse.json(
