@@ -15,7 +15,7 @@ npm test          # one run
 npx vitest        # watch mode
 ```
 
-There are over 130 tests. Examples of what they cover:
+There are about 260 tests in 57 files. Examples of what they cover:
 
 - **Fetch client** (`shared/api/http.test.ts`): the ID token is sent, problem+json and the gateway's own error
   format become one `ApiError`, `Retry-After` is read, a network failure is reported, a `401` signals the session.
@@ -47,7 +47,8 @@ npx playwright install chromium    # once
 npm run test:e2e
 ```
 
-The Playwright config starts `npm run dev` itself (or reuses a running one) and drives Chromium.
+The Playwright config starts `npm run dev` and a production build served by `vite preview` itself (or reuses running ones)
+and drives Chromium. There are 41 end-to-end tests in 7 files; the admin ones are skipped without an administrator account.
 
 | File                    | Scenarios                                                                                                                                                                                                                                                            |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -57,6 +58,7 @@ The Playwright config starts `npm run dev` itself (or reuses a running one) and 
 | `admin.spec.ts`         | An administrator lands on the users page, sees only the administration, cannot change their own role or status, is kept out of the shop, chat and journals; axe on the users page in both themes (skipped without an admin account)                                  |
 | `accessibility.spec.ts` | axe-core (WCAG 2.1 A and AA) on the home page, shop and sign-in for a visitor and on journals and the AI chat for a signed-in user, in the light and dark themes; keyboard use of the header search (Ctrl K)                                                         |
 | `responsive.spec.ts`    | On a 375 px wide screen the home page, shop and sign-in have no sideways scrolling and no accessibility violations; the shop's controls keep a touch-friendly size                                                                                                   |
+| `security.spec.ts`      | The built application sends the content security policy and the companion headers and also carries the policy in the page; the public pages, the theme switch, sign-in and the signed-in pages run with no policy violation                                          |
 
 The journey test creates real data on LocalStack (an order, a journal, an update, a chat question) and spends
 one AI check and one chat check of the test account, so run it on a throwaway stack.
@@ -68,4 +70,5 @@ npm run lint           # ESLint, type-aware: no `any`, no unhandled promises, ho
 npm run typecheck      # TypeScript in strict mode
 npm run format:check   # Prettier
 npm run build          # type-check and production build
+npm run lighthouse     # Lighthouse on the production build, mobile and desktop
 ```
