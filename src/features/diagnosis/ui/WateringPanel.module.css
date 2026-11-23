@@ -1,0 +1,49 @@
+.panel {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.panel h3 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.facts {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flags {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.meta {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.assumptions {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+}
+
+.details summary {
+  cursor: pointer;
+  font-weight: 600;
+}

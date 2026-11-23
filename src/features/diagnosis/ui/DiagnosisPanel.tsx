@@ -7,6 +7,7 @@ import { useDiagnosis, useRunDiagnosis } from '../api/queries'
 import { dominanceNote } from '../model/dominance'
 import { isAiQuotaExhausted } from '../model/errors'
 import { ClarificationForm } from './ClarificationForm'
+import { WateringPanel } from './WateringPanel'
 import styles from './DiagnosisPanel.module.css'
 
 interface DiagnosisPanelProps {
@@ -109,6 +110,7 @@ export function DiagnosisPanel({ updateId, journalId, blockedReason }: Diagnosis
         ))}
       </ol>
       {data.recommendation && <p className={styles.recommendation}>{data.recommendation}</p>}
+      {data.watering && <WateringPanel watering={data.watering} />}
     </div>
   )
 }
