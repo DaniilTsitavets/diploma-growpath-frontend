@@ -10,8 +10,12 @@ export interface PhotoSlot {
 }
 
 export const photoSlots: PhotoSlot[] = [
-  { kind: 'overview', label: 'Whole plant', hint: 'The whole plant in its pot, required.' },
-  { kind: 'soil', label: 'Soil', hint: 'The soil surface, required.' },
+  {
+    kind: 'overview',
+    label: 'Whole plant',
+    hint: 'The whole plant in its pot. The diagnosis needs it.',
+  },
+  { kind: 'soil', label: 'Soil', hint: 'The soil surface. The diagnosis needs it.' },
   {
     kind: 'symptom_closeup',
     label: 'Symptom close-up',
