@@ -38,6 +38,12 @@ export const routes: RouteObject[] = [
             }),
           },
           {
+            path: 'shop/:slug',
+            lazy: async () => ({
+              Component: (await import('@/features/catalog/pages/ItemPage')).ItemPage,
+            }),
+          },
+          {
             element: <RequireAuth />,
             children: [
               {
@@ -102,12 +108,6 @@ export const routes: RouteObject[] = [
             ],
           },
         ],
-      },
-      {
-        path: 'shop/:slug',
-        lazy: async () => ({
-          Component: (await import('@/features/catalog/pages/ItemPage')).ItemPage,
-        }),
       },
       {
         path: 'credits',
