@@ -2,7 +2,14 @@ import { ApiError } from '@/shared/api/api-error'
 import { Button } from '@/shared/ui/Button'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { usePlant } from '../api/use-plant'
-import { careBlocks, keyTakeaways, quickAnswer, quickFacts } from '../model/care-blocks'
+import {
+  careBlocks,
+  faqEntries,
+  keyTakeaways,
+  paragraphs,
+  quickAnswer,
+  quickFacts,
+} from '../model/care-blocks'
 import type { Plant } from '../model/types'
 import styles from './PlantCare.module.css'
 
@@ -40,6 +47,8 @@ function CareContent({ plant }: { plant: Plant }) {
   const facts = quickFacts(plant)
   const takeaways = keyTakeaways(plant)
   const blocks = careBlocks(plant)
+  const faq = faqEntries(plant)
+  const noBlocks = blocks.every((block) => block.paragraphs.length === 0)
 
   return (
     <div className={styles.care}>
@@ -64,27 +73,45 @@ function CareContent({ plant }: { plant: Plant }) {
           </ul>
         </section>
       )}
-      <section aria-labelledby="care-title">
-        <h2 id="care-title">Care</h2>
-        {blocks.every((block) => block.paragraphs.length === 0) ? (
-          <p className={styles.missing}>
-            A detailed care guide is not available for this plant yet.
-          </p>
-        ) : (
-          <div className={styles.blocks}>
-            {blocks.map((block) => (
-              <article key={block.id} className={styles.block}>
-                <h3>{block.title}</h3>
-                {block.paragraphs.length === 0 ? (
-                  <p className={styles.missing}>Not specified</p>
-                ) : (
-                  block.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
-                )}
-              </article>
+      {/* A plant with no care fields shows its questions in this place instead of empty blocks. */}
+      {(!noBlocks || faq.length === 0) && (
+        <section aria-labelledby="care-title">
+          <h2 id="care-title">Care</h2>
+          {blocks.every((block) => block.paragraphs.length === 0) ? (
+            <p className={styles.missing}>
+              A detailed care guide is not available for this plant yet.
+            </p>
+          ) : (
+            <div className={styles.blocks}>
+              {blocks.map((block) => (
+                <article key={block.id} className={styles.block}>
+                  <h3>{block.title}</h3>
+                  {block.paragraphs.length === 0 ? (
+                    <p className={styles.missing}>Not specified</p>
+                  ) : (
+                    block.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+      {faq.length > 0 && (
+        <section aria-labelledby="faq-title">
+          <h2 id="faq-title">Frequently asked questions</h2>
+          <div className={styles.faq}>
+            {faq.map((entry) => (
+              <details key={entry.question}>
+                <summary>{entry.question}</summary>
+                {paragraphs(entry.answer).map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </details>
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      )}
       <Attribution plant={plant} />
     </div>
   )
