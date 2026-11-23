@@ -1,5 +1,5 @@
 import { createBrowserRouter, type RouteObject } from 'react-router'
-import { RequireAuth, RequireExpert } from '@/features/auth/ui/RequireAuth'
+import { RequireAuth, RequireCustomer, RequireExpert } from '@/features/auth/ui/RequireAuth'
 import { ErrorPage } from './ErrorPage'
 import { AppLayout } from './layouts/AppLayout'
 import { FocusLayout } from './layouts/FocusLayout'
@@ -23,56 +23,67 @@ export const routes: RouteObject[] = [
     errorElement: <ErrorPage />,
     children: [
       {
-        index: true,
-        lazy: async () => ({
-          Component: (await import('@/features/home/pages/HomePage')).HomePage,
-        }),
-      },
-      {
-        path: 'shop',
-        lazy: async () => ({
-          Component: (await import('@/features/catalog/pages/CatalogPage')).CatalogPage,
-        }),
+        element: <RequireCustomer />,
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('@/features/home/pages/HomePage')).HomePage,
+            }),
+          },
+          {
+            path: 'shop',
+            lazy: async () => ({
+              Component: (await import('@/features/catalog/pages/CatalogPage')).CatalogPage,
+            }),
+          },
+          {
+            element: <RequireAuth />,
+            children: [
+              {
+                path: 'chat',
+                lazy: async () => ({
+                  Component: (await import('@/features/chat/pages/ChatPage')).ChatPage,
+                }),
+              },
+              {
+                path: 'journals',
+                lazy: async () => ({
+                  Component: (await import('@/features/journal/pages/JournalsPage')).JournalsPage,
+                }),
+              },
+              {
+                path: 'journals/:journalId',
+                lazy: async () => ({
+                  Component: (await import('@/features/journal/pages/JournalPage')).JournalPage,
+                }),
+              },
+              {
+                path: 'journals/:journalId/chat',
+                lazy: async () => ({
+                  Component: (await import('@/features/chat/pages/JournalChatPage'))
+                    .JournalChatPage,
+                }),
+              },
+              {
+                path: 'journals/:journalId/updates/new',
+                lazy: async () => ({
+                  Component: (await import('@/features/journal/pages/NewUpdatePage')).NewUpdatePage,
+                }),
+              },
+              {
+                path: 'journals/:journalId/updates/:updateId',
+                lazy: async () => ({
+                  Component: (await import('@/features/journal/pages/UpdatePage')).UpdatePage,
+                }),
+              },
+            ],
+          },
+        ],
       },
       {
         element: <RequireAuth />,
         children: [
-          {
-            path: 'chat',
-            lazy: async () => ({
-              Component: (await import('@/features/chat/pages/ChatPage')).ChatPage,
-            }),
-          },
-          {
-            path: 'journals',
-            lazy: async () => ({
-              Component: (await import('@/features/journal/pages/JournalsPage')).JournalsPage,
-            }),
-          },
-          {
-            path: 'journals/:journalId',
-            lazy: async () => ({
-              Component: (await import('@/features/journal/pages/JournalPage')).JournalPage,
-            }),
-          },
-          {
-            path: 'journals/:journalId/chat',
-            lazy: async () => ({
-              Component: (await import('@/features/chat/pages/JournalChatPage')).JournalChatPage,
-            }),
-          },
-          {
-            path: 'journals/:journalId/updates/new',
-            lazy: async () => ({
-              Component: (await import('@/features/journal/pages/NewUpdatePage')).NewUpdatePage,
-            }),
-          },
-          {
-            path: 'journals/:journalId/updates/:updateId',
-            lazy: async () => ({
-              Component: (await import('@/features/journal/pages/UpdatePage')).UpdatePage,
-            }),
-          },
           {
             element: <RequireExpert />,
             children: [
