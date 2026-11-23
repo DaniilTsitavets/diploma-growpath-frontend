@@ -1,10 +1,12 @@
+import { plantSolveSource } from '../model/attribution'
 import { safeHttpUrl } from '../model/safe-url'
 import type { ChatOutcome, ChatSource, ChatTurn, RelatedSection } from '../model/types'
 import { AssistantAvatar } from './AssistantAvatar'
 import styles from './ChatTurnView.module.css'
 
 const notices: Record<Exclude<ChatOutcome, 'answered'>, string> = {
-  not_in_kb: 'The care knowledge base has nothing on this question, so there is no answer to give.',
+  not_in_kb:
+    'There is no confirmed information on this in the care knowledge base, so the chat cannot answer it.',
   out_of_scope: 'This question is not about plant care, so the chat cannot answer it.',
   sources_only:
     'The AI could not answer right now. Here are the sections that match. Nothing was charged, and you can send the same question again.',
@@ -41,6 +43,7 @@ function RelatedSections({ sections }: { sections: RelatedSection[] }) {
 
 /** One exchange: the user's question on the right, the assistant's reply with its sources on the left. */
 export function ChatTurnView({ turn }: { turn: ChatTurn }) {
+  const plantSolve = plantSolveSource(turn.sources)
   return (
     <article className={styles.turn}>
       <div className={`${styles.row} ${styles.user}`}>
@@ -64,6 +67,15 @@ export function ChatTurnView({ turn }: { turn: ChatTurn }) {
                   </li>
                 ))}
               </ul>
+              {plantSolve && (
+                <p className={styles.attribution}>
+                  Source:{' '}
+                  <a href={plantSolve.href} target="_blank" rel="noopener noreferrer">
+                    PlantSolve
+                  </a>
+                  , CC BY 4.0
+                </p>
+              )}
             </div>
           )}
           {turn.outcome === 'sources_only' && turn.related.length > 0 && (
