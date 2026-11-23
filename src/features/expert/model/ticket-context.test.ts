@@ -34,13 +34,26 @@ describe('parseTicketContext', () => {
     expect(context.supported).toBe(true)
     expect(context.species).toBe('Basil')
     expect(context.update).toMatchObject({ drainage: 'poor', watering_interval_days: 3 })
-    expect(context.update?.sensor_reading).toBeUndefined()
+    expect(context.update?.sensor_reading).toBeNull()
     expect(context.userQuestion).toBe('Is this root rot?')
     expect(context.diagnosis?.candidates).toHaveLength(1)
     expect(context.clarification).toEqual({ question: 'How often do you water?', answer: 'Daily' })
     expect(context.history).toEqual([
       { date: '2026-11-10', diagnosis_status: 'completed', top_cause: 'Low light' },
     ])
+  })
+
+  it('reads a version 2 snapshot and keeps the new answers of its update', () => {
+    const context = parseTicketContext({
+      schema_version: 2,
+      species: 'Basil',
+      update: { id: 'u2', lighting: 'low', pot_diameter_class: '20_30', dry_depth: 'about_5cm' },
+      photos: [],
+      history: [],
+    })
+
+    expect(context.supported).toBe(true)
+    expect(context.update).toMatchObject({ pot_diameter_class: '20_30', dry_depth: 'about_5cm' })
   })
 
   it('treats optional blocks as simply absent', () => {
@@ -53,7 +66,7 @@ describe('parseTicketContext', () => {
   })
 
   it('flags a newer version but still shows what it recognises', () => {
-    const context = parseTicketContext({ ...full, schema_version: 2 })
+    const context = parseTicketContext({ ...full, schema_version: 3 })
 
     expect(context.supported).toBe(false)
     expect(context.species).toBe('Basil')

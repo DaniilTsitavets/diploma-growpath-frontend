@@ -105,7 +105,7 @@ describe('TicketPage', () => {
   })
 
   it('warns about a newer context version without failing', async () => {
-    show(ticket({ context: { ...context, schema_version: 2 } }))
+    show(ticket({ context: { ...context, schema_version: 3 } }))
 
     expect(await screen.findByRole('note')).toHaveTextContent('newer data format')
     expect(screen.getByRole('heading', { name: 'Basil' })).toBeInTheDocument()
