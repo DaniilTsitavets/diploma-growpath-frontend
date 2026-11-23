@@ -69,12 +69,15 @@ describe('CatalogPage scrolling', () => {
         <RouterProvider router={router} />
       </QueryClientProvider>,
     )
-    await screen.findByRole('checkbox', { name: /beginner/ })
+    await screen.findByRole('button', { name: /^Other/ })
     const scrollTo = vi.spyOn(window, 'scrollTo')
     scrollTo.mockClear()
 
+    await userEvent.click(screen.getByRole('button', { name: /^Other/ }))
     await userEvent.click(screen.getByRole('checkbox', { name: /beginner/ }))
+    await userEvent.click(screen.getByRole('button', { name: /^Type/ }))
     await userEvent.click(screen.getByRole('checkbox', { name: 'Sensors' }))
+    await userEvent.click(screen.getByRole('button', { name: /^Sort/ }))
     await userEvent.click(screen.getByRole('radio', { name: 'Price, low to high' }))
 
     expect(router.state.location.search).toContain('label=beginner')

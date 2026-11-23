@@ -24,29 +24,51 @@
   border-radius: var(--radius-sm);
 }
 
-.panel {
-  min-width: 0;
-  padding: var(--space-4) var(--space-6);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: calc(var(--radius) * 2);
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.summary {
-  display: flex;
-  align-items: center;
+.barLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.find {
   min-height: var(--tap-target);
-  font-weight: 600;
+  padding: 0 var(--space-3);
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+}
+
+.clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
-.summary:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
+.clear:hover {
+  color: var(--color-text);
 }
 
-.groups {
-  display: grid;
-  gap: var(--space-6);
-  padding-top: var(--space-2);
+.clear:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
 }

@@ -1,8 +1,10 @@
-import { Button } from '@/shared/ui/Button'
-import { CheckboxGroup, RadioGroup } from '@/shared/ui/OptionGroup'
+import { useState } from 'react'
+import { FilterMenu } from '@/shared/ui/FilterMenu'
+import { CheckboxGroup, RadioGroup, type Option } from '@/shared/ui/OptionGroup'
 import type { CatalogFilters, SortKey } from '../model/catalog-view'
-import { countActiveFilters, defaultFilters, hasActiveFilters } from '../model/catalog-view'
+import { defaultFilters, hasActiveFilters } from '../model/catalog-view'
 import { labelDot } from '../model/label-dot'
+import { groupLabels } from '../model/label-groups'
 import styles from './CatalogToolbar.module.css'
 
 interface CatalogToolbarProps {
@@ -22,9 +24,52 @@ const typeOptions = [
   { value: 'sensor', label: 'Sensors' },
 ]
 
+/** Past this many options a menu gets a box to find one by name. */
+const SEARCH_FROM = 8
+
+interface ChecklistProps {
+  title: string
+  name: string
+  options: readonly Option<string>[]
+  values: string[]
+  onChange: (values: string[]) => void
+}
+
+function Checklist({ title, name, options, values, onChange }: ChecklistProps) {
+  const [query, setQuery] = useState('')
+  const needle = query.trim().toLowerCase()
+  const shown = needle ? options.filter((o) => o.label.toLowerCase().includes(needle)) : options
+
+  return (
+    <>
+      {options.length > SEARCH_FROM && (
+        <input
+          type="search"
+          className={styles.find}
+          aria-label={`Find in ${title}`}
+          placeholder={`Find ${title.toLowerCase()}…`}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      )}
+      <CheckboxGroup
+        compact
+        legend={title}
+        name={name}
+        values={values}
+        options={shown}
+        onChange={(next) => {
+          const hidden = values.filter((value) => !shown.some((option) => option.value === value))
+          onChange([...hidden, ...next])
+        }}
+      />
+    </>
+  )
+}
+
 export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProps) {
-  const active = countActiveFilters(filters)
-  const labelOptions = labels.map((label) => ({ value: label, label, dot: labelDot(label) }))
+  const labelGroups = groupLabels(labels)
+  const sortLabel = sortOptions.find((option) => option.value === filters.sort)?.label
 
   return (
     <form className={styles.toolbar} role="search" onSubmit={(event) => event.preventDefault()}>
@@ -39,44 +84,70 @@ export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProp
           onChange={(event) => onChange({ ...filters, search: event.target.value })}
         />
       </div>
-      <details className={styles.panel} open>
-        <summary className={styles.summary}>
-          {active > 0 ? `Filters (${active})` : 'Filters'}
-        </summary>
-        <div className={styles.groups}>
-          <CheckboxGroup
-            legend="Filter by type"
+      <div className={styles.bar} role="group" aria-label="Filters">
+        <span className={styles.barLabel} aria-hidden="true">
+          Filters:
+        </span>
+        <FilterMenu
+          label="Type"
+          count={filters.types.length}
+          onAll={() => onChange({ ...filters, types: typeOptions.map((o) => o.value) })}
+          onNone={() => onChange({ ...filters, types: [] })}
+        >
+          <Checklist
+            title="Type"
             name="catalog-type"
-            values={filters.types}
             options={typeOptions}
+            values={filters.types}
             onChange={(types) => onChange({ ...filters, types })}
           />
-          {labelOptions.length > 0 && (
-            <CheckboxGroup
-              legend="Filter by need"
-              hint="Shows items that match every ticked need."
-              name="catalog-label"
-              values={filters.labels}
-              options={labelOptions}
-              onChange={(next) => onChange({ ...filters, labels: next })}
-            />
-          )}
+        </FilterMenu>
+        {labelGroups.map((group) => {
+          const ticked = filters.labels.filter((label) => group.labels.includes(label))
+          const others = filters.labels.filter((label) => !group.labels.includes(label))
+          return (
+            <FilterMenu
+              key={group.id}
+              label={group.title}
+              count={ticked.length}
+              onAll={() => onChange({ ...filters, labels: [...others, ...group.labels] })}
+              onNone={() => onChange({ ...filters, labels: others })}
+            >
+              <Checklist
+                title={group.title}
+                name={`catalog-label-${group.id}`}
+                options={group.labels.map((label) => ({
+                  value: label,
+                  label,
+                  dot: labelDot(label),
+                }))}
+                values={ticked}
+                onChange={(next) => onChange({ ...filters, labels: [...others, ...next] })}
+              />
+            </FilterMenu>
+          )
+        })}
+        <FilterMenu label="Sort" value={sortLabel} active={filters.sort !== defaultFilters.sort}>
           <RadioGroup
+            compact
             legend="Sort by"
             name="catalog-sort"
             value={filters.sort}
             options={sortOptions}
             onChange={(sort) => onChange({ ...filters, sort })}
           />
-          {hasActiveFilters(filters) && (
-            <div>
-              <Button variant="secondary" onClick={() => onChange(defaultFilters)}>
-                Clear filters
-              </Button>
-            </div>
-          )}
-        </div>
-      </details>
+        </FilterMenu>
+        {hasActiveFilters(filters) && (
+          <button
+            type="button"
+            className={styles.clear}
+            aria-label="Clear filters"
+            onClick={() => onChange(defaultFilters)}
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        )}
+      </div>
     </form>
   )
 }

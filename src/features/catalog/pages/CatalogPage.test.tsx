@@ -40,6 +40,8 @@ const items: Item[] = [
   },
 ]
 
+const openMenu = (name: RegExp) => userEvent.click(screen.getByRole('button', { name }))
+
 const server = setupServer()
 beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' })
@@ -98,6 +100,7 @@ describe('CatalogPage', () => {
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
+    await openMenu(/^Sort/)
     await userEvent.click(screen.getByRole('radio', { name: 'Price, low to high' }))
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
     expect(headings).toEqual(['Soil Sensor', "Beginner's Kit"])
@@ -114,19 +117,67 @@ describe('CatalogPage', () => {
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
-    expect(screen.getByText('Filters')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument()
+    await openMenu(/^Other/)
     await userEvent.click(screen.getByRole('checkbox', { name: 'beginner' }))
 
     expect(screen.getByRole('checkbox', { name: 'beginner' })).toBeChecked()
-    expect(screen.getByText('Filters (1)')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Other\s*1/ })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Soil Sensor' })).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
     expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
-    expect(screen.getByRole('checkbox', { name: 'beginner' })).not.toBeChecked()
+    expect(screen.getByRole('button', { name: 'Other' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument()
+  })
+
+  it('groups the needs into light, difficulty and other, and lets any ticked level through', async () => {
+    const withNeeds = [
+      {
+        ...items[0],
+        id: 'g1',
+        name: 'Shade Basil',
+        slug: 'shade-basil',
+        labels: ['low-light', 'beginner', 'edible'],
+      },
+      {
+        ...items[0],
+        id: 'g2',
+        name: 'Sun Lavender',
+        slug: 'sun-lavender',
+        labels: ['direct-sun', 'advanced', 'fragrant'],
+      },
+      {
+        ...items[0],
+        id: 'g3',
+        name: 'Mid Fern',
+        slug: 'mid-fern',
+        labels: ['bright-light', 'intermediate'],
+      },
+    ]
+    server.use(
+      http.get(`${origin}/v1/items`, () =>
+        HttpResponse.json({ items: withNeeds, next_cursor: null }),
+      ),
+    )
+    renderPage()
+    await screen.findByRole('heading', { name: 'Shade Basil' })
+
+    for (const name of ['Type', 'Light', 'Difficulty', 'Other']) {
+      expect(screen.getByRole('button', { name: new RegExp(`^${name}`) })).toBeInTheDocument()
+    }
+    await openMenu(/^Light/)
+    const light = within(screen.getByRole('group', { name: 'Light filter' }))
+    expect(light.getAllByRole('checkbox')).toHaveLength(3)
+
+    await userEvent.click(light.getByRole('checkbox', { name: 'low-light' }))
+    await userEvent.click(light.getByRole('checkbox', { name: 'direct-sun' }))
+
+    expect(screen.getByRole('heading', { name: 'Shade Basil' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Sun Lavender' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Mid Fern' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Light\s*2/ })).toBeInTheDocument()
   })
 
   it('shows items of any ticked type and toggles a checkbox with the space key', async () => {
@@ -136,6 +187,7 @@ describe('CatalogPage', () => {
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
+    await openMenu(/^Type/)
     await userEvent.click(screen.getByRole('checkbox', { name: 'Sensors' }))
     expect(screen.queryByRole('heading', { name: "Beginner's Kit" })).not.toBeInTheDocument()
 
@@ -143,7 +195,7 @@ describe('CatalogPage', () => {
     await userEvent.keyboard(' ')
     expect(screen.getByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
-    expect(screen.getByText('Filters (2)')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Type\s*2/ })).toBeInTheDocument()
   })
 
   it('shows a clear button and a message when nothing matches', async () => {
@@ -153,7 +205,9 @@ describe('CatalogPage', () => {
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
+    await openMenu(/^Type/)
     await userEvent.click(screen.getByRole('checkbox', { name: 'Sensors' }))
+    await openMenu(/^Other/)
     await userEvent.click(screen.getByRole('checkbox', { name: 'beginner' }))
 
     expect(screen.getByText('0 items')).toBeInTheDocument()
@@ -167,10 +221,11 @@ describe('CatalogPage', () => {
     renderPage('/shop?type=pack&label=beginner&sort=price-desc')
 
     expect(await screen.findByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
-    expect(screen.getByRole('checkbox', { name: 'Grow packs' })).toBeChecked()
+    expect(screen.getByRole('button', { name: /^Type\s*1/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Other\s*1/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sort: Price, high to low' })).toBeInTheDocument()
+    await openMenu(/^Other/)
     expect(screen.getByRole('checkbox', { name: 'beginner' })).toBeChecked()
-    expect(screen.getByRole('radio', { name: 'Price, high to low' })).toBeChecked()
-    expect(screen.getByText('Filters (3)')).toBeInTheDocument()
   })
 
   it('lets a visitor read the shop and asks them to sign in to order', async () => {
@@ -199,8 +254,10 @@ describe('CatalogPage', () => {
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
+    await openMenu(/^Other/)
     const row = screen.getByRole('checkbox', { name: 'beginner' }).closest('label')
     expect(row?.querySelector('[data-dot]')).not.toBeNull()
+    await openMenu(/^Type/)
     const typeRow = screen.getByRole('checkbox', { name: 'Sensors' }).closest('label')
     expect(typeRow?.querySelector('[data-dot]')).toBeNull()
   })
