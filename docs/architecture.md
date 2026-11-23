@@ -53,6 +53,7 @@ Rules the code follows:
 | ------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `auth`        | Cognito sign-in, session, route guards               | `LoginPage`, `session-store`, `cognito` client, `RequireAuth`, `RequireExpert` |
 | `catalog`     | Shop: list, item page, search, filter, sort, order   | `CatalogPage`, `ItemPage`, `ItemCard`, `CatalogToolbar`, `OrderDialog`         |
+| `admin`       | Administrator: list, create, role, disable, password | `UsersPage`, `CreateUserDialog`, `ChangeRoleDialog`, `PasswordDialog`          |
 | `plants`      | Care information of a plant (open, no token)         | `PlantCare`, `usePlant`, `care-blocks` rules                                   |
 | `media`       | Item pictures: credits list, captions, credits page  | `CreditsPage`, `useMediaCredits`, `photoCaption`                               |
 | `home`        | Landing page with a few shop items                   | `HomePage`                                                                     |
@@ -84,6 +85,7 @@ flowchart LR
   expert --> diagnosis
   catalog --> auth
   catalog --> plants
+  admin --> auth
   catalog --> media
   home --> catalog
 ```
@@ -106,6 +108,7 @@ dependent module to the one it uses, and there are no cycles.
 | `/journals/:journalId/chat`              | Care chat of the journal                                 | signed in                        | site                         |
 | `/journals/:journalId/updates/new`       | New update with photos                                   | signed in                        | site                         |
 | `/journals/:journalId/updates/:updateId` | Update: answers, photos, diagnosis, expert help          | signed in                        | site                         |
+| `/admin/users`                           | Users: list, create, change role, disable, set password  | role `admin`                     | site                         |
 | `/expert/tickets`                        | Open tickets                                             | group `experts`                  | site                         |
 | `/expert/tickets/:ticketId`              | Ticket and answer                                        | group `experts`                  | site                         |
 | `*`                                      | Not found                                                | public                           | site                         |
