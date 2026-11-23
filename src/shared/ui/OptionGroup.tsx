@@ -12,15 +12,16 @@ export interface Option<T extends string> {
 interface GroupFrameProps {
   legend: string
   hint?: string
+  compact?: boolean
   children: ReactNode
 }
 
-function GroupFrame({ legend, hint, children }: GroupFrameProps) {
+function GroupFrame({ legend, hint, compact = false, children }: GroupFrameProps) {
   return (
     <fieldset className={styles.group}>
-      <legend className={styles.legend}>{legend}</legend>
+      <legend className={compact ? 'visually-hidden' : styles.legend}>{legend}</legend>
       {hint && <p className={styles.hint}>{hint}</p>}
-      <div className={styles.grid}>{children}</div>
+      <div className={compact ? styles.list : styles.grid}>{children}</div>
     </fieldset>
   )
 }
@@ -58,6 +59,8 @@ function OptionRow({ type, name, value, label, dot, checked, onChange }: OptionR
 interface CheckboxGroupProps<T extends string> {
   legend: string
   hint?: string
+  /** One narrow column and a visually hidden legend, for a menu that already names the group. */
+  compact?: boolean
   name: string
   values: readonly T[]
   options: readonly Option<T>[]
@@ -68,6 +71,7 @@ interface CheckboxGroupProps<T extends string> {
 export function CheckboxGroup<T extends string>({
   legend,
   hint,
+  compact,
   name,
   values,
   options,
@@ -77,7 +81,7 @@ export function CheckboxGroup<T extends string>({
     onChange(values.includes(value) ? values.filter((v) => v !== value) : [...values, value])
   }
   return (
-    <GroupFrame legend={legend} hint={hint}>
+    <GroupFrame legend={legend} hint={hint} compact={compact}>
       {options.map((option) => (
         <OptionRow
           key={option.value}
@@ -97,6 +101,7 @@ export function CheckboxGroup<T extends string>({
 interface RadioGroupProps<T extends string> {
   legend: string
   hint?: string
+  compact?: boolean
   /** Shared by the radios of one group; it also makes the arrow keys move between the choices. */
   name: string
   value: T
@@ -108,13 +113,14 @@ interface RadioGroupProps<T extends string> {
 export function RadioGroup<T extends string>({
   legend,
   hint,
+  compact,
   name,
   value,
   options,
   onChange,
 }: RadioGroupProps<T>) {
   return (
-    <GroupFrame legend={legend} hint={hint}>
+    <GroupFrame legend={legend} hint={hint} compact={compact}>
       {options.map((option) => (
         <OptionRow
           key={option.value}
