@@ -8,6 +8,7 @@ try {
 }
 
 const baseURL = 'http://127.0.0.1:5173'
+const previewURL = 'http://127.0.0.1:4173'
 
 export default defineConfig({
   testDir: 'e2e',
@@ -29,10 +30,14 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], viewport: { width: 375, height: 812 }, hasTouch: true },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: baseURL,
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: [
+    { command: 'npm run dev', url: baseURL, reuseExistingServer: true, timeout: 60_000 },
+    // The built application, which is the one the security policy applies to.
+    {
+      command: 'npm run build && npm run preview',
+      url: previewURL,
+      reuseExistingServer: true,
+      timeout: 120_000,
+    },
+  ],
 })
