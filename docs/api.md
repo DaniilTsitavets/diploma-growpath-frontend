@@ -93,38 +93,38 @@ inline and the toast is skipped. A route that throws while rendering shows an er
 
 Types are the generated ones; "Auth" says whether a token is needed.
 
-| Method and path                                      | Auth    | Used for                                         | Request                            | Response                                         |
-| ---------------------------------------------------- | ------- | ------------------------------------------------ | ---------------------------------- | ------------------------------------------------ |
-| `GET /v1/items`                                      | none    | Shop and home (all pages, see below)             | `limit`, `cursor`                  | `{ items: ItemResponse[], next_cursor }`         |
-| `GET /v1/items/{slug}`                               | none    | Item page                                        | none                               | `ItemResponse`                                   |
-| `GET /v1/plants/{slug}`                              | none    | Care information on the item page                | none                               | `PlantProfileResponse`                           |
-| `POST /v1/orders`                                    | token   | Order an item (header `Idempotency-Key`)         | `{ item_id }`                      | `OrderResponse` (201, or 200 for a repeated key) |
-| `GET /v1/me`                                         | token   | Who the caller is and their role                 | none                               | `MeResponse` (`role`: user, expert, admin)       |
-| `GET /v1/admin/users`                                | admins  | Users list                                       | `limit`, `cursor`                  | `{ items: UserResponse[], next_cursor }`         |
-| `POST /v1/admin/users`                               | admins  | Create a user                                    | `{ email, password, role }`        | `UserResponse` (201)                             |
-| `PUT /v1/admin/users/{id}/role`                      | admins  | Change a role                                    | `{ role }`                         | `UserResponse`                                   |
-| `POST /v1/admin/users/{id}/disable` and `/enable`    | admins  | Block or allow sign-in                           | none                               | 204                                              |
-| `POST /v1/admin/users/{id}/password`                 | admins  | Set a new password                               | `{ password }`                     | 204                                              |
-| `GET /v1/me/entitlement`                             | token   | Tier and quotas                                  | none                               | `EntitlementResponse`                            |
-| `GET /v1/journals`                                   | token   | Journals list (all pages, see below)             | `limit`, `cursor`                  | `{ items: JournalResponse[], next_cursor }`      |
-| `GET /v1/journals/{id}`                              | token   | One journal                                      | none                               | `JournalResponse`                                |
-| `PUT /v1/journals/{id}/planting`                     | token   | Record the planting date                         | `{ planted_on }`                   | `JournalResponse`                                |
-| `GET /v1/journals/{id}/updates`                      | token   | Update feed                                      | none                               | `{ items: UpdateResponse[], next_cursor }`       |
-| `POST /v1/journals/{id}/updates`                     | token   | Submit an update                                 | `SubmitUpdateRequest`              | `UpdateResponse` (201, or 200 for a repeated id) |
-| `POST /v1/updates/{id}/photos`                       | token   | Presigned PUT URL for one photo                  | `{ kind }`                         | `{ kind, upload_url, expires_in_seconds }`       |
-| `GET /v1/updates/{id}/photos`                        | token   | Uploaded photos and the missing required ones    | none                               | `{ photos, missing_required }`                   |
-| `GET /v1/updates/{id}/diagnosis`                     | token   | Diagnosis with candidates                        | none                               | `DiagnosisDetailResponse`                        |
-| `POST /v1/updates/{id}/diagnosis`                    | token   | Run or retry the diagnosis (waits for the model) | none                               | `DiagnosisDetailResponse`                        |
-| `POST /v1/updates/{id}/diagnosis/clarification`      | token   | Answer the clarifying question (free)            | `{ answer }`                       | `DiagnosisDetailResponse`                        |
-| `POST /v1/updates/{id}/diagnosis/escalation-decline` | token   | Decline the offered expert (free)                | none                               | `DiagnosisDetailResponse`                        |
-| `POST /v1/updates/{id}/escalation`                   | token   | Ask an expert (spends one consultation)          | `{ user_question }`                | `EscalationDetailResponse`                       |
-| `GET /v1/updates/{id}/escalation`                    | token   | Escalation status and the answer                 | none                               | `EscalationDetailResponse` or 404                |
-| `POST /v1/journals/{id}/chat/turns`                  | token   | Ask the care chat (spends one AI check)          | `{ id, question }`                 | `ChatTurnResponse`                               |
-| `GET /v1/journals/{id}/chat/turns`                   | token   | Chat history (query `cursor`)                    | none                               | `{ items, next_cursor }`                         |
-| `GET /v1/expert/tickets`                             | experts | Open tickets (query `cursor`)                    | none                               | `{ items, next_cursor }`                         |
-| `GET /v1/expert/tickets/{id}`                        | experts | Ticket with context and photo URLs               | none                               | `TicketResponse`                                 |
-| `POST /v1/expert/tickets/{id}/answer`                | experts | One written answer                               | `{ body }` (up to 5000 characters) | `AnswerResponse`                                 |
-| `PUT {upload_url}`                                   | none    | Upload a photo straight to object storage        | the file, with its `Content-Type`  | empty `200`                                      |
+| Method and path                                      | Auth    | Used for                                         | Request                              | Response                                         |
+| ---------------------------------------------------- | ------- | ------------------------------------------------ | ------------------------------------ | ------------------------------------------------ |
+| `GET /v1/items`                                      | none    | Shop and home (all pages, see below)             | `limit`, `cursor`                    | `{ items: ItemResponse[], next_cursor }`         |
+| `GET /v1/items/{slug}`                               | none    | Item page                                        | none                                 | `ItemResponse`                                   |
+| `GET /v1/plants/{slug}`                              | none    | Care information on the item page                | none                                 | `PlantProfileResponse`                           |
+| `POST /v1/orders`                                    | token   | Order an item (header `Idempotency-Key`)         | `{ item_id }`                        | `OrderResponse` (201, or 200 for a repeated key) |
+| `GET /v1/me`                                         | token   | Who the caller is and their role                 | none                                 | `MeResponse` (`role`: user, expert, admin)       |
+| `GET /v1/admin/users`                                | admins  | Users list                                       | `limit`, `cursor`                    | `{ items: UserResponse[], next_cursor }`         |
+| `POST /v1/admin/users`                               | admins  | Create a user                                    | `{ email, password, role }`          | `UserResponse` (201)                             |
+| `PUT /v1/admin/users/{id}/role`                      | admins  | Change a role                                    | `{ role }`                           | `UserResponse`                                   |
+| `POST /v1/admin/users/{id}/disable` and `/enable`    | admins  | Block or allow sign-in                           | none                                 | 204                                              |
+| `POST /v1/admin/users/{id}/password`                 | admins  | Set a new password                               | `{ password }`                       | 204                                              |
+| `GET /v1/me/entitlement`                             | token   | Tier and quotas                                  | none                                 | `EntitlementResponse`                            |
+| `GET /v1/journals`                                   | token   | Journals list (all pages, see below)             | `limit`, `cursor`                    | `{ items: JournalResponse[], next_cursor }`      |
+| `GET /v1/journals/{id}`                              | token   | One journal                                      | none                                 | `JournalResponse`                                |
+| `PUT /v1/journals/{id}/planting`                     | token   | Record the planting date                         | `{ planted_on }`                     | `JournalResponse`                                |
+| `GET /v1/journals/{id}/updates`                      | token   | Update feed                                      | none                                 | `{ items: UpdateResponse[], next_cursor }`       |
+| `POST /v1/journals/{id}/updates`                     | token   | Submit an update                                 | `SubmitUpdateRequest`                | `UpdateResponse` (201, or 200 for a repeated id) |
+| `POST /v1/updates/{id}/photos`                       | token   | Presigned PUT URL for one photo                  | `{ kind, content_type, size_bytes }` | `{ kind, upload_url, expires_in_seconds }`       |
+| `GET /v1/updates/{id}/photos`                        | token   | Uploaded photos and the missing required ones    | none                                 | `{ photos, missing_required }`                   |
+| `GET /v1/updates/{id}/diagnosis`                     | token   | Diagnosis with candidates                        | none                                 | `DiagnosisDetailResponse`                        |
+| `POST /v1/updates/{id}/diagnosis`                    | token   | Run or retry the diagnosis (waits for the model) | none                                 | `DiagnosisDetailResponse`                        |
+| `POST /v1/updates/{id}/diagnosis/clarification`      | token   | Answer the clarifying question (free)            | `{ answer }`                         | `DiagnosisDetailResponse`                        |
+| `POST /v1/updates/{id}/diagnosis/escalation-decline` | token   | Decline the offered expert (free)                | none                                 | `DiagnosisDetailResponse`                        |
+| `POST /v1/updates/{id}/escalation`                   | token   | Ask an expert (spends one consultation)          | `{ user_question }`                  | `EscalationDetailResponse`                       |
+| `GET /v1/updates/{id}/escalation`                    | token   | Escalation status and the answer                 | none                                 | `EscalationDetailResponse` or 404                |
+| `POST /v1/journals/{id}/chat/turns`                  | token   | Ask the care chat (spends one AI check)          | `{ id, question }`                   | `ChatTurnResponse`                               |
+| `GET /v1/journals/{id}/chat/turns`                   | token   | Chat history (query `cursor`)                    | none                                 | `{ items, next_cursor }`                         |
+| `GET /v1/expert/tickets`                             | experts | Open tickets (query `cursor`)                    | none                                 | `{ items, next_cursor }`                         |
+| `GET /v1/expert/tickets/{id}`                        | experts | Ticket with context and photo URLs               | none                                 | `TicketResponse`                                 |
+| `POST /v1/expert/tickets/{id}/answer`                | experts | One written answer                               | `{ body }` (up to 5000 characters)   | `AnswerResponse`                                 |
+| `PUT {upload_url}`                                   | none    | Upload a photo straight to object storage        | the file, with its `Content-Type`    | empty `200`                                      |
 
 Requests that can be repeated safely carry a client-chosen id: the order uses an `Idempotency-Key`, an update
 and a chat question carry their own `id`, so a retry returns the stored result instead of creating a second one.
@@ -164,28 +164,47 @@ Order (`POST /v1/orders`, header `Idempotency-Key: <uuid>`):
 
 Update (`POST /v1/journals/{id}/updates`):
 
+Only `id` and `lighting` are required. Every other question may be answered "unknown" (the default) or left out:
+
 ```json
 {
   "id": "8d2a9b7e-1c3f-4e55-9a60-6f1d2c3b4a50",
+  "lighting": "bright_indirect",
   "last_watered_on": "2026-11-18",
-  "watering_interval_days": 3,
-  "drainage": "poor",
-  "lighting": "low",
-  "finger_test": "wet",
-  "pot_weight": "heavier",
-  "sensor_reading": null
+  "watering_method": "through_drainage",
+  "pot_diameter_class": "20_30",
+  "drainage_holes": "yes",
+  "standing_water_over_1h": "no",
+  "dry_depth": "about_5cm",
+  "pot_weight_relative": "noticeably_lighter",
+  "pot_weight_after_watering_g": 2400,
+  "pot_weight_now_g": 1900,
+  "repotted_or_moved": "no",
+  "sensor_reading": 35.5,
+  "sensor_unit": "vwc_pct",
+  "air_temp_c": 22,
+  "air_rh_pct": 45,
+  "air_measured_at": "2026-11-23T10:00:00Z"
 }
 ```
 
-Photo upload is two steps: ask for a link, then send the file to it.
+Photo upload is three steps. The photo does not count as uploaded until it is confirmed.
 
 ```http
-POST /v1/updates/{id}/photos        {"kind":"overview"}
--> 200 {"kind":"overview","upload_url":"http://.../growpath-photos/...?X-Amz-Signature=...","expires_in_seconds":900}
+POST /v1/updates/{id}/photos        {"kind":"overview","content_type":"image/jpeg","size_bytes":183422}
+-> 200 {"kind":"overview","upload_url":"http://.../growpath-photos/...?X-Amz-Signature=...",
+        "expires_in_seconds":900,"required_headers":{"Content-Type":"image/jpeg","Content-Length":"183422"}}
 
-PUT <upload_url>                    Content-Type: image/jpeg   (body: the file)
+PUT <upload_url>                    exactly the required headers   (body: the file)
 -> 200
+
+POST /v1/updates/{id}/photos/overview/confirm        (no body)
+-> 200 {"kind":"overview","url":"http://.../read-url"}
 ```
+
+The browser sets `Content-Length` itself from the body. Problem codes: `photo-too-large` and `photo-type-not-allowed`
+(422; only JPEG, PNG and WebP are accepted, so a HEIC photo has to be converted first), `photo-not-uploaded` (409, confirm
+before the PUT) and `roots-photo-not-requested` (409). The diagnosis answers 422 while a required photo is missing.
 
 Diagnosis (`POST /v1/updates/{id}/diagnosis`):
 

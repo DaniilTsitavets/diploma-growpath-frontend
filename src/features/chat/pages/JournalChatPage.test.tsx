@@ -18,6 +18,8 @@ const source = {
   document_title: 'Watering basil',
   section_heading: 'How often',
   source_url: 'https://example.org/basil#water',
+  source_name: 'Example guide',
+  license: 'CC0',
 }
 
 const turn = (overrides: Partial<ChatTurn>): ChatTurn => ({
@@ -224,6 +226,8 @@ describe('JournalChatPage', () => {
                 document_title: 'Watering basil',
                 section_heading: 'How often',
                 source_url: 'https://example.org/basil',
+                source_name: 'Example guide',
+                license: 'CC0',
                 body: 'Let the top layer dry.',
               },
             ],

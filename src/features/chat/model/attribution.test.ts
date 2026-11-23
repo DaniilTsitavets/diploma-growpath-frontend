@@ -5,6 +5,8 @@ const source = (url: string): ChatSource => ({
   rank: 1,
   section_id: url,
   document_title: 'Lavender (PlantSolve)',
+  source_name: 'PlantSolve',
+  license: 'CC BY 4.0',
   section_heading: 'Watering',
   source_url: url,
 })

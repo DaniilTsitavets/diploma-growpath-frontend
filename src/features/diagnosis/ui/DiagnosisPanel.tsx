@@ -12,9 +12,11 @@ import styles from './DiagnosisPanel.module.css'
 interface DiagnosisPanelProps {
   updateId: string
   journalId: string
+  /** Why the check cannot run yet, such as missing photos; the run button waits. */
+  blockedReason?: string
 }
 
-export function DiagnosisPanel({ updateId, journalId }: DiagnosisPanelProps) {
+export function DiagnosisPanel({ updateId, journalId, blockedReason }: DiagnosisPanelProps) {
   const diagnosis = useDiagnosis(updateId)
   const run = useRunDiagnosis(updateId, journalId)
   const entitlement = useEntitlement()
@@ -44,8 +46,9 @@ export function DiagnosisPanel({ updateId, journalId }: DiagnosisPanelProps) {
     return (
       <div className={styles.panel}>
         <p>The check has not run yet. Your answers and photos are saved.</p>
+        {blockedReason && <p role="status">{blockedReason}</p>}
         {runError}
-        <Button onClick={() => run.mutate()} disabled={run.isPending}>
+        <Button onClick={() => run.mutate()} disabled={run.isPending || Boolean(blockedReason)}>
           {run.isPending ? 'Checking your plant…' : 'Run diagnosis'}
         </Button>
       </div>

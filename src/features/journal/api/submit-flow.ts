@@ -16,7 +16,7 @@ export interface SubmitFlowInput {
 }
 
 /**
- * Saves the update, uploads its photos and starts the diagnosis. Saving is idempotent by the request id,
+ * Saves the update, uploads the photos that were chosen and, when both main photos are there, starts the diagnosis. Saving is idempotent by the request id,
  * so running the whole flow again after a failure continues with the same update.
  */
 export async function submitUpdateFlow(
@@ -31,8 +31,11 @@ export async function submitUpdateFlow(
     await uploadPhoto(update.id, kind, file)
   }
 
-  onStep('diagnosing')
-  await runDiagnosis(update.id)
+  // The diagnosis needs both main photos. Without them the update is kept and the check waits for the photos.
+  if (photos.overview && photos.soil) {
+    onStep('diagnosing')
+    await runDiagnosis(update.id)
+  }
   return update
 }
 

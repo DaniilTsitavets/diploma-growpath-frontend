@@ -20,6 +20,7 @@ const diagnosis: Diagnosis = {
   clarifying_question: null,
   clarifying_answer: null,
   roots_photo_requested: false,
+  watering: null,
   recommendation: null,
   escalation_offered: true,
   escalation_declined: false,

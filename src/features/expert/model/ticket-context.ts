@@ -1,25 +1,13 @@
 import { z } from 'zod'
 
-/** The context snapshot that plant-care builds for the expert; this client understands version 1. */
-export const SUPPORTED_CONTEXT_VERSION = 1
+/** The context snapshot that plant-care builds for the expert. Version 2 is current, version 1 (the retired questionnaire) is still read. */
+export const SUPPORTED_CONTEXT_VERSIONS = [1, 2]
 
 const text = z.string()
 const optionalText = text.nullish().transform((value) => value ?? undefined)
 
-const updateSchema = z.object({
-  id: text,
-  created_at: optionalText,
-  last_watered_on: optionalText,
-  watering_interval_days: z
-    .number()
-    .nullish()
-    .transform((value) => value ?? undefined),
-  drainage: optionalText,
-  lighting: optionalText,
-  finger_test: optionalText,
-  pot_weight: optionalText,
-  sensor_reading: optionalText,
-})
+// The update block is passed on as it came, so that both versions of the questionnaire can be shown.
+const updateSchema = z.looseObject({ id: text })
 
 const candidateSchema = z.object({ rank: z.number(), cause: text, rationale: text })
 
@@ -75,7 +63,9 @@ export function parseTicketContext(raw: unknown): TicketContext {
   const context = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}
   const question = field(text, context.clarifying_question)
   return {
-    supported: context.schema_version === SUPPORTED_CONTEXT_VERSION,
+    supported:
+      typeof context.schema_version === 'number' &&
+      SUPPORTED_CONTEXT_VERSIONS.includes(context.schema_version),
     species: field(text, context.species),
     update: field(updateSchema, context.update),
     userQuestion: field(text, context.user_question),

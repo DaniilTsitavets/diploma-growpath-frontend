@@ -67,11 +67,11 @@ minute and says that the journal is on its way.
 flowchart TD
   A([Journal page]) --> B[Record the planting date]
   B --> C[Checkpoints are computed and shown]
-  C --> D[Add an update: questionnaire and two required photos]
+  C --> D[Add an update: only the lighting is required, photos are optional]
   D --> E[Submit update: shows the AI checks left]
   E --> F{AI quota left?}
   F -->|no| G[Not created. The next plan is named]
-  F -->|yes| H[Save answers, upload photos, run the diagnosis]
+  F -->|yes| H[Save answers, upload and confirm the photos, run the diagnosis when both main photos are there]
   H --> I{Diagnosis status}
   I -->|completed| J[Ranked causes, recommendation, clear or ambiguous cause]
   I -->|awaiting clarification| K[Answer one question, free]

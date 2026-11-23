@@ -3,6 +3,7 @@ import { listAllPages } from '@/shared/api/pagination'
 import type {
   Journal,
   PhotoKind,
+  PhotoResponse,
   PlantUpdate,
   SubmitUpdateRequest,
   UpdateFeed,
@@ -26,8 +27,13 @@ export const listUpdates = (journalId: string, signal?: AbortSignal) =>
 export const submitUpdate = (journalId: string, body: SubmitUpdateRequest) =>
   api.request<PlantUpdate>('POST', `/v1/journals/${journalId}/updates`, { body })
 
-export const requestPhotoUpload = (updateId: string, kind: PhotoKind) =>
-  api.request<UploadTicket>('POST', `/v1/updates/${updateId}/photos`, { body: { kind } })
+export const requestPhotoUpload = (updateId: string, kind: PhotoKind, file: File) =>
+  api.request<UploadTicket>('POST', `/v1/updates/${updateId}/photos`, {
+    body: { kind, content_type: file.type, size_bytes: file.size },
+  })
+
+export const confirmPhoto = (updateId: string, kind: PhotoKind) =>
+  api.request<PhotoResponse>('POST', `/v1/updates/${updateId}/photos/${kind}/confirm`)
 
 export const listPhotos = (updateId: string, signal?: AbortSignal) =>
   api.request<UpdatePhotos>('GET', `/v1/updates/${updateId}/photos`, { signal })

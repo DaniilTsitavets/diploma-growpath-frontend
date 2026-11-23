@@ -18,6 +18,7 @@ const base: Diagnosis = {
   clarifying_question: null,
   clarifying_answer: null,
   roots_photo_requested: false,
+  watering: null,
   recommendation: 'Water less often.',
   escalation_offered: false,
   escalation_declined: false,

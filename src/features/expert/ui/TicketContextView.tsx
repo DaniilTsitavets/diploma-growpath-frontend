@@ -1,9 +1,5 @@
-import {
-  drainageLabels,
-  fingerTestLabels,
-  lightingLabels,
-  potWeightLabels,
-} from '@/features/journal/model/labels'
+import { Fragment } from 'react'
+import { answerRows } from '@/features/journal/model/answers'
 import { formatDate } from '@/features/journal/model/dates'
 import { dominanceNote } from '@/features/diagnosis/model/dominance'
 import { humanize, type TicketContext } from '../model/ticket-context'
@@ -79,25 +75,13 @@ export function TicketContextView({ context }: { context: TicketContext }) {
           <h2 id="ctx-answers">The user's answers</h2>
           <dl className={styles.facts}>
             <dt>Sent</dt>
-            <dd>{isoDay(update.created_at)}</dd>
-            <dt>Last watered</dt>
-            <dd>{isoDay(update.last_watered_on)}</dd>
-            <dt>Watering interval</dt>
-            <dd>
-              {update.watering_interval_days
-                ? `${update.watering_interval_days} days`
-                : 'Not given'}
-            </dd>
-            <dt>Drainage</dt>
-            <dd>{humanize(drainageLabels, update.drainage)}</dd>
-            <dt>Lighting</dt>
-            <dd>{humanize(lightingLabels, update.lighting)}</dd>
-            <dt>Soil by finger test</dt>
-            <dd>{humanize(fingerTestLabels, update.finger_test)}</dd>
-            <dt>Pot weight</dt>
-            <dd>{humanize(potWeightLabels, update.pot_weight)}</dd>
-            <dt>Sensor reading</dt>
-            <dd>{update.sensor_reading ?? 'Not given'}</dd>
+            <dd>{isoDay(typeof update.created_at === 'string' ? update.created_at : undefined)}</dd>
+            {answerRows(update).map((row) => (
+              <Fragment key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </Fragment>
+            ))}
           </dl>
         </section>
       )}
