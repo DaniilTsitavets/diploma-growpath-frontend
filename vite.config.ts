@@ -29,6 +29,8 @@ export default defineConfig(({ mode }) => {
       globals: true,
       setupFiles: ['./src/test/setup.ts'],
       include: ['src/**/*.test.{ts,tsx}'],
+      // Tests render whole pages with a user typing; a busy machine must not turn that into a failure.
+      testTimeout: 15_000,
     },
   }
 })

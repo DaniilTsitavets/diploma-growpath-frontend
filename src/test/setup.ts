@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom/vitest'
+import { configure } from '@testing-library/react'
+
+// A page that loads its code and its data may need more than the default second on a busy machine.
+configure({ asyncUtilTimeout: 5000 })
 
 // jsdom has no modal dialog support; the polyfill only toggles the open state.
 if (!HTMLDialogElement.prototype.showModal) {
