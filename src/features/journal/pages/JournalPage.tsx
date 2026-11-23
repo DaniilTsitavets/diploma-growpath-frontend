@@ -78,7 +78,7 @@ export function JournalPage() {
         {journal.data.checkpoints.length === 0 ? (
           <p>Checkpoints appear after you record the planting date.</p>
         ) : (
-          <CheckpointList checkpoints={journal.data.checkpoints} />
+          <CheckpointList journalId={journalId} checkpoints={journal.data.checkpoints} />
         )}
       </section>
 
