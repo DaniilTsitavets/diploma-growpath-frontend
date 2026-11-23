@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite'
-import { buildCsp, securityHeaders, type CspOptions } from './src/shared/security/csp'
+import { buildCsp, securityHeaders, type CspOptions } from './src/shared/security/csp.ts'
 
 /**
  * Applies the security policy to the built application only: the dev server needs inline code for hot reload.

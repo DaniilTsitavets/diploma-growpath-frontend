@@ -2,8 +2,8 @@ import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
-import { parseOrigins } from './src/shared/security/csp'
-import { securityPolicy } from './vite.security'
+import { parseOrigins } from './src/shared/security/csp.ts'
+import { securityPolicy } from './vite.security.ts'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
