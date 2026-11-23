@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { describeError } from '@/shared/api/messages'
+import { FileDropzone } from '@/shared/ui/FileDropzone'
 import { useUploadPhoto } from '../api/queries'
-import { ACCEPTED_PHOTO_TYPES, validatePhoto, type PhotoSlot as Slot } from '../model/photo'
+import {
+  ACCEPTED_PHOTO_TYPES,
+  PHOTO_NOTE,
+  validatePhoto,
+  type PhotoSlot as Slot,
+} from '../model/photo'
 import styles from './PhotoSlot.module.css'
 
 interface PhotoSlotProps {
@@ -31,19 +37,15 @@ export function PhotoSlot({ updateId, slot, uploadedUrl }: PhotoSlotProps) {
       <p id={hintId} className={styles.hint}>
         {slot.hint}
       </p>
-      {uploadedUrl && (
-        <img className={styles.preview} src={uploadedUrl} alt={`${slot.label} photo`} />
-      )}
-      <input
+      <FileDropzone
         id={inputId}
-        type="file"
-        accept={ACCEPTED_PHOTO_TYPES.join(',')}
-        aria-describedby={hintId}
+        accept={ACCEPTED_PHOTO_TYPES}
+        note={PHOTO_NOTE}
+        describedBy={hintId}
         disabled={upload.isPending}
-        onChange={(event) => {
-          onSelect(event.target.files?.[0])
-          event.target.value = ''
-        }}
+        imageUrl={uploadedUrl}
+        imageAlt={`${slot.label} photo`}
+        onFile={onSelect}
       />
       {upload.isPending && (
         <p role="status" className={styles.status}>

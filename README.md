@@ -18,7 +18,10 @@ Gateway. This client talks to the backend only through that gateway.
 | Diagnosis   | Sees ranked possible causes after an update, answers at most one clarifying question                                              |
 | Expert help | Sees the remaining expert quota and decides whether to open a ticket; reads the written answer                                    |
 | AI chat     | Asks care questions inside a journal and gets answers with the knowledge-base sections they came from                             |
-| Expert view | Users in the `experts` group read open tickets and write one answer                                                               |
+| Plant page  | Opens an item for its picture, price and care information (quick facts, care blocks, questions, source credit)                    |
+| Expert view | Users in the `experts` group read open tickets and write one answer; they see nothing else                                        |
+| Admin       | Administrators list users, create them, change roles, disable or enable them and set passwords                                    |
+| Credits     | Lists the authors and licences of the photos and the care data                                                                    |
 
 ## Documentation
 

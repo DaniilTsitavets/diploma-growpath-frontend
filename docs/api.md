@@ -288,9 +288,10 @@ a different `schema_version` shows what is recognised with a note.
 
 - There is no `GET` for a single update; the update page finds it in the feed.
 - The gateway route `GET /v1/me/entitlement` is not in the OpenAPI file (which has `/v1/entitlements/{user_id}`).
-- Problem codes are spelled both `ai-quota-exhausted` and `quota_exhausted` in the backend's own documents; the
-  client accepts both for the AI quota.
-- Photo size and type limits are not specified; the client allows JPEG, PNG and WebP up to 10 MB.
+- Problem codes are kebab-case (`ai-quota-exhausted`, and `quota-exhausted` from the entitlement service); the client
+  accepts both for the AI quota.
+- The photo size limit is not stated in the contract; the client refuses anything over 10 MB, and the backend answers
+  `photo-too-large` if its own limit is lower. Accepted types are JPEG, PNG and WebP.
 
 ## Lists and pagination
 

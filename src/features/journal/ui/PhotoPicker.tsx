@@ -1,4 +1,5 @@
-import { ACCEPTED_PHOTO_TYPES, type PhotoSlot } from '../model/photo'
+import { FileDropzone } from '@/shared/ui/FileDropzone'
+import { ACCEPTED_PHOTO_TYPES, PHOTO_NOTE, type PhotoSlot } from '../model/photo'
 import styles from './PhotoPicker.module.css'
 
 interface PhotoPickerProps {
@@ -18,16 +19,16 @@ export function PhotoPicker({ slot, required, file, error, onChange }: PhotoPick
         {slot.label}
         {required ? ' (required)' : ' (optional)'}
       </label>
-      <input
+      <FileDropzone
         id={id}
-        type="file"
-        accept={ACCEPTED_PHOTO_TYPES.join(',')}
-        aria-describedby={`${id}-hint`}
-        aria-invalid={error ? 'true' : undefined}
-        onChange={(event) => onChange(event.target.files?.[0])}
+        accept={ACCEPTED_PHOTO_TYPES}
+        note={PHOTO_NOTE}
+        describedBy={`${id}-hint`}
+        file={file}
+        onFile={onChange}
       />
       <p id={`${id}-hint`} className={styles.hint}>
-        {file ? `Selected: ${file.name}` : slot.hint}
+        {slot.hint}
       </p>
       {error && (
         <p role="alert" className={styles.error}>
