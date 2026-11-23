@@ -17,7 +17,6 @@ export const photoSlots: PhotoSlot[] = [
     label: 'Whole plant',
     hint: 'The whole plant in its pot. The diagnosis needs it.',
   },
-  { kind: 'soil', label: 'Soil', hint: 'The soil surface.' },
   {
     kind: 'symptom_closeup',
     label: 'Symptom close-up',

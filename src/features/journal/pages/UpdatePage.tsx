@@ -46,7 +46,7 @@ function Photos({ update }: { update: PlantUpdate }) {
       {photos.data && (
         <p role="status">
           {missing.length === 0
-            ? 'Both required photos are uploaded.'
+            ? 'All required photos are uploaded.'
             : `Still needed: ${missing
                 .map((kind) => photoSlots.find((slot) => slot.kind === kind)?.label ?? kind)
                 .join(', ')}.`}
