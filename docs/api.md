@@ -99,6 +99,12 @@ Types are the generated ones; "Auth" says whether a token is needed.
 | `GET /v1/items/{slug}`                               | none    | Item page                                        | none                               | `ItemResponse`                                   |
 | `GET /v1/plants/{slug}`                              | none    | Care information on the item page                | none                               | `PlantProfileResponse`                           |
 | `POST /v1/orders`                                    | token   | Order an item (header `Idempotency-Key`)         | `{ item_id }`                      | `OrderResponse` (201, or 200 for a repeated key) |
+| `GET /v1/me`                                         | token   | Who the caller is and their role                 | none                               | `MeResponse` (`role`: user, expert, admin)       |
+| `GET /v1/admin/users`                                | admins  | Users list                                       | `limit`, `cursor`                  | `{ items: UserResponse[], next_cursor }`         |
+| `POST /v1/admin/users`                               | admins  | Create a user                                    | `{ email, password, role }`        | `UserResponse` (201)                             |
+| `PUT /v1/admin/users/{id}/role`                      | admins  | Change a role                                    | `{ role }`                         | `UserResponse`                                   |
+| `POST /v1/admin/users/{id}/disable` and `/enable`    | admins  | Block or allow sign-in                           | none                               | 204                                              |
+| `POST /v1/admin/users/{id}/password`                 | admins  | Set a new password                               | `{ password }`                     | 204                                              |
 | `GET /v1/me/entitlement`                             | token   | Tier and quotas                                  | none                               | `EntitlementResponse`                            |
 | `GET /v1/journals`                                   | token   | Journals list (all pages, see below)             | `limit`, `cursor`                  | `{ items: JournalResponse[], next_cursor }`      |
 | `GET /v1/journals/{id}`                              | token   | One journal                                      | none                               | `JournalResponse`                                |

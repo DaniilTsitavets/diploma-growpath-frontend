@@ -10,3 +10,6 @@ if (!HTMLDialogElement.prototype.showModal) {
     this.dispatchEvent(new Event('close'))
   }
 }
+
+// jsdom does not implement scrolling; the router's scroll restoration only needs it not to complain.
+window.scrollTo = () => undefined

@@ -1,9 +1,9 @@
 import { Link } from 'react-router'
-import { isExpert, useSession } from '@/features/auth/model/session-store'
+import { useRole } from '@/features/auth/api/use-role'
 import styles from './SiteFooter.module.css'
 
 export function SiteFooter() {
-  const session = useSession((state) => state.session)
+  const { role, pending } = useRole()
   return (
     <footer className={styles.footer}>
       <div className={styles.grid}>
@@ -15,7 +15,7 @@ export function SiteFooter() {
             A guided way to grow your first plants: starter packs, an AI assistant and a botanist.
           </p>
         </div>
-        {!isExpert(session) && (
+        {!pending && role !== 'expert' && role !== 'admin' && (
           <nav aria-label="Explore">
             <p className="eyebrow">Explore</p>
             <ul className={styles.list}>

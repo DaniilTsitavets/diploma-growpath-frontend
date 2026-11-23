@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router'
-import { isExpert, useSession } from '@/features/auth/model/session-store'
+import { useRole } from '@/features/auth/api/use-role'
+import { useSession } from '@/features/auth/model/session-store'
 import { ThemeToggle } from '@/shared/ui/ThemeToggle'
 import styles from './AppLayout.module.css'
 import { HeaderSearch } from './HeaderSearch'
@@ -11,6 +12,8 @@ const CHAT_PATH = /^\/(chat|journals\/[^/]+\/chat)(\/|$)/
 export function AppLayout() {
   const session = useSession((state) => state.session)
   const clear = useSession((state) => state.clear)
+  const { role, pending } = useRole()
+  const customer = !pending && role !== 'expert' && role !== 'admin'
   const navigate = useNavigate()
   const location = useLocation()
   const inChat = CHAT_PATH.test(location.pathname)
@@ -24,11 +27,17 @@ export function AppLayout() {
             GrowPath
           </Link>
           <nav aria-label="Main" className={styles.tabs}>
-            {isExpert(session) ? (
+            {role === 'expert' && (
               <NavLink to="/expert/tickets" className={styles.tab}>
                 Expert tickets
               </NavLink>
-            ) : (
+            )}
+            {role === 'admin' && (
+              <NavLink to="/admin/users" className={styles.tab}>
+                Users
+              </NavLink>
+            )}
+            {customer && (
               <>
                 <NavLink to="/" end className={styles.tab}>
                   Home
@@ -49,7 +58,7 @@ export function AppLayout() {
               </>
             )}
           </nav>
-          {!isExpert(session) && <HeaderSearch />}
+          {customer && <HeaderSearch />}
           <div className={styles.actions}>
             <ThemeToggle />
             {session ? (

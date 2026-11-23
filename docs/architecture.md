@@ -49,20 +49,21 @@ Rules the code follows:
 
 ### Feature modules
 
-| Module        | Responsibility                                       | Main pieces                                                                    |
-| ------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `auth`        | Cognito sign-in, session, route guards               | `LoginPage`, `session-store`, `cognito` client, `RequireAuth`, `RequireExpert` |
-| `catalog`     | Shop: list, item page, search, filter, sort, order   | `CatalogPage`, `ItemPage`, `ItemCard`, `CatalogToolbar`, `OrderDialog`         |
-| `plants`      | Care information of a plant (open, no token)         | `PlantCare`, `usePlant`, `care-blocks` rules                                   |
-| `media`       | Item pictures: credits list, captions, credits page  | `CreditsPage`, `useMediaCredits`, `photoCaption`                               |
-| `home`        | Landing page with a few shop items                   | `HomePage`                                                                     |
-| `journal`     | Journals, checkpoints, updates, photo upload         | `JournalsPage`, `JournalPage`, `NewUpdatePage`, `UpdatePage`, `PhotoSlot`      |
-| `diagnosis`   | Diagnosis panel, clarification, retry                | `DiagnosisPanel`, `ClarificationForm`, quota error checks                      |
-| `escalation`  | Expert help: availability, confirmation, answer      | `EscalationPanel`, `expertAvailability`                                        |
-| `entitlement` | Tier and quotas, shown next to every spending action | `useEntitlement`, `QuotaSummary`, tier rules                                   |
-| `chat`        | Care chat inside a journal                           | `JournalChatPage`, `ChatTurnView`, `AskForm`                                   |
-| `expert`      | Expert view: queue, ticket, one written answer       | `TicketsPage`, `TicketPage`, `ticket-context` parser                           |
-| `not-found`   | Unknown address                                      | `NotFoundPage`                                                                 |
+| Module        | Responsibility                                       | Main pieces                                                                          |
+| ------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `auth`        | Cognito sign-in, session, role, route guards         | `LoginPage`, `session-store`, `useRole` (`GET /v1/me`), `RequireAuth`, `RequireRole` |
+| `catalog`     | Shop: list, item page, search, filter, sort, order   | `CatalogPage`, `ItemPage`, `ItemCard`, `CatalogToolbar`, `OrderDialog`               |
+| `admin`       | Administrator: list, create, role, disable, password | `UsersPage`, `CreateUserDialog`, `ChangeRoleDialog`, `PasswordDialog`                |
+| `plants`      | Care information of a plant (open, no token)         | `PlantCare`, `usePlant`, `care-blocks` rules                                         |
+| `media`       | Item pictures: credits list, captions, credits page  | `CreditsPage`, `useMediaCredits`, `photoCaption`                                     |
+| `home`        | Landing page with a few shop items                   | `HomePage`                                                                           |
+| `journal`     | Journals, checkpoints, updates, photo upload         | `JournalsPage`, `JournalPage`, `NewUpdatePage`, `UpdatePage`, `PhotoSlot`            |
+| `diagnosis`   | Diagnosis panel, clarification, retry                | `DiagnosisPanel`, `ClarificationForm`, quota error checks                            |
+| `escalation`  | Expert help: availability, confirmation, answer      | `EscalationPanel`, `expertAvailability`                                              |
+| `entitlement` | Tier and quotas, shown next to every spending action | `useEntitlement`, `QuotaSummary`, tier rules                                         |
+| `chat`        | Care chat inside a journal                           | `JournalChatPage`, `ChatTurnView`, `AskForm`                                         |
+| `expert`      | Expert view: queue, ticket, one written answer       | `TicketsPage`, `TicketPage`, `ticket-context` parser                                 |
+| `not-found`   | Unknown address                                      | `NotFoundPage`                                                                       |
 
 Dependencies between modules are explicit imports of another module's `api`, `model` or `ui`:
 
@@ -84,6 +85,7 @@ flowchart LR
   expert --> diagnosis
   catalog --> auth
   catalog --> plants
+  admin --> auth
   catalog --> media
   home --> catalog
 ```
@@ -106,14 +108,14 @@ dependent module to the one it uses, and there are no cycles.
 | `/journals/:journalId/chat`              | Care chat of the journal                                 | signed in                        | site                         |
 | `/journals/:journalId/updates/new`       | New update with photos                                   | signed in                        | site                         |
 | `/journals/:journalId/updates/:updateId` | Update: answers, photos, diagnosis, expert help          | signed in                        | site                         |
+| `/admin/users`                           | Users: list, create, change role, disable, set password  | role `admin`                     | site                         |
 | `/expert/tickets`                        | Open tickets                                             | group `experts`                  | site                         |
 | `/expert/tickets/:ticketId`              | Ticket and answer                                        | group `experts`                  | site                         |
 | `*`                                      | Not found                                                | public                           | site                         |
 
 Every page is a lazy route (`React.lazy` through the router's `lazy`), so the first load carries only the shell
 and the page that was asked for. Guards are layout routes: `RequireAuth` redirects a visitor to `/login` and
-remembers the address to come back to; `RequireExpert` shows a "no access" message to a signed-in user outside
-the `experts` group.
+remembers the address to come back to; `RequireExpert` and `RequireAdmin` show a "no access" message to a signed-in user of another role. The role comes from `GET /v1/me`, not from the groups in the token (the groups are only a fallback while `/v1/me` cannot be had). Experts and administrators have no shop, chat or journals: `RequireCustomer` sends them from the home page to their own page.
 
 ### State
 
