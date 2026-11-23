@@ -298,3 +298,14 @@ Every list answers `{ items, next_cursor }` and takes `limit` (50 by default, 10
 parameter is called `cursor` everywhere. The shop and the journals are short, so the client asks for 100 and follows
 `next_cursor` until it is null (`listAllPages`). The update feed, the chat history and the expert queue are read
 page by page with an infinite query. Amounts carry `currency: "EUR"`; the interface formats them with one constant.
+
+## Watering and planting
+
+A completed diagnosis carries `watering` (or null for a diagnosis made before it existed): a status (`underwatering`,
+`overwatering`, `on_track`, `unclear`), a reliability, the recommended interval and its bounds, the user's own interval,
+flags (for example `drainage_none`), the air readings used and the assumptions. The page words all of it in plain
+sentences and lists the assumptions under "What this is based on".
+
+`PUT /v1/journals/{id}/planting` keeps the first date: the same date again answers 200, another date answers 409
+`planting-already-recorded`, a future date 422. A saved date is therefore shown as text; the form only records the first
+one.
