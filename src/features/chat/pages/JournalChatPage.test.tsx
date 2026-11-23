@@ -166,7 +166,7 @@ describe('JournalChatPage', () => {
     await vi.waitFor(() => expect(questions).toEqual(['First line\nsecond line']))
   })
 
-  it('credits PlantSolve with a link when an answer cites its page', async () => {
+  it('credits the source and licence that the answer itself names, with a link to the page', async () => {
     history([
       turn({
         sources: [
@@ -174,6 +174,8 @@ describe('JournalChatPage', () => {
             ...source,
             document_title: 'Basil (PlantSolve)',
             source_url: 'https://www.plantsolve.com/plants/basil/',
+            source_name: 'PlantSolve',
+            license: 'CC BY 4.0',
           },
         ],
       }),
@@ -182,15 +184,19 @@ describe('JournalChatPage', () => {
 
     const link = await screen.findByRole('link', { name: 'PlantSolve' })
     expect(link).toHaveAttribute('href', 'https://www.plantsolve.com/plants/basil/')
-    expect(screen.getByText(/CC BY 4.0/)).toBeInTheDocument()
+    expect(screen.getByText(/· CC BY 4\.0/)).toBeInTheDocument()
   })
 
-  it('does not credit PlantSolve for a source from another site', async () => {
+  it('credits whatever source the backend names, without any name written in the page', async () => {
     history([turn({})])
     renderPage()
 
     await screen.findByText('Water when the top centimetre of soil is dry.')
-    expect(screen.queryByText(/CC BY 4.0/)).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Example guide' })).toHaveAttribute(
+      'href',
+      'https://example.org/basil#water',
+    )
+    expect(screen.getByText(/· CC0/)).toBeInTheDocument()
   })
 
   it('says there is no confirmed information when the knowledge base has none', async () => {

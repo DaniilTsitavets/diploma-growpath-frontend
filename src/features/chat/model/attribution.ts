@@ -1,13 +1,29 @@
 import { safeHttpUrl } from './safe-url'
 import type { ChatSource } from './types'
 
-const PLANTSOLVE_HOST = 'www.plantsolve.com'
+export interface SourceCredit {
+  name: string
+  license: string | null
+  /** The page of the first source with this name, or null when its address is not a web address. */
+  href: string | null
+}
 
-/** The licence of the care data asks for a visible credit with a link, so the first PlantSolve source is returned for it. */
-export function plantSolveSource(sources: ChatSource[]): { href: string } | null {
+/**
+ * Who the sources of an answer come from, each name and licence once. The credit is read from the source
+ * itself (`source_name`, `license`), so it follows whatever the backend uses and nothing is written here.
+ */
+export function sourceCredits(sources: ChatSource[]): SourceCredit[] {
+  const credits = new Map<string, SourceCredit>()
   for (const source of sources) {
-    const href = safeHttpUrl(source.source_url)
-    if (href && new URL(href).hostname === PLANTSOLVE_HOST) return { href }
+    if (!source.source_name) continue
+    const key = `${source.source_name}|${source.license}`
+    if (!credits.has(key)) {
+      credits.set(key, {
+        name: source.source_name,
+        license: source.license ?? null,
+        href: safeHttpUrl(source.source_url),
+      })
+    }
   }
-  return null
+  return [...credits.values()]
 }

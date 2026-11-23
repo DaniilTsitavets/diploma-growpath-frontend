@@ -1,35 +1,41 @@
-import { plantSolveSource } from './attribution'
+import { sourceCredits } from './attribution'
 import type { ChatSource } from './types'
 
-const source = (url: string): ChatSource => ({
+const source = (name: string, license: string, url: string): ChatSource => ({
   rank: 1,
-  section_id: url,
-  document_title: 'Lavender (PlantSolve)',
-  source_name: 'PlantSolve',
-  license: 'CC BY 4.0',
+  section_id: `${name}${url}`,
+  document_title: `${name} guide`,
   section_heading: 'Watering',
   source_url: url,
+  source_name: name,
+  license,
 })
 
-describe('plantSolveSource', () => {
-  it('returns the link of the first PlantSolve source', () => {
+describe('sourceCredits', () => {
+  it('names each source and licence once, with the link of the first of its pages', () => {
     expect(
-      plantSolveSource([
-        source('https://example.org/x'),
-        source('https://www.plantsolve.com/plants/lavender/'),
-        source('https://www.plantsolve.com/dataset/'),
+      sourceCredits([
+        source('PlantSolve', 'CC BY 4.0', 'https://www.plantsolve.com/plants/lavender/'),
+        source('PlantSolve', 'CC BY 4.0', 'https://www.plantsolve.com/dataset/'),
+        source('Extension office', 'CC0', 'https://example.org/basil'),
       ]),
-    ).toEqual({ href: 'https://www.plantsolve.com/plants/lavender/' })
+    ).toEqual([
+      {
+        name: 'PlantSolve',
+        license: 'CC BY 4.0',
+        href: 'https://www.plantsolve.com/plants/lavender/',
+      },
+      { name: 'Extension office', license: 'CC0', href: 'https://example.org/basil' },
+    ])
   })
 
-  it('ignores other hosts, look-alikes and links that are not web addresses', () => {
-    expect(
-      plantSolveSource([
-        source('https://plantsolve.com.evil.test/'),
-        source('javascript:alert(1)'),
-        source('not a url'),
-      ]),
-    ).toBeNull()
-    expect(plantSolveSource([])).toBeNull()
+  it('keeps the credit but drops a link that is not a web address', () => {
+    expect(sourceCredits([source('PlantSolve', 'CC BY 4.0', 'javascript:alert(1)')])).toEqual([
+      { name: 'PlantSolve', license: 'CC BY 4.0', href: null },
+    ])
+  })
+
+  it('gives nothing for an answer without sources', () => {
+    expect(sourceCredits([])).toEqual([])
   })
 })
