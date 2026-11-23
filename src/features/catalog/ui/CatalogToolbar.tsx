@@ -58,10 +58,7 @@ function Checklist({ title, name, options, values, onChange }: ChecklistProps) {
         name={name}
         values={values}
         options={shown}
-        onChange={(next) => {
-          const hidden = values.filter((value) => !shown.some((option) => option.value === value))
-          onChange([...hidden, ...next])
-        }}
+        onChange={onChange}
       />
     </>
   )

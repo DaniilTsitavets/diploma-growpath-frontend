@@ -65,7 +65,9 @@ export function FilterMenu({
       ref={root}
       className={styles.root}
       onBlur={(event) => {
-        if (open && !root.current?.contains(event.relatedTarget)) setOpen(false)
+        // A mouse press on a label moves focus to nothing; only a move to another element (Tab) closes the menu here.
+        const next = event.relatedTarget
+        if (open && next && !root.current?.contains(next)) setOpen(false)
       }}
     >
       <button
