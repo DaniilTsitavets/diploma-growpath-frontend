@@ -3,6 +3,8 @@ import type { PhotoKind } from './types'
 export const MAX_PHOTO_BYTES = 10 * 1024 * 1024
 export const ACCEPTED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
 
+export const PHOTO_NOTE = 'JPEG, PNG or WebP, up to 10 MB'
+
 export interface PhotoSlot {
   kind: PhotoKind
   label: string
@@ -15,7 +17,7 @@ export const photoSlots: PhotoSlot[] = [
     label: 'Whole plant',
     hint: 'The whole plant in its pot. The diagnosis needs it.',
   },
-  { kind: 'soil', label: 'Soil', hint: 'The soil surface. The diagnosis needs it.' },
+  { kind: 'soil', label: 'Soil', hint: 'The soil surface.' },
   {
     kind: 'symptom_closeup',
     label: 'Symptom close-up',
