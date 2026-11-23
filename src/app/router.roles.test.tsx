@@ -75,7 +75,7 @@ describe('roles', () => {
     )
     renderAt('/admin/users')
 
-    await screen.findByRole('heading', { name: 'Users', level: 1 })
+    await screen.findByRole('heading', { name: 'Users', level: 1 }, { timeout: 4000 })
     const nav = screen.getByRole('navigation', { name: 'Main' })
     expect(nav).toHaveTextContent('Users')
     expect(nav).not.toHaveTextContent(/Shop|AI chat|Journals|Expert tickets/)

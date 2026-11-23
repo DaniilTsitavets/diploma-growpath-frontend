@@ -2,13 +2,23 @@ import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
+import { parseOrigins } from './src/shared/security/csp.ts'
+import { securityPolicy } from './vite.security.ts'
 
 export default defineConfig(({ mode }) => {
-  const target = loadEnv(mode, process.cwd(), 'VITE_').VITE_GATEWAY_PROXY_TARGET
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  const target = env.VITE_GATEWAY_PROXY_TARGET
   const proxy = target ? { '/v1': { target, changeOrigin: true } } : undefined
 
   return {
-    plugins: [react()],
+    plugins: [
+      react(),
+      securityPolicy({
+        cognitoEndpoint: env.VITE_COGNITO_ENDPOINT,
+        mediaBaseUrl: env.VITE_MEDIA_BASE_URL,
+        extraOrigins: parseOrigins(env.VITE_CSP_EXTRA_ORIGINS),
+      }),
+    ],
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },

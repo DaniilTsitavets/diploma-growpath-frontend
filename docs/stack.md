@@ -37,6 +37,6 @@ tiny stores) are enough and are easier to read.
   dialogs, form errors) but gives a consistent look in both themes and a small bundle.
 - **`sessionStorage` for tokens** is readable by script. The mitigations are in the code (no raw HTML
   rendering, links from the backend are limited to `http` and `https`) and a strict Content Security Policy is
-  listed in [to be done](to-be-done.md).
+  enforced on the build (see [security](security.md)).
 - **Generated types** depend on the backend repository being next to this one when `npm run gen:api` runs; the
   generated files are committed so a build does not need it.

@@ -86,7 +86,8 @@
 
 .main {
   max-width: var(--content-width);
-  min-height: 60vh;
+  /* The footer starts below the fold, so a list that fills in above it cannot push it into view. */
+  min-height: calc(100svh - 4rem);
   margin: 0 auto;
   padding: var(--space-8) var(--space-4) 0;
 }

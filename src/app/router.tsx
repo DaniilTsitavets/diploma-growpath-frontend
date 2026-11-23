@@ -6,12 +6,14 @@ import {
   RequireExpert,
 } from '@/features/auth/ui/RequireAuth'
 import { ErrorPage } from './ErrorPage'
+import { StartupFallback } from './StartupFallback'
 import { AppLayout } from './layouts/AppLayout'
 import { FocusLayout } from './layouts/FocusLayout'
 
 export const routes: RouteObject[] = [
   {
     element: <FocusLayout />,
+    HydrateFallback: StartupFallback,
     errorElement: <ErrorPage />,
     children: [
       {
@@ -25,6 +27,7 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     element: <AppLayout />,
+    HydrateFallback: StartupFallback,
     errorElement: <ErrorPage />,
     children: [
       {

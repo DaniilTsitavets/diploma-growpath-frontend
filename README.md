@@ -27,6 +27,8 @@ Gateway. This client talks to the backend only through that gateway.
 3. [User flows and navigation](docs/user-flows.md): diagrams of the main journeys.
 4. [Stack justification](docs/stack.md): why each tool was chosen and what was rejected.
 5. [Testing](docs/testing.md): unit, integration and end-to-end tests and how to run them.
+6. [Security](docs/security.md): the content security policy and the other measures.
+7. [Performance](docs/performance.md): Lighthouse results and what was done for them.
 
 Also: [credits](docs/credits.md) (fonts and images) and [to be done](docs/to-be-done.md).
 
@@ -64,6 +66,7 @@ backend repository again and copy the printed values. Test users exist only on L
 | `npm test`             | Unit and integration tests (Vitest)                                                                       |
 | `npm run test:e2e`     | End-to-end tests (Playwright) against the running stack; run `npx playwright install chromium` once first |
 | `npm run gen:api`      | Regenerates API types from the backend OpenAPI contracts                                                  |
+| `npm run lighthouse`   | Builds and runs Lighthouse (mobile and desktop) on the built application                                  |
 
 ## Folder structure
 
