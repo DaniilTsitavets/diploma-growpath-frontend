@@ -12,6 +12,8 @@ const paths = {
   camera: ['M4 8h3l2-3h6l2 3h3v11H4z', 'M12 10a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z'],
   chat: ['M4 5h16v11H9l-5 4z'],
   arrow: ['M5 12h14', 'M13 6l6 6-6 6'],
+  'chevron-left': ['M15 6l-6 6 6 6'],
+  'chevron-right': ['M9 6l6 6-6 6'],
   alert: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M12 8v5', 'M12 16.5v.01'],
 } as const
 
