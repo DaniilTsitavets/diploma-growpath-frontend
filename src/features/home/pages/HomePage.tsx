@@ -47,7 +47,9 @@ function FeaturedItems() {
               </ul>
             )}
             <p className={styles.price}>{formatPrice(item.price_cents)}</p>
-            <Link to={`/shop?q=${encodeURIComponent(item.name)}`}>View in the shop</Link>
+            <Link to={`/shop/${item.slug}`} className={styles.details}>
+              View details
+            </Link>
           </div>
         </Card>
       ))}
