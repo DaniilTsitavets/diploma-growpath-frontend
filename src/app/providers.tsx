@@ -1,8 +1,10 @@
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { useSession } from '@/features/auth/model/session-store'
+import { mediaCreditsQuery } from '@/features/media/api/use-media-credits'
 import { ApiError } from '@/shared/api/api-error'
 import { describeError } from '@/shared/api/messages'
+import { mediaBaseUrl } from '@/shared/config/media'
 import { logger } from '@/shared/lib/logger'
 import { Toaster } from '@/shared/ui/Toaster'
 import { useToasts } from '@/shared/ui/toast-store'
@@ -26,7 +28,7 @@ function reportError(error: unknown, handledInline = false) {
 }
 
 function createQueryClient() {
-  return new QueryClient({
+  const client = new QueryClient({
     queryCache: new QueryCache({ onError: (error) => reportError(error) }),
     mutationCache: new MutationCache({
       onError: (error, _variables, _context, mutation) =>
@@ -40,6 +42,9 @@ function createQueryClient() {
       },
     },
   })
+  // The list of pictures is asked for together with the first page's own data, not after the cards have appeared.
+  if (mediaBaseUrl() !== null) void client.prefetchQuery(mediaCreditsQuery())
+  return client
 }
 
 export function Providers({ children }: { children: ReactNode }) {
