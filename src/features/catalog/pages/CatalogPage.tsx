@@ -48,7 +48,8 @@ export function CatalogPage() {
         writeFiltersToParams(updated, next)
         return updated
       },
-      { replace: true },
+      // The filters live in the address, but changing one is not a move to another page: the scroll stays where it is.
+      { replace: true, preventScrollReset: true },
     )
   }
 
