@@ -85,13 +85,13 @@ describe('UpdatePage', () => {
         HttpResponse.json({ items: [update], next_cursor: null }),
       ),
       http.get(`${origin}/v1/updates/u1/photos`, () =>
-        HttpResponse.json({ photos: [], missing_required: ['overview', 'soil'] }),
+        HttpResponse.json({ photos: [], missing_required: ['overview'] }),
       ),
     )
     renderPage()
 
     expect(await screen.findByText('Poor, water drains slowly')).toBeInTheDocument()
-    expect(await screen.findByText('Still needed: Whole plant, Soil.')).toBeInTheDocument()
+    expect(await screen.findByText('Still needed: Whole plant.')).toBeInTheDocument()
   })
 
   it('uploads a chosen photo to the presigned URL and refreshes the list', async () => {
@@ -106,9 +106,9 @@ describe('UpdatePage', () => {
           uploaded
             ? {
                 photos: [{ kind: 'overview', url: 'http://storage.test/view' }],
-                missing_required: ['soil'],
+                missing_required: [],
               }
-            : { photos: [], missing_required: ['overview', 'soil'] },
+            : { photos: [], missing_required: ['overview'] },
         ),
       ),
       http.post(`${origin}/v1/updates/u1/photos`, () =>
@@ -133,7 +133,7 @@ describe('UpdatePage', () => {
     const file = new File(['x'], 'plant.png', { type: 'image/png' })
     await userEvent.upload(await screen.findByLabelText('Whole plant'), file)
 
-    expect(await screen.findByText('Still needed: Soil.')).toBeInTheDocument()
+    expect(await screen.findByText('All required photos are uploaded.')).toBeInTheDocument()
     expect(puts).toBe(1)
     expect(screen.getByAltText('Whole plant photo')).toBeInTheDocument()
   })
@@ -144,14 +144,14 @@ describe('UpdatePage', () => {
         HttpResponse.json({ items: [update], next_cursor: null }),
       ),
       http.get(`${origin}/v1/updates/u1/photos`, () =>
-        HttpResponse.json({ photos: [], missing_required: ['overview', 'soil'] }),
+        HttpResponse.json({ photos: [], missing_required: ['overview'] }),
       ),
     )
     renderPage()
 
     const user = userEvent.setup({ applyAccept: false })
     await user.upload(
-      await screen.findByLabelText('Soil'),
+      await screen.findByLabelText('Whole plant'),
       new File(['x'], 'notes.pdf', { type: 'application/pdf' }),
     )
 

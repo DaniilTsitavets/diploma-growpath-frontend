@@ -67,7 +67,6 @@ const png = () => new File(['x'], 'p.png', { type: 'image/png' })
 
 async function addPhotos() {
   await userEvent.upload(screen.getByLabelText(/Whole plant/), png())
-  await userEvent.upload(screen.getByLabelText('Soil (optional)'), png())
 }
 
 /** The three-step upload and the diagnosis, recording what the page sent. */
@@ -100,11 +99,11 @@ function backend() {
       confirmed.push(String(params.kind))
       return HttpResponse.json({ kind: params.kind, url: 'http://storage.test/read' })
     }),
-    // The backend says which photos it still needs; here it wants the whole plant and the soil.
+    // The backend says which photos it still needs; here it wants the whole plant.
     http.get(`${origin}/v1/updates/:id/photos`, () =>
       HttpResponse.json({
         photos: confirmed.map((kind) => ({ kind, url: 'http://storage.test/read' })),
-        missing_required: ['overview', 'soil'].filter((kind) => !confirmed.includes(kind)),
+        missing_required: ['overview'].filter((kind) => !confirmed.includes(kind)),
       }),
     ),
     http.post(`${origin}/v1/updates/:id/diagnosis`, () => {
@@ -149,15 +148,14 @@ describe('NewUpdatePage', () => {
     expect(calls).toEqual(['update'])
   })
 
-  it('does not run the diagnosis when only one of the two main photos was added', async () => {
+  it('does not run the diagnosis while the whole-plant photo is missing', async () => {
     const { calls } = backend()
     renderPage()
     await choose(lightingLabels.low)
-    await userEvent.upload(screen.getByLabelText(/Whole plant/), png())
     await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
 
     await screen.findByRole('heading', { name: 'Update page' })
-    expect(calls).toEqual(['update', 'ticket:overview', 'put:overview', 'confirm:overview'])
+    expect(calls).toEqual(['update'])
   })
 
   it('refuses a photo of a type the backend does not accept', async () => {
@@ -173,7 +171,7 @@ describe('NewUpdatePage', () => {
     expect(await screen.findByText('Use a JPEG, PNG or WebP photo.')).toBeInTheDocument()
   })
 
-  it('sends "unknown" for every question left alone, uploads and confirms both photos, then diagnoses', async () => {
+  it('sends "unknown" for every question left alone, uploads and confirms the photo, then diagnoses', async () => {
     const { calls, sent } = backend()
     renderPage()
     await choose(lightingLabels.bright_indirect)
@@ -186,9 +184,6 @@ describe('NewUpdatePage', () => {
       'ticket:overview',
       'put:overview',
       'confirm:overview',
-      'ticket:soil',
-      'put:soil',
-      'confirm:soil',
       'diagnosis',
     ])
     expect(sent.update).toMatchObject({
