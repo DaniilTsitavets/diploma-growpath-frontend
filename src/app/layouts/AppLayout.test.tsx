@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { AppLayout } from './AppLayout'
@@ -7,7 +8,11 @@ function currentTab(path: string) {
     [{ path: '/', element: <AppLayout />, children: [{ path: '*', element: <p>page</p> }] }],
     { initialEntries: [path] },
   )
-  render(<RouterProvider router={router} />)
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  )
   return screen
     .getAllByRole('link', { current: 'page' })
     .map((link) => link.textContent)

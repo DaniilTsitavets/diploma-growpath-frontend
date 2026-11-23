@@ -1,5 +1,10 @@
 import { createBrowserRouter, type RouteObject } from 'react-router'
-import { RequireAuth, RequireCustomer, RequireExpert } from '@/features/auth/ui/RequireAuth'
+import {
+  RequireAdmin,
+  RequireAuth,
+  RequireCustomer,
+  RequireExpert,
+} from '@/features/auth/ui/RequireAuth'
 import { ErrorPage } from './ErrorPage'
 import { AppLayout } from './layouts/AppLayout'
 import { FocusLayout } from './layouts/FocusLayout'
@@ -103,6 +108,22 @@ export const routes: RouteObject[] = [
                 path: 'expert/tickets/:ticketId',
                 lazy: async () => ({
                   Component: (await import('@/features/expert/pages/TicketPage')).TicketPage,
+                }),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        element: <RequireAuth />,
+        children: [
+          {
+            element: <RequireAdmin />,
+            children: [
+              {
+                path: 'admin/users',
+                lazy: async () => ({
+                  Component: (await import('@/features/admin/pages/UsersPage')).UsersPage,
                 }),
               },
             ],

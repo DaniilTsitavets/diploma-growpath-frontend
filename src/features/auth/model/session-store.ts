@@ -54,5 +54,3 @@ export const useSession = create<SessionState>((set) => ({
     set({ session: null })
   },
 }))
-
-export const isExpert = (session: Session | null) => session?.groups.includes('experts') ?? false
