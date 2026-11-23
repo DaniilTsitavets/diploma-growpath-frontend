@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate, useParams } from 'react-router'
 import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
@@ -33,6 +33,7 @@ import { photoSlots, validatePhoto } from '../model/photo'
 import type { PhotoKind } from '../model/types'
 import { PhotoPicker } from '../ui/PhotoPicker'
 import { ChoiceField } from '@/shared/ui/ChoiceField'
+import { DatePicker } from '@/shared/ui/DatePicker'
 import { TextField } from '@/shared/ui/TextField'
 import styles from './NewUpdatePage.module.css'
 
@@ -132,25 +133,39 @@ export function NewUpdatePage() {
                 {...register('watered_since')}
               />
               {wateredSince === 'yes' && (
-                <TextField
-                  id="last-watered"
-                  type="date"
-                  label="When did you water last?"
-                  max={todayIso()}
-                  error={errors.last_watered_on?.message}
-                  {...register('last_watered_on')}
+                <Controller
+                  control={control}
+                  name="last_watered_on"
+                  render={({ field }) => (
+                    <DatePicker
+                      id="last-watered"
+                      label="When did you water last?"
+                      value={field.value}
+                      onChange={field.onChange}
+                      max={todayIso()}
+                      clearable
+                      error={errors.last_watered_on?.message}
+                    />
+                  )}
                 />
               )}
             </>
           ) : (
-            <TextField
-              id="last-watered"
-              type="date"
-              label="Last watered"
-              hint="Leave it empty if you do not know."
-              max={todayIso()}
-              error={errors.last_watered_on?.message}
-              {...register('last_watered_on')}
+            <Controller
+              control={control}
+              name="last_watered_on"
+              render={({ field }) => (
+                <DatePicker
+                  id="last-watered"
+                  label="Last watered"
+                  hint="Leave it empty if you do not know."
+                  value={field.value}
+                  onChange={field.onChange}
+                  max={todayIso()}
+                  clearable
+                  error={errors.last_watered_on?.message}
+                />
+              )}
             />
           )}
           <ChoiceField

@@ -18,6 +18,8 @@ const paths = {
     'M3 17l5-5 4 4 3-3 6 6',
   ],
   arrow: ['M5 12h14', 'M13 6l6 6-6 6'],
+  'chevron-left': ['M15 6l-6 6 6 6'],
+  'chevron-right': ['M9 6l6 6-6 6'],
   alert: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M12 8v5', 'M12 16.5v.01'],
 } as const
 

@@ -5,6 +5,8 @@ import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { configureApi } from '@/shared/api/client'
 import { createHttpClient } from '@/shared/api/http'
+import { formatDayName } from '@/shared/lib/calendar'
+import { formatDate, todayIso } from '../model/dates'
 import { PlantingForm } from './PlantingForm'
 
 const origin = window.location.origin
@@ -17,6 +19,14 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
+// The first day of the current month is never in the future, whatever today is.
+const firstOfMonth = `${todayIso().slice(0, 7)}-01`
+
+async function pickFirstOfMonth() {
+  await userEvent.click(screen.getByLabelText('Planting date'))
+  await userEvent.click(screen.getByRole('button', { name: formatDayName(firstOfMonth) }))
+}
+
 function renderForm(plantedOn: string | null = null) {
   render(
     <QueryClientProvider client={new QueryClient()}>
@@ -26,11 +36,26 @@ function renderForm(plantedOn: string | null = null) {
 }
 
 describe('PlantingForm', () => {
-  it('requires a date before sending', async () => {
+  it('starts on today and records it with one click', async () => {
+    let body: unknown
+    server.use(
+      http.put(`${origin}/v1/journals/j1/planting`, async ({ request }) => {
+        body = await request.json()
+        return HttpResponse.json({
+          id: 'j1',
+          order_id: 'o1',
+          species: 'Basil',
+          planted_on: todayIso(),
+          created_at: '2026-11-01T10:00:00Z',
+          checkpoints: [],
+        })
+      }),
+    )
     renderForm()
+    expect(screen.getByLabelText('Planting date')).toHaveTextContent(formatDate(todayIso()))
     await userEvent.click(screen.getByRole('button', { name: 'Record planting' }))
 
-    expect(await screen.findByText('Choose the planting date')).toBeInTheDocument()
+    await vi.waitFor(() => expect(body).toEqual({ planted_on: todayIso() }))
   })
 
   it('sends the chosen planting date', async () => {
@@ -42,17 +67,17 @@ describe('PlantingForm', () => {
           id: 'j1',
           order_id: 'o1',
           species: 'Basil',
-          planted_on: '2026-11-01',
+          planted_on: firstOfMonth,
           created_at: '2026-11-01T10:00:00Z',
           checkpoints: [],
         })
       }),
     )
     renderForm()
-    await userEvent.type(screen.getByLabelText('Planting date'), '2026-11-01')
+    await pickFirstOfMonth()
     await userEvent.click(screen.getByRole('button', { name: 'Record planting' }))
 
-    await vi.waitFor(() => expect(body).toEqual({ planted_on: '2026-11-01' }))
+    await vi.waitFor(() => expect(body).toEqual({ planted_on: firstOfMonth }))
   })
 
   it('shows the server error next to the form', async () => {
@@ -62,7 +87,7 @@ describe('PlantingForm', () => {
       ),
     )
     renderForm()
-    await userEvent.type(screen.getByLabelText('Planting date'), '2026-11-01')
+    await pickFirstOfMonth()
     await userEvent.click(screen.getByRole('button', { name: 'Record planting' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('could not find')
@@ -87,7 +112,7 @@ describe('PlantingForm', () => {
       ),
     )
     renderForm()
-    await userEvent.type(screen.getByLabelText('Planting date'), '2026-11-01')
+    await pickFirstOfMonth()
     await userEvent.click(screen.getByRole('button', { name: 'Record planting' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('already saved')

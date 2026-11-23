@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { Button } from '@/shared/ui/Button'
+import { DatePicker } from '@/shared/ui/DatePicker'
 import { useRecordPlanting } from '../api/queries'
 import { formatDate, todayIso } from '../model/dates'
 import { describePlantingError } from '../model/planting-errors'
@@ -15,12 +16,12 @@ interface PlantingFormProps {
 export function PlantingForm({ journalId, plantedOn }: PlantingFormProps) {
   const planting = useRecordPlanting(journalId)
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<PlantingValues>({
     resolver: zodResolver(plantingSchema),
-    defaultValues: { planted_on: plantedOn ?? '' },
+    defaultValues: { planted_on: plantedOn ?? todayIso() },
   })
 
   // The backend keeps the first recorded date and refuses another one, so a saved date is shown and not edited.
@@ -39,23 +40,20 @@ export function PlantingForm({ journalId, plantedOn }: PlantingFormProps) {
       noValidate
       onSubmit={(event) => void handleSubmit((values) => planting.mutate(values.planted_on))(event)}
     >
-      <div className={styles.field}>
-        <label htmlFor="planted-on">Planting date</label>
-        <input
-          id="planted-on"
-          type="date"
-          max={todayIso()}
-          className={styles.input}
-          aria-invalid={errors.planted_on ? 'true' : undefined}
-          aria-describedby={errors.planted_on ? 'planted-on-error' : undefined}
-          {...register('planted_on')}
-        />
-        {errors.planted_on && (
-          <p id="planted-on-error" className={styles.error}>
-            {errors.planted_on.message}
-          </p>
+      <Controller
+        control={control}
+        name="planted_on"
+        render={({ field }) => (
+          <DatePicker
+            id="planted-on"
+            label="Planting date"
+            value={field.value}
+            onChange={field.onChange}
+            max={todayIso()}
+            error={errors.planted_on?.message}
+          />
         )}
-      </div>
+      />
       <Button type="submit" disabled={planting.isPending}>
         Record planting
       </Button>
