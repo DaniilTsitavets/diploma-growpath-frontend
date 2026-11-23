@@ -47,6 +47,41 @@ Rules the code follows:
   `model/` as pure functions with unit tests.
 - `shared/` imports nothing from `features/` or `app/`.
 
+### Components
+
+How a screen is put together: the application shell wires providers and the router; a layout frames every page; a page
+(route component) fetches through hooks and composes feature components, which are built from the shared design kit.
+
+```mermaid
+flowchart TB
+  App["App: Providers (query client, toasts) + RouterProvider"]
+  subgraph layouts["Layouts"]
+    AL["AppLayout: header (tabs by role, search, theme, session), main, footer"]
+    FL["FocusLayout: the sign-in window alone"]
+  end
+  subgraph guards["Guards (layout routes)"]
+    RA["RequireAuth"]
+    RC["RequireCustomer"]
+    RR["RequireExpert / RequireAdmin"]
+  end
+  subgraph pages["Pages (one lazy chunk each)"]
+    P1["Home, Shop, Item, Credits"]
+    P2["Journals, Journal, New update, Update"]
+    P3["Chat, Journal chat"]
+    P4["Tickets, Ticket, Users"]
+  end
+  subgraph feature["Feature components"]
+    F1["ItemCard, CatalogToolbar, OrderDialog, PlantCare"]
+    F2["CheckpointList, UpdateList, PhotoPicker"]
+    F3["DiagnosisPanel, WateringPanel, EscalationPanel"]
+    F4["ChatTurnView, AskForm, TicketContextView, user dialogs"]
+  end
+  subgraph kit["Shared design kit"]
+    K["Button, Card, Chip, ChoiceChips, ChoiceField, TextField, FileDropzone, ConfirmDialog, FormDialog, Skeleton, Toaster, Icon"]
+  end
+  App --> layouts --> guards --> pages --> feature --> kit
+```
+
 ### Feature modules
 
 | Module        | Responsibility                                       | Main pieces                                                                          |
@@ -132,7 +167,7 @@ TanStack Query already caches and invalidates. See [stack justification](stack.m
 
 Colours, spacing, radii and fonts are CSS custom properties in `src/shared/styles/tokens.css`, with a light
 and a dark set. Components are styled with CSS Modules that read only those tokens; there are no inline styles (the skeleton's sizes are named classes of the kit). The shared components (`Button`, `Card`, `Chip`, `TextField`,
-`SelectField`, `TextAreaField`, `ConfirmDialog`, `Toaster`, `Skeleton`, `ThemeToggle`) are used by every
+`ChoiceChips`, `ChoiceField`, `TextAreaField`, `FileDropzone`, `CheckboxGroup` and `RadioGroup` for the shop filter panel, `ConfirmDialog`, `FormDialog`, `Toaster`, `Skeleton`, `ThemeToggle`, `Icon`) are used by every
 feature.
 
 ## 2. Approach
@@ -167,11 +202,13 @@ why and which plan changes that, instead of an error after a click.
 
 **Accessible and themeable by construction.** Native elements first (`<dialog>`, `<details>`, `<form>`,
 `<label>`), visible focus, contrast checked in both themes, `prefers-reduced-motion` respected. axe-core
-reports no WCAG 2.1 AA violations on the main pages in both themes.
+reports no WCAG 2.1 AA violations on the main pages in both themes. The built application also runs under a strict
+content security policy (see [security](security.md)).
 
 ## 3. Advanced directions (for the maximum grade)
 
 | Direction             | What is done                                                                                                                                                                                                                                                                                |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Advanced architecture | Feature modules with a fixed slice layout, every page lazy-loaded, an explicit and acyclic dependency graph between modules, shared code with no feature knowledge                                                                                                                          |
+| Performance           | Lazy routes and a separate validation chunk, bundled fonts and 4:5 pictures with reserved space and priorities, no layout shifts, Lighthouse 91 to 100 on mobile and desktop (see [performance](performance.md)), checked by a script in the repository                                     |
 | UI/UX                 | Own design kit on design tokens, light and dark themes with a remembered choice, WCAG 2.1 AA (labels, ARIA, keyboard, focus, contrast), a keyboard-operable calendar `DatePicker` instead of the native date input, responsive layout, loading skeletons, deliberate empty and error states |

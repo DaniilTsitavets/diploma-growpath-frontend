@@ -2,14 +2,16 @@
 
 ## Navigation map
 
-The header has the same tabs on every page (Home, Shop, AI chat, Journals, and Expert tickets for experts), a
-search box, the theme toggle and Sign in or Sign out. The sign-in page is a separate window with no header
-and no footer.
+The header shows tabs that depend on the role. A visitor or a customer sees Home, Shop, AI chat and Journals; an expert
+sees only Expert tickets; an administrator sees only Users. Every page also has a search box (customers only), the theme
+toggle and Sign in or Sign out. The sign-in page is a separate window with no header and no footer.
 
 ```mermaid
 flowchart LR
   home["Home /"]
   shop["Shop /shop"]
+  item["Item and care /shop/:slug"]
+  credits["Credits /credits"]
   chat["AI chat /chat"]
   login["Sign-in window /login"]
   journals["Journals /journals"]
@@ -19,31 +21,57 @@ flowchart LR
   update["Update .../updates/:uid"]
   tickets["Expert tickets /expert/tickets"]
   ticket["Ticket /expert/tickets/:id"]
+  users["Users /admin/users"]
 
   home -->|Browse the shop, See everything| shop
+  home -->|View details| item
   home -->|Open the chat| chat
+  shop -->|a card| item
+  item -->|Sign in to order| login
   shop -->|Sign in to order| login
   login -->|back to where the user came from| shop
-  login -->|default| home
-  chat -->|pick a journal| jchat
+  login -->|default: customer| home
+  login -->|expert| tickets
+  login -->|administrator| users
+  chat -->|pick a plant| jchat
   chat -->|guard: visitor| login
   journals -->|guard: visitor| login
   journals --> journal
   journal --> jchat
-  journal -->|Add an update| newUpdate
+  journal -->|Add an update, open checkpoint| newUpdate
   newUpdate -->|Submit update| update
   journal --> update
   tickets --> ticket
+  home -.->|footer| credits
 ```
 
-Guards: `/chat` and `/journals/*` need a signed-in user and redirect a visitor straight to the sign-in window, remembering the page.
-`/expert/tickets/*` need the `experts` group; a signed-in user outside it sees a "no access" message.
+Guards (the role comes from `GET /v1/me`):
+
+- `/chat` and `/journals/*` need a signed-in customer; a visitor goes straight to the sign-in window, remembering the page.
+- `/expert/tickets/*` are for experts only and `/admin/users` for administrators only; anyone else sees a "no access" page.
+- Experts and administrators have no shop, chat or journals: those pages answer "no access" and the home page sends them to
+  their own start page.
+
+## Plant page
+
+```mermaid
+flowchart TD
+  A([Card in the shop or on Home]) --> B[Item page: picture, price, order button]
+  B --> C[Care information is requested at the same time]
+  C --> D{Care answer}
+  D -->|ok| E[Quick answer, quick facts, key takeaways, care blocks or questions, source credit]
+  D -->|unavailable| F[Item stays usable, care area says it is unavailable with Try again]
+  D -->|no such plant| G[Note: no care information yet]
+  B --> H{Presses Order}
+  H -->|visitor| I[Sign-in window, back to this page]
+  H -->|customer| J[Confirmation dialog]
+```
 
 ## Flow 1: from a visitor to an order
 
 ```mermaid
 flowchart TD
-  A([Visitor opens Home or Shop]) --> B[Reads the shop: search, filter chips, sort]
+  A([Visitor opens Home or Shop]) --> B[Reads the shop: search, filter panel (type and need checkboxes), sort]
   B --> C{Presses Order}
   C -->|signed in| D[Confirmation dialog with price and first-purchase discount]
   C -->|visitor| E[Sign-in window, the page is remembered]
@@ -131,4 +159,21 @@ flowchart TD
   F --> G{Gateway answers 401?}
   G -->|yes| E
   G -->|no| H[Normal result]
+```
+
+## Flow 6: administrator
+
+```mermaid
+flowchart TD
+  A([Administrator signs in]) --> B[Users page: email, role, status, created]
+  B --> C[Search the loaded users, Load more]
+  B --> D[Create user: email, temporary password, role]
+  B --> E[Change role]
+  B --> F[Disable or enable, with a confirmation]
+  B --> G[Set a new password]
+  D --> H{Result}
+  G --> H
+  H -->|ok| B
+  H -->|user exists, password refused, user gone| I[Explained inside the dialog]
+  E -.->|own account| J[Buttons are off: the backend refuses changing oneself]
 ```

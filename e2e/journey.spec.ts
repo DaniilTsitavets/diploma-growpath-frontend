@@ -4,7 +4,7 @@ import { expectNoAccessibilityViolations, setTheme, signIn, tinyPng } from './su
 test('a user orders a pack, keeps a journal, submits an update with photos and reads the diagnosis', async ({
   page,
 }) => {
-  test.setTimeout(300_000)
+  test.setTimeout(240_000)
   await signIn(page)
 
   // The shop: order the first pack. Payment is simulated.
@@ -14,7 +14,12 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
     .click()
   await expect(page.getByRole('heading', { name: 'Journals', level: 1 })).toBeVisible()
   const journalLinks = page.getByRole('main').getByRole('listitem').getByRole('link')
-  const before = await journalLinks.count()
+  // The list is a skeleton while it loads, so a count taken at once would always be zero.
+  const loadedCount = async () => {
+    await expect(page.getByText('Loading your journals')).toBeHidden()
+    return journalLinks.count()
+  }
+  const before = await loadedCount()
 
   await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Shop' }).click()
   await page
@@ -32,8 +37,8 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
     .click()
   await expect(async () => {
     await page.reload()
-    expect(await journalLinks.count()).toBeGreaterThan(before)
-  }).toPass({ timeout: 150_000, intervals: [1_000, 2_000, 3_000] })
+    expect(await loadedCount()).toBeGreaterThan(before)
+  }).toPass({ timeout: 60_000, intervals: [500, 1_000, 2_000] })
 
   // The journal: planting date and checkpoints.
   await journalLinks.first().click()
