@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
+import { Link, useLocation, useSearchParams } from 'react-router'
 import { useSession } from '@/features/auth/model/session-store'
 import { Card } from '@/shared/ui/Card'
 import { ApiError } from '@/shared/api/api-error'
@@ -17,10 +17,9 @@ import {
   type SortKey,
 } from '../model/catalog-view'
 import { priorityForIndex } from '../model/image-priority'
-import type { Item } from '../model/types'
 import { CatalogToolbar } from '../ui/CatalogToolbar'
 import { ItemCard } from '../ui/ItemCard'
-import { OrderDialog } from '../ui/OrderDialog'
+import { useOrderFlow } from '../ui/use-order-flow'
 import styles from './CatalogPage.module.css'
 
 const SKELETON_COUNT = 6
@@ -43,12 +42,11 @@ function CatalogSkeleton() {
 export function CatalogPage() {
   const session = useSession((state) => state.session)
   const location = useLocation()
-  const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const { data, isPending, error, refetch, isFetching } = useItems()
   const [type, setType] = useState(ALL_TYPES)
   const [sort, setSort] = useState<SortKey>('name')
-  const [selected, setSelected] = useState<Item | null>(null)
+  const order = useOrderFlow()
 
   const search = params.get('q') ?? ''
   const label = params.get('label') ?? ALL_LABELS
@@ -71,11 +69,6 @@ export function CatalogPage() {
       },
       { replace: true },
     )
-  }
-
-  function orderOrSignIn(item: Item) {
-    if (session) setSelected(item)
-    else void navigate('/login', { state: { from: location.pathname + location.search } })
   }
 
   const labels = useMemo(() => collectLabels(data ?? []), [data])
@@ -131,7 +124,7 @@ export function CatalogPage() {
                 <ItemCard
                   key={item.id}
                   item={item}
-                  onOrder={orderOrSignIn}
+                  onOrder={order.start}
                   imagePriority={priorityForIndex(index)}
                 />
               ))}
@@ -139,9 +132,7 @@ export function CatalogPage() {
           )}
         </>
       )}
-      {selected && (
-        <OrderDialog key={selected.id} item={selected} onClose={() => setSelected(null)} />
-      )}
+      {order.dialog}
     </>
   )
 }
