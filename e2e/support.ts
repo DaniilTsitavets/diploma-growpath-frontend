@@ -1,8 +1,22 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, type Page } from '@playwright/test'
 
-export function credentials(role: 'user' | 'expert') {
-  const prefix = role === 'user' ? 'E2E_USER' : 'E2E_EXPERT'
+type Role = 'user' | 'expert' | 'admin'
+
+const prefixes: Record<Role, string> = {
+  user: 'E2E_USER',
+  expert: 'E2E_EXPERT',
+  admin: 'E2E_ADMIN',
+}
+
+export function hasCredentials(role: Role) {
+  return Boolean(
+    process.env[`${prefixes[role]}_EMAIL`] && process.env[`${prefixes[role]}_PASSWORD`],
+  )
+}
+
+export function credentials(role: Role) {
+  const prefix = prefixes[role]
   const email = process.env[`${prefix}_EMAIL`]
   const password = process.env[`${prefix}_PASSWORD`]
   if (!email || !password) {
@@ -11,7 +25,7 @@ export function credentials(role: 'user' | 'expert') {
   return { email, password }
 }
 
-export async function signIn(page: Page, role: 'user' | 'expert' = 'user') {
+export async function signIn(page: Page, role: Role = 'user') {
   const { email, password } = credentials(role)
   await page.goto('/login')
   await page.getByLabel('Email').fill(email)
