@@ -107,23 +107,70 @@ describe('CatalogPage', () => {
     expect(screen.getByText('1 item')).toBeInTheDocument()
   })
 
-  it('filters by a label chip and marks it as pressed', async () => {
+  it('filters by a ticked need, counts it and clears it', async () => {
     server.use(
       http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
     )
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
-    const chip = screen.getByRole('button', { name: 'beginner' })
-    expect(chip).toHaveAttribute('aria-pressed', 'false')
-    await userEvent.click(chip)
+    expect(screen.getByText('Filters')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('checkbox', { name: 'beginner' }))
 
-    expect(chip).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('checkbox', { name: 'beginner' })).toBeChecked()
+    expect(screen.getByText('Filters (1)')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Soil Sensor' })).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
 
-    await userEvent.click(screen.getByRole('button', { name: 'All' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
     expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'beginner' })).not.toBeChecked()
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument()
+  })
+
+  it('shows items of any ticked type and toggles a checkbox with the space key', async () => {
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
+    renderPage()
+    await screen.findByRole('heading', { name: 'Soil Sensor' })
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Sensors' }))
+    expect(screen.queryByRole('heading', { name: "Beginner's Kit" })).not.toBeInTheDocument()
+
+    screen.getByRole('checkbox', { name: 'Grow packs' }).focus()
+    await userEvent.keyboard(' ')
+    expect(screen.getByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
+    expect(screen.getByText('Filters (2)')).toBeInTheDocument()
+  })
+
+  it('shows a clear button and a message when nothing matches', async () => {
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
+    renderPage()
+    await screen.findByRole('heading', { name: 'Soil Sensor' })
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Sensors' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'beginner' }))
+
+    expect(screen.getByText('0 items')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Clear filters' })).toHaveLength(1)
+  })
+
+  it('restores types, needs and sort from the address', async () => {
+    server.use(
+      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
+    )
+    renderPage('/shop?type=pack&label=beginner&sort=price-desc')
+
+    expect(await screen.findByRole('heading', { name: "Beginner's Kit" })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Grow packs' })).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'beginner' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Price, high to low' })).toBeChecked()
+    expect(screen.getByText('Filters (3)')).toBeInTheDocument()
   })
 
   it('lets a visitor read the shop and asks them to sign in to order', async () => {
@@ -145,30 +192,17 @@ describe('CatalogPage', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('filters by type with the Type chips', async () => {
+  it('marks the need checkboxes with a decorative dot', async () => {
     server.use(
       http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
     )
     renderPage()
     await screen.findByRole('heading', { name: 'Soil Sensor' })
 
-    expect(screen.getByRole('radio', { name: 'All' })).toBeChecked()
-    await userEvent.click(screen.getByRole('radio', { name: 'Sensors' }))
-
-    expect(screen.getByRole('heading', { name: 'Soil Sensor' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: "Beginner's Kit" })).not.toBeInTheDocument()
-  })
-
-  it('colours the label chips with different dots', async () => {
-    server.use(
-      http.get(`${origin}/v1/items`, () => HttpResponse.json({ items, next_cursor: null })),
-    )
-    renderPage()
-    await screen.findByRole('heading', { name: 'Soil Sensor' })
-
-    const chip = screen.getByRole('button', { name: 'beginner' })
-    expect(chip.querySelector('[data-dot]')).not.toBeNull()
-    expect(screen.getByRole('button', { name: 'All' }).querySelector('[data-dot]')).toBeNull()
+    const row = screen.getByRole('checkbox', { name: 'beginner' }).closest('label')
+    expect(row?.querySelector('[data-dot]')).not.toBeNull()
+    const typeRow = screen.getByRole('checkbox', { name: 'Sensors' }).closest('label')
+    expect(typeRow?.querySelector('[data-dot]')).toBeNull()
   })
 
   it('asks a visitor to sign in while the gateway refuses anonymous reads', async () => {

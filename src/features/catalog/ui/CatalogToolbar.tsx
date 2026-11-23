@@ -1,7 +1,7 @@
-import { ChipToggle } from '@/shared/ui/Chip'
-import { ChoiceChips } from '@/shared/ui/ChoiceChips'
+import { Button } from '@/shared/ui/Button'
+import { CheckboxGroup, RadioGroup } from '@/shared/ui/OptionGroup'
 import type { CatalogFilters, SortKey } from '../model/catalog-view'
-import { ALL_LABELS, ALL_TYPES } from '../model/catalog-view'
+import { countActiveFilters, defaultFilters, hasActiveFilters } from '../model/catalog-view'
 import { labelDot } from '../model/label-dot'
 import styles from './CatalogToolbar.module.css'
 
@@ -18,12 +18,14 @@ const sortOptions: readonly { value: SortKey; label: string }[] = [
 ]
 
 const typeOptions = [
-  { value: ALL_TYPES, label: 'All' },
   { value: 'pack', label: 'Grow packs' },
   { value: 'sensor', label: 'Sensors' },
 ]
 
 export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProps) {
+  const active = countActiveFilters(filters)
+  const labelOptions = labels.map((label) => ({ value: label, label, dot: labelDot(label) }))
+
   return (
     <form className={styles.toolbar} role="search" onSubmit={(event) => event.preventDefault()}>
       <div className={styles.search}>
@@ -37,41 +39,44 @@ export function CatalogToolbar({ filters, labels, onChange }: CatalogToolbarProp
           onChange={(event) => onChange({ ...filters, search: event.target.value })}
         />
       </div>
-      <ChoiceChips
-        legend="Type"
-        name="catalog-type"
-        value={filters.type}
-        options={typeOptions}
-        onChange={(type) => onChange({ ...filters, type })}
-      />
-      <ChoiceChips
-        legend="Sort by"
-        name="catalog-sort"
-        value={filters.sort}
-        options={sortOptions}
-        onChange={(sort) => onChange({ ...filters, sort })}
-      />
-      <div className={styles.needs} role="group" aria-label="Filter by label">
-        <p className="eyebrow">Browse by need</p>
-        <div className={styles.chipRow}>
-          <ChipToggle
-            pressed={filters.label === ALL_LABELS}
-            onClick={() => onChange({ ...filters, label: ALL_LABELS })}
-          >
-            All
-          </ChipToggle>
-          {labels.map((label) => (
-            <ChipToggle
-              key={label}
-              dot={labelDot(label)}
-              pressed={filters.label === label}
-              onClick={() => onChange({ ...filters, label })}
-            >
-              {label}
-            </ChipToggle>
-          ))}
+      <details className={styles.panel} open>
+        <summary className={styles.summary}>
+          {active > 0 ? `Filters (${active})` : 'Filters'}
+        </summary>
+        <div className={styles.groups}>
+          <CheckboxGroup
+            legend="Filter by type"
+            name="catalog-type"
+            values={filters.types}
+            options={typeOptions}
+            onChange={(types) => onChange({ ...filters, types })}
+          />
+          {labelOptions.length > 0 && (
+            <CheckboxGroup
+              legend="Filter by need"
+              hint="Shows items that match every ticked need."
+              name="catalog-label"
+              values={filters.labels}
+              options={labelOptions}
+              onChange={(next) => onChange({ ...filters, labels: next })}
+            />
+          )}
+          <RadioGroup
+            legend="Sort by"
+            name="catalog-sort"
+            value={filters.sort}
+            options={sortOptions}
+            onChange={(sort) => onChange({ ...filters, sort })}
+          />
+          {hasActiveFilters(filters) && (
+            <div>
+              <Button variant="secondary" onClick={() => onChange(defaultFilters)}>
+                Clear filters
+              </Button>
+            </div>
+          )}
         </div>
-      </div>
+      </details>
     </form>
   )
 }

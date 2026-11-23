@@ -20,7 +20,7 @@ test('the shop keeps its controls usable on a phone', async ({ page }) => {
   await expect(search).toBeVisible()
   await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible()
 
-  const chip = page.getByRole('button', { name: 'All' })
-  const box = await chip.boundingBox()
+  const option = page.getByText('Grow packs', { exact: true })
+  const box = await option.locator('xpath=ancestor::label').boundingBox()
   expect(box?.height ?? 0).toBeGreaterThanOrEqual(44)
 })

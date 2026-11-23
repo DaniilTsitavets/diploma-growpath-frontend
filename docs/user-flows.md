@@ -71,7 +71,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  A([Visitor opens Home or Shop]) --> B[Reads the shop: search, filter chips, sort]
+  A([Visitor opens Home or Shop]) --> B[Reads the shop: search, filter panel (type and need checkboxes), sort]
   B --> C{Presses Order}
   C -->|signed in| D[Confirmation dialog with price and first-purchase discount]
   C -->|visitor| E[Sign-in window, the page is remembered]
