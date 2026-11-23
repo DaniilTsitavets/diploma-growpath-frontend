@@ -17,10 +17,10 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
-function renderForm() {
+function renderForm(plantedOn: string | null = null) {
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <PlantingForm journalId="j1" plantedOn={null} />
+      <PlantingForm journalId="j1" plantedOn={plantedOn} />
     </QueryClientProvider>,
   )
 }
@@ -66,5 +66,30 @@ describe('PlantingForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Record planting' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('could not find')
+  })
+
+  it('shows a saved planting date as text that cannot be changed', () => {
+    renderForm('2026-11-01')
+
+    expect(screen.getByText('Nov 1, 2026')).toBeInTheDocument()
+    expect(screen.getByText(/cannot be changed/)).toBeInTheDocument()
+    expect(screen.queryByLabelText('Planting date')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
+  it('explains a planting that was saved elsewhere in the meantime', async () => {
+    server.use(
+      http.put(`${origin}/v1/journals/j1/planting`, () =>
+        HttpResponse.json(
+          { title: 'Conflict', status: 409, code: 'planting-already-recorded' },
+          { status: 409, headers: { 'Content-Type': 'application/problem+json' } },
+        ),
+      ),
+    )
+    renderForm()
+    await userEvent.type(screen.getByLabelText('Planting date'), '2026-11-01')
+    await userEvent.click(screen.getByRole('button', { name: 'Record planting' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('already saved')
   })
 })

@@ -148,4 +148,42 @@ describe('DiagnosisPanel', () => {
     expect(alert).toHaveTextContent('AI checks for today are used up')
     expect(alert).toHaveTextContent('Hobbyist')
   })
+
+  it('shows the watering assessment of a completed diagnosis', async () => {
+    show({
+      ...base,
+      watering: {
+        status: 'overwatering',
+        reliability: 'high',
+        depletion_D: 0.2,
+        D_source: 'sensor',
+        target_p: 0.5,
+        p_source: 'profile',
+        I_rec_days: 9,
+        I_rec_bounds: { lower_days: 7, upper_days: 11, text: null },
+        I_fact_days: 3,
+        ratio_r: 0.3,
+        Ks: 1,
+        flags: ['drainage_none'],
+        air: { T: 22, RH: 40, VPD_kPa: 1.2 },
+        calibration: { n_observations: 2, reset_reason: null },
+        assumptions: ['The pot holds 1 litre of water.'],
+      },
+    })
+
+    expect(await screen.findByRole('heading', { name: 'Watering' })).toBeInTheDocument()
+    expect(screen.getByText(/looks overwatered/)).toBeInTheDocument()
+    expect(screen.getByText('Water every 7 to 11 days')).toBeInTheDocument()
+    expect(screen.getByText('You water about every 3 days')).toBeInTheDocument()
+    expect(screen.getByText(/no drainage holes/)).toBeInTheDocument()
+    expect(screen.getByText(/Reliability of this estimate: High/)).toBeInTheDocument()
+    expect(screen.getByText('The pot holds 1 litre of water.')).toBeInTheDocument()
+  })
+
+  it('shows no watering block for a diagnosis made before it existed', async () => {
+    show(base)
+
+    await screen.findByText('Overwatering')
+    expect(screen.queryByRole('heading', { name: 'Watering' })).not.toBeInTheDocument()
+  })
 })
