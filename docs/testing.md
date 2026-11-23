@@ -39,7 +39,7 @@ quietly call something the test did not expect.
 
 They need the backend stack running (`make up` in the backend repository), `.env.local` filled in from
 `make client-env`, and two accounts that exist on LocalStack (a regular user and one in the `experts` group)
-named in `.env.local` (`E2E_USER_EMAIL`, `E2E_USER_PASSWORD`, `E2E_EXPERT_EMAIL`, `E2E_EXPERT_PASSWORD`; names
+named in `.env.local` (`E2E_USER_EMAIL`, `E2E_USER_PASSWORD`, `E2E_EXPERT_EMAIL`, `E2E_EXPERT_PASSWORD`, and optionally `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`; names
 only in `.env.example`, values never in the repository).
 
 ```bash
@@ -54,6 +54,7 @@ The Playwright config starts `npm run dev` itself (or reuses a running one) and 
 | `visitor.spec.ts`       | A visitor reads the shop and is asked to sign in to order; the sign-in page is only the sign-in window and returns to the shop; wrong credentials show a clear message; a protected page sends a visitor to sign in and back                                         |
 | `journey.spec.ts`       | A signed-in user orders a pack, waits for the journal draft, records the planting date, submits an update with two photos (uploaded to the presigned URLs), reads the diagnosis, then asks the care chat. Accessibility is checked on the update page in both themes |
 | `expert.spec.ts`        | A regular user is told the expert area is for experts; an expert sees the queue and can open a ticket                                                                                                                                                                |
+| `admin.spec.ts`         | An administrator lands on the users page, sees only the administration, cannot change their own role or status, is kept out of the shop, chat and journals; axe on the users page in both themes (skipped without an admin account)                                  |
 | `accessibility.spec.ts` | axe-core (WCAG 2.1 A and AA) on the home page, shop and sign-in for a visitor and on journals and the AI chat for a signed-in user, in the light and dark themes; keyboard use of the header search (Ctrl K)                                                         |
 | `responsive.spec.ts`    | On a 375 px wide screen the home page, shop and sign-in have no sideways scrolling and no accessibility violations; the shop's controls keep a touch-friendly size                                                                                                   |
 
