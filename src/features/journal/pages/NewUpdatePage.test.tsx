@@ -14,6 +14,8 @@ import {
   sensorUnitLabels,
   wateringMethodLabels,
 } from '../model/labels'
+import { formatDayName } from '@/shared/lib/calendar'
+import { todayIso } from '../model/dates'
 import { NewUpdatePage } from './NewUpdatePage'
 
 const origin = window.location.origin
@@ -103,6 +105,9 @@ function backend() {
   )
   return { calls, sent }
 }
+
+// The first day of the current month is never in the future, whatever today is.
+const firstOfMonth = `${todayIso().slice(0, 7)}-01`
 
 describe('NewUpdatePage', () => {
   beforeEach(() => {
@@ -243,12 +248,13 @@ describe('NewUpdatePage', () => {
     await screen.findByText('Did you water after Nov 1, 2026?')
 
     await chooseIn(/Did you water after/, 'Yes')
-    await userEvent.type(screen.getByLabelText('When did you water last?'), '2026-11-07')
+    await userEvent.click(screen.getByLabelText('When did you water last?'))
+    await userEvent.click(screen.getByRole('button', { name: formatDayName(firstOfMonth) }))
     await choose(lightingLabels.medium)
     await addPhotos()
     await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
     await screen.findByRole('heading', { name: 'Update page' })
-    expect(sent.update.last_watered_on).toBe('2026-11-07')
+    expect(sent.update.last_watered_on).toBe(firstOfMonth)
   })
 
   it('sends no watering date for "don\'t know", so the interval is not worked out', async () => {
