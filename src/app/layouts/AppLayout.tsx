@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
+import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router'
 import { isExpert, useSession } from '@/features/auth/model/session-store'
 import { ThemeToggle } from '@/shared/ui/ThemeToggle'
 import styles from './AppLayout.module.css'
@@ -79,6 +79,7 @@ export function AppLayout() {
         <Outlet />
       </main>
       <SiteFooter />
+      <ScrollRestoration />
     </>
   )
 }

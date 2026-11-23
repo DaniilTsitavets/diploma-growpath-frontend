@@ -6,6 +6,10 @@ export function listItems(signal?: AbortSignal) {
   return listAllPages<Item>('/v1/items', signal)
 }
 
+export function getItem(slug: string, signal?: AbortSignal) {
+  return api.request<Item>('GET', `/v1/items/${encodeURIComponent(slug)}`, { signal })
+}
+
 export function createOrder(itemId: string, idempotencyKey: string) {
   return api.request<Order>('POST', '/v1/orders', {
     body: { item_id: itemId },

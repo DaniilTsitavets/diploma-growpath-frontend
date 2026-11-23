@@ -17,6 +17,9 @@ served from this application; nothing is loaded from a CDN.
 | `src/assets/placeholders/pack-light.webp`, `pack-dark.webp`     | Placeholder for a grow pack without a photo (two leaves, light and dark theme) | Created by the project author with Google Gemini (AI Studio) from the author's own prompt | Own work; no third-party material |
 | `src/assets/placeholders/sensor-light.webp`, `sensor-dark.webp` | Placeholder for a sensor without a photo (two gears, light and dark theme)     | Created by the project author with Google Gemini (AI Studio) from the author's own prompt | Own work; no third-party material |
 
-The placeholders are AI-generated illustrations. They were cropped to 4:3 and converted to WebP, and a small
-decorative dot was removed from the leaf pictures. Product photos from the media bucket will be listed here from
-the attribution file that the backend provides (slug, url, author, license).
+The placeholders are AI-generated illustrations. They were cropped to 4:5 and converted to WebP, and a small
+decorative dot was removed from the leaf pictures. Product photos come from the media
+bucket and are credited by the application itself: the `/credits` page lists them from the bucket's `credits.json`
+(slug, author, licence, source page), and the item page shows the caption each licence asks for under the picture.
+Care data comes from PlantSolve (CC BY 4.0), credited at the end of the care section of every plant page and on
+`/credits`.

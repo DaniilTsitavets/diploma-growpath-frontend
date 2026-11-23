@@ -100,6 +100,7 @@
 }
 
 .featured {
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -175,4 +176,14 @@
 
 .arrow {
   font-weight: 600;
+}
+
+.details::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+
+.featured:hover {
+  border-color: var(--color-accent);
 }

@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { useSession } from '@/features/auth/model/session-store'
 import { Button } from '@/shared/ui/Button'
 import { Card } from '@/shared/ui/Card'
@@ -27,7 +28,11 @@ export function ItemCard({ item, onOrder, imagePriority }: ItemCardProps) {
     <Card as="li" className={styles.card}>
       <ItemImage itemType={item.item_type} slug={item.slug} priority={imagePriority} />
       <div className={styles.body}>
-        <h2 className={styles.title}>{item.name}</h2>
+        <h2 className={styles.title}>
+          <Link to={`/shop/${item.slug}`} className={styles.titleLink}>
+            {item.name}
+          </Link>
+        </h2>
         <p className={styles.meta}>{describe(item)}</p>
         {item.labels.length > 0 && (
           <ul className={styles.labels} aria-label="Labels">

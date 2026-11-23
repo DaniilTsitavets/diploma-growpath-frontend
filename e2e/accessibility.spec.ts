@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { expectNoAccessibilityViolations, setTheme, signIn } from './support'
 
-const visitorPages = ['/', '/shop', '/login']
+const visitorPages = ['/', '/shop', '/shop/lavender', '/shop/ficus-lyrata', '/credits', '/login']
 
 for (const theme of ['light', 'dark'] as const) {
   test.describe(`${theme} theme`, () => {
@@ -10,6 +10,8 @@ for (const theme of ['light', 'dark'] as const) {
         await page.goto(path)
         await setTheme(page, theme)
         await expect(page.locator('main')).toBeVisible()
+        await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+        await page.waitForLoadState('networkidle')
         await expectNoAccessibilityViolations(page)
       })
     }

@@ -49,6 +49,7 @@ backend repository again and copy the printed values. Test users exist only on L
 | `VITE_GATEWAY_PROXY_TARGET` | Where the dev and preview servers proxy `/v1` (the API Gateway stage on LocalStack) |
 | `VITE_COGNITO_ENDPOINT`     | Cognito endpoint (LocalStack)                                                       |
 | `VITE_COGNITO_CLIENT_ID`    | App client id of the `growpath` user pool                                           |
+| `VITE_MEDIA_BASE_URL`       | Media bucket with the item pictures (optional; without it placeholders are shown)   |
 
 ## Scripts
 
@@ -70,7 +71,7 @@ backend repository again and copy the printed values. Test users exist only on L
 src/
   app/            router, providers, layouts, error page, bootstrap
   features/       one folder per product area: auth, catalog, home, journal, diagnosis,
-                  escalation, chat, expert, entitlement, not-found
+                  escalation, chat, expert, entitlement, plants, media, not-found
     <feature>/
       api/        requests and TanStack Query hooks
       model/      types, validation schemas, pure rules

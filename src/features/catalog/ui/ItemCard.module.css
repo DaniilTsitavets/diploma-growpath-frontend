@@ -1,4 +1,5 @@
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -47,4 +48,28 @@
   margin: 0;
   color: var(--color-accent-text);
   font-weight: 600;
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.titleLink::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+}
+
+.body > button {
+  position: relative;
+  z-index: 1;
+}
+
+.titleLink:hover {
+  text-decoration: underline;
 }
