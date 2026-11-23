@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { Link, useParams } from 'react-router'
 import { DiagnosisPanel } from '@/features/diagnosis/ui/DiagnosisPanel'
 import { QuotaSummary } from '@/features/entitlement/ui/QuotaSummary'
@@ -7,32 +8,23 @@ import { describeError } from '@/shared/api/messages'
 import { Button } from '@/shared/ui/Button'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { usePhotos, useUpdates } from '../api/queries'
-import { formatDate, formatDateTime } from '../model/dates'
-import { drainageLabels, fingerTestLabels, lightingLabels, potWeightLabels } from '../model/labels'
+import { answerRows } from '../model/answers'
+import { formatDateTime } from '../model/dates'
 import { photoSlots, rootsSlot } from '../model/photo'
 import type { PlantUpdate } from '../model/types'
 import { PhotoSlot } from '../ui/PhotoSlot'
 import styles from './UpdatePage.module.css'
 
 function Answers({ update }: { update: PlantUpdate }) {
+  const rows = answerRows(update)
   return (
     <dl className={styles.summary}>
-      <dt>Last watered</dt>
-      <dd>{update.last_watered_on ? formatDate(update.last_watered_on) : 'Not given'}</dd>
-      <dt>Watering interval</dt>
-      <dd>
-        {update.watering_interval_days ? `${update.watering_interval_days} days` : 'Not given'}
-      </dd>
-      <dt>Drainage</dt>
-      <dd>{drainageLabels[update.drainage]}</dd>
-      <dt>Lighting</dt>
-      <dd>{lightingLabels[update.lighting]}</dd>
-      <dt>Soil by finger test</dt>
-      <dd>{fingerTestLabels[update.finger_test]}</dd>
-      <dt>Pot weight</dt>
-      <dd>{potWeightLabels[update.pot_weight]}</dd>
-      <dt>Sensor reading</dt>
-      <dd>{update.sensor_reading ?? 'Not given'}</dd>
+      {rows.map((row) => (
+        <Fragment key={row.label}>
+          <dt>{row.label}</dt>
+          <dd>{row.value}</dd>
+        </Fragment>
+      ))}
     </dl>
   )
 }
@@ -79,6 +71,8 @@ export function UpdatePage() {
   const updates = useUpdates(journalId)
   const update = updates.data?.items.find((item) => item.id === updateId)
   const entitlement = useEntitlement()
+  const photos = usePhotos(updateId)
+  const missingPhotos = photos.data?.missing_required ?? []
 
   return (
     <>
@@ -115,7 +109,15 @@ export function UpdatePage() {
           {entitlement.data && <QuotaSummary entitlement={entitlement.data} />}
           <section className={styles.section} aria-labelledby="diagnosis-title">
             <h2 id="diagnosis-title">Diagnosis</h2>
-            <DiagnosisPanel updateId={update.id} journalId={journalId} />
+            <DiagnosisPanel
+              updateId={update.id}
+              journalId={journalId}
+              blockedReason={
+                missingPhotos.length > 0
+                  ? 'Add the whole-plant and soil photos above to run the check.'
+                  : undefined
+              }
+            />
           </section>
           <section className={styles.section} aria-labelledby="expert-title">
             <h2 id="expert-title">Expert help</h2>

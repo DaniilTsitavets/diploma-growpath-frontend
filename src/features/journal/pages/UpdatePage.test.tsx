@@ -112,12 +112,20 @@ describe('UpdatePage', () => {
         ),
       ),
       http.post(`${origin}/v1/updates/u1/photos`, () =>
-        HttpResponse.json({ kind: 'overview', upload_url: storage, expires_in_seconds: 900 }),
+        HttpResponse.json({
+          kind: 'overview',
+          upload_url: storage,
+          expires_in_seconds: 900,
+          required_headers: { 'Content-Type': 'image/png', 'Content-Length': '1' },
+        }),
       ),
       http.put(storage, () => {
         puts += 1
-        uploaded = true
         return new HttpResponse(null, { status: 200 })
+      }),
+      http.post(`${origin}/v1/updates/u1/photos/overview/confirm`, () => {
+        uploaded = true
+        return HttpResponse.json({ kind: 'overview', url: 'http://storage.test/view' })
       }),
     )
     renderPage()
