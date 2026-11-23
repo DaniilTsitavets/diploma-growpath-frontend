@@ -95,12 +95,12 @@ Types are the generated ones; "Auth" says whether a token is needed.
 
 | Method and path                                      | Auth    | Used for                                         | Request                            | Response                                         |
 | ---------------------------------------------------- | ------- | ------------------------------------------------ | ---------------------------------- | ------------------------------------------------ |
-| `GET /v1/items`                                      | none    | Shop and home                                    | none                               | `ItemResponse[]`                                 |
+| `GET /v1/items`                                      | none    | Shop and home (all pages, see below)             | `limit`, `cursor`                  | `{ items: ItemResponse[], next_cursor }`         |
 | `GET /v1/items/{slug}`                               | none    | Item page                                        | none                               | `ItemResponse`                                   |
 | `GET /v1/plants/{slug}`                              | none    | Care information on the item page                | none                               | `PlantProfileResponse`                           |
 | `POST /v1/orders`                                    | token   | Order an item (header `Idempotency-Key`)         | `{ item_id }`                      | `OrderResponse` (201, or 200 for a repeated key) |
 | `GET /v1/me/entitlement`                             | token   | Tier and quotas                                  | none                               | `EntitlementResponse`                            |
-| `GET /v1/journals`                                   | token   | Journals list                                    | none                               | `JournalResponse[]`                              |
+| `GET /v1/journals`                                   | token   | Journals list (all pages, see below)             | `limit`, `cursor`                  | `{ items: JournalResponse[], next_cursor }`      |
 | `GET /v1/journals/{id}`                              | token   | One journal                                      | none                               | `JournalResponse`                                |
 | `PUT /v1/journals/{id}/planting`                     | token   | Record the planting date                         | `{ planted_on }`                   | `JournalResponse`                                |
 | `GET /v1/journals/{id}/updates`                      | token   | Update feed                                      | none                               | `{ items: UpdateResponse[], next_cursor }`       |
@@ -114,8 +114,8 @@ Types are the generated ones; "Auth" says whether a token is needed.
 | `POST /v1/updates/{id}/escalation`                   | token   | Ask an expert (spends one consultation)          | `{ user_question }`                | `EscalationDetailResponse`                       |
 | `GET /v1/updates/{id}/escalation`                    | token   | Escalation status and the answer                 | none                               | `EscalationDetailResponse` or 404                |
 | `POST /v1/journals/{id}/chat/turns`                  | token   | Ask the care chat (spends one AI check)          | `{ id, question }`                 | `ChatTurnResponse`                               |
-| `GET /v1/journals/{id}/chat/turns`                   | token   | Chat history (query `before`)                    | none                               | `{ items, next_cursor }`                         |
-| `GET /v1/expert/tickets`                             | experts | Open tickets (query `after`)                     | none                               | `{ items, next_cursor }`                         |
+| `GET /v1/journals/{id}/chat/turns`                   | token   | Chat history (query `cursor`)                    | none                               | `{ items, next_cursor }`                         |
+| `GET /v1/expert/tickets`                             | experts | Open tickets (query `cursor`)                    | none                               | `{ items, next_cursor }`                         |
 | `GET /v1/expert/tickets/{id}`                        | experts | Ticket with context and photo URLs               | none                               | `TicketResponse`                                 |
 | `POST /v1/expert/tickets/{id}/answer`                | experts | One written answer                               | `{ body }` (up to 5000 characters) | `AnswerResponse`                                 |
 | `PUT {upload_url}`                                   | none    | Upload a photo straight to object storage        | the file, with its `Content-Type`  | empty `200`                                      |
@@ -262,3 +262,10 @@ a different `schema_version` shows what is recognised with a note.
 - Problem codes are spelled both `ai-quota-exhausted` and `quota_exhausted` in the backend's own documents; the
   client accepts both for the AI quota.
 - Photo size and type limits are not specified; the client allows JPEG, PNG and WebP up to 10 MB.
+
+## Lists and pagination
+
+Every list answers `{ items, next_cursor }` and takes `limit` (50 by default, 100 at most) and `cursor`; the
+parameter is called `cursor` everywhere. The shop and the journals are short, so the client asks for 100 and follows
+`next_cursor` until it is null (`listAllPages`). The update feed, the chat history and the expert queue are read
+page by page with an infinite query. Amounts carry `currency: "EUR"`; the interface formats them with one constant.

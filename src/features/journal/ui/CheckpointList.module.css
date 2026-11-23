@@ -60,3 +60,42 @@
 .passed .marker {
   color: var(--color-accent);
 }
+
+.item {
+  position: relative;
+}
+
+.openLabel {
+  margin-left: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  padding: 0 var(--space-4);
+  font-weight: 600;
+  color: var(--color-on-accent);
+  text-decoration: none;
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.action::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+
+.open:hover {
+  background: var(--color-surface-2);
+}
+
+.action:focus-visible::after {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}

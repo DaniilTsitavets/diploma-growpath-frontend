@@ -164,6 +164,40 @@ describe('JournalChatPage', () => {
     await vi.waitFor(() => expect(questions).toEqual(['First line\nsecond line']))
   })
 
+  it('credits PlantSolve with a link when an answer cites its page', async () => {
+    history([
+      turn({
+        sources: [
+          {
+            ...source,
+            document_title: 'Basil (PlantSolve)',
+            source_url: 'https://www.plantsolve.com/plants/basil/',
+          },
+        ],
+      }),
+    ])
+    renderPage()
+
+    const link = await screen.findByRole('link', { name: 'PlantSolve' })
+    expect(link).toHaveAttribute('href', 'https://www.plantsolve.com/plants/basil/')
+    expect(screen.getByText(/CC BY 4.0/)).toBeInTheDocument()
+  })
+
+  it('does not credit PlantSolve for a source from another site', async () => {
+    history([turn({})])
+    renderPage()
+
+    await screen.findByText('Water when the top centimetre of soil is dry.')
+    expect(screen.queryByText(/CC BY 4.0/)).not.toBeInTheDocument()
+  })
+
+  it('says there is no confirmed information when the knowledge base has none', async () => {
+    history([turn({ outcome: 'not_in_kb', answer: null, sources: [] })])
+    renderPage()
+
+    expect(await screen.findByText(/no confirmed information/)).toBeInTheDocument()
+  })
+
   it('explains a question outside plant care', async () => {
     history([turn({ outcome: 'out_of_scope', answer: null, sources: [] })])
     renderPage()

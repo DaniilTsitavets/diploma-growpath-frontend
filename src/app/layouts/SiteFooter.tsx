@@ -1,7 +1,9 @@
 import { Link } from 'react-router'
+import { isExpert, useSession } from '@/features/auth/model/session-store'
 import styles from './SiteFooter.module.css'
 
 export function SiteFooter() {
+  const session = useSession((state) => state.session)
   return (
     <footer className={styles.footer}>
       <div className={styles.grid}>
@@ -13,20 +15,22 @@ export function SiteFooter() {
             A guided way to grow your first plants: starter packs, an AI assistant and a botanist.
           </p>
         </div>
-        <nav aria-label="Explore">
-          <p className="eyebrow">Explore</p>
-          <ul className={styles.list}>
-            <li>
-              <Link to="/shop">Shop</Link>
-            </li>
-            <li>
-              <Link to="/chat">AI chat</Link>
-            </li>
-            <li>
-              <Link to="/journals">Journals</Link>
-            </li>
-          </ul>
-        </nav>
+        {!isExpert(session) && (
+          <nav aria-label="Explore">
+            <p className="eyebrow">Explore</p>
+            <ul className={styles.list}>
+              <li>
+                <Link to="/shop">Shop</Link>
+              </li>
+              <li>
+                <Link to="/chat">AI chat</Link>
+              </li>
+              <li>
+                <Link to="/journals">Journals</Link>
+              </li>
+            </ul>
+          </nav>
+        )}
         <div>
           <p className="eyebrow">Project</p>
           <ul className={styles.list}>

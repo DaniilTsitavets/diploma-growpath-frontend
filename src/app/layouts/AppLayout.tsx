@@ -24,29 +24,32 @@ export function AppLayout() {
             GrowPath
           </Link>
           <nav aria-label="Main" className={styles.tabs}>
-            <NavLink to="/" end className={styles.tab}>
-              Home
-            </NavLink>
-            <NavLink to="/shop" className={styles.tab}>
-              Shop
-            </NavLink>
-            <Link to="/chat" className={styles.tab} aria-current={inChat ? 'page' : undefined}>
-              AI chat
-            </Link>
-            <Link
-              to="/journals"
-              className={styles.tab}
-              aria-current={inJournals && !inChat ? 'page' : undefined}
-            >
-              Journals
-            </Link>
-            {isExpert(session) && (
+            {isExpert(session) ? (
               <NavLink to="/expert/tickets" className={styles.tab}>
                 Expert tickets
               </NavLink>
+            ) : (
+              <>
+                <NavLink to="/" end className={styles.tab}>
+                  Home
+                </NavLink>
+                <NavLink to="/shop" className={styles.tab}>
+                  Shop
+                </NavLink>
+                <Link to="/chat" className={styles.tab} aria-current={inChat ? 'page' : undefined}>
+                  AI chat
+                </Link>
+                <Link
+                  to="/journals"
+                  className={styles.tab}
+                  aria-current={inJournals && !inChat ? 'page' : undefined}
+                >
+                  Journals
+                </Link>
+              </>
             )}
           </nav>
-          <HeaderSearch />
+          {!isExpert(session) && <HeaderSearch />}
           <div className={styles.actions}>
             <ThemeToggle />
             {session ? (

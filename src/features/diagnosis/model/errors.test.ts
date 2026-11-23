@@ -6,7 +6,7 @@ const conflict = (code: string) => new ApiError({ status: 409, title: 'Conflict'
 describe('quota errors', () => {
   it('recognises both spellings of the AI quota code', () => {
     expect(isAiQuotaExhausted(conflict('ai-quota-exhausted'))).toBe(true)
-    expect(isAiQuotaExhausted(conflict('quota_exhausted'))).toBe(true)
+    expect(isAiQuotaExhausted(conflict('quota-exhausted'))).toBe(true)
     expect(isAiQuotaExhausted(conflict('diagnosis-conflict'))).toBe(false)
   })
 

@@ -108,3 +108,9 @@
   margin: var(--space-2) 0 0;
   white-space: pre-wrap;
 }
+
+.attribution {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
