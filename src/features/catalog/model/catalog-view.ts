@@ -1,3 +1,4 @@
+import { matchesLabels } from './label-groups'
 import type { Item } from './types'
 
 export type SortKey = 'name' | 'price-asc' | 'price-desc'
@@ -6,7 +7,7 @@ export interface CatalogFilters {
   search: string
   /** An item matches when its type is any of these; empty means no type filtering. */
   types: string[]
-  /** An item must carry every one of these labels; empty means no label filtering. */
+  /** Ticked labels, matched as `matchesLabels` says; empty means no label filtering. */
   labels: string[]
   sort: SortKey
 }
@@ -47,7 +48,7 @@ export function applyFilters(items: Item[], filters: CatalogFilters): Item[] {
   const query = filters.search.trim().toLowerCase()
   return items
     .filter((item) => filters.types.length === 0 || filters.types.includes(item.item_type))
-    .filter((item) => filters.labels.every((label) => item.labels.includes(label)))
+    .filter((item) => matchesLabels(item.labels, filters.labels))
     .filter((item) => query === '' || matchesSearch(item, query))
     .sort(comparators[filters.sort])
 }
