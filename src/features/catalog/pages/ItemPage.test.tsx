@@ -169,4 +169,46 @@ describe('ItemPage', () => {
     expect(await screen.findByRole('heading', { name: 'Item not found' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Back to the shop' })).toHaveAttribute('href', '/shop')
   })
+
+  it('shows the questions of a plant with no care fields in place of empty blocks', async () => {
+    server.use(
+      http.get(`${origin}/v1/items/lavender`, () => HttpResponse.json(pack)),
+      http.get(`${origin}/v1/plants/lavender`, () =>
+        HttpResponse.json({
+          ...plant,
+          watering: undefined,
+          toxicity: undefined,
+          faq: [
+            {
+              question: 'How often to water?',
+              answer: 'Once the soil is dry.\nNever on a schedule.',
+            },
+          ],
+        }),
+      ),
+    )
+    renderPage()
+
+    expect(
+      await screen.findByRole('heading', { name: 'Frequently asked questions' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('How often to water?')).toBeInTheDocument()
+    expect(screen.getByText('Never on a schedule.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Care' })).not.toBeInTheDocument()
+    // The strip of quick facts keeps its place, so every plant page looks alike.
+    expect(screen.getAllByText('Not specified').length).toBeGreaterThan(0)
+  })
+
+  it('shows the questions below the care blocks when both exist', async () => {
+    server.use(
+      http.get(`${origin}/v1/items/lavender`, () => HttpResponse.json(pack)),
+      http.get(`${origin}/v1/plants/lavender`, () =>
+        HttpResponse.json({ ...plant, faq: [{ question: 'Is it toxic?', answer: 'Mildly.' }] }),
+      ),
+    )
+    renderPage()
+
+    expect(await screen.findByRole('heading', { name: 'Care' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Frequently asked questions' })).toBeInTheDocument()
+  })
 })

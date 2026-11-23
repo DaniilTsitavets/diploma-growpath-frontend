@@ -1,4 +1,11 @@
-import { careBlocks, keyTakeaways, paragraphs, quickAnswer, quickFacts } from './care-blocks'
+import {
+  careBlocks,
+  faqEntries,
+  keyTakeaways,
+  paragraphs,
+  quickAnswer,
+  quickFacts,
+} from './care-blocks'
 import type { Plant } from './types'
 
 const base: Plant = {
@@ -50,5 +57,19 @@ describe('care blocks', () => {
     expect(quickAnswer(base)).toBeNull()
     expect(keyTakeaways({ ...base, key_takeaways: ['One', ' ', 'Two'] })).toEqual(['One', 'Two'])
     expect(keyTakeaways(base)).toEqual([])
+  })
+
+  it('lists the questions and answers and drops incomplete ones', () => {
+    expect(
+      faqEntries({
+        ...base,
+        faq: [
+          { question: ' How often? ', answer: ' Weekly. ' },
+          { question: 'Why?', answer: ' ' },
+          { question: '', answer: 'Because.' },
+        ],
+      }),
+    ).toEqual([{ question: 'How often?', answer: 'Weekly.' }])
+    expect(faqEntries(base)).toEqual([])
   })
 })

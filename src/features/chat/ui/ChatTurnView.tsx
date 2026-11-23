@@ -1,4 +1,5 @@
-import { plantSolveSource } from '../model/attribution'
+import { Fragment } from 'react'
+import { sourceCredits } from '../model/attribution'
 import { safeHttpUrl } from '../model/safe-url'
 import type { ChatOutcome, ChatSource, ChatTurn, RelatedSection } from '../model/types'
 import { AssistantAvatar } from './AssistantAvatar'
@@ -43,7 +44,7 @@ function RelatedSections({ sections }: { sections: RelatedSection[] }) {
 
 /** One exchange: the user's question on the right, the assistant's reply with its sources on the left. */
 export function ChatTurnView({ turn }: { turn: ChatTurn }) {
-  const plantSolve = plantSolveSource(turn.sources)
+  const credits = sourceCredits(turn.sources)
   return (
     <article className={styles.turn}>
       <div className={`${styles.row} ${styles.user}`}>
@@ -67,13 +68,22 @@ export function ChatTurnView({ turn }: { turn: ChatTurn }) {
                   </li>
                 ))}
               </ul>
-              {plantSolve && (
+              {credits.length > 0 && (
                 <p className={styles.attribution}>
                   Source:{' '}
-                  <a href={plantSolve.href} target="_blank" rel="noopener noreferrer">
-                    PlantSolve
-                  </a>
-                  , CC BY 4.0
+                  {credits.map((credit, index) => (
+                    <Fragment key={`${credit.name}|${credit.license}`}>
+                      {index > 0 && '; '}
+                      {credit.href ? (
+                        <a href={credit.href} target="_blank" rel="noopener noreferrer">
+                          {credit.name}
+                        </a>
+                      ) : (
+                        credit.name
+                      )}
+                      {credit.license && ` · ${credit.license}`}
+                    </Fragment>
+                  ))}
                 </p>
               )}
             </div>

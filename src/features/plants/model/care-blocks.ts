@@ -62,3 +62,17 @@ export function keyTakeaways(plant: Plant): string[] {
 }
 
 export const quickAnswer = (plant: Plant) => text(plant, 'quick_answer')
+
+export interface FaqEntry {
+  question: string
+  answer: string
+}
+
+/** Questions and answers, each with its line breaks as paragraphs; an entry missing either half is dropped. */
+export function faqEntries(plant: Plant): FaqEntry[] {
+  return (plant.faq ?? []).flatMap((entry) => {
+    const question = entry.question.trim()
+    const answer = entry.answer.trim()
+    return question !== '' && answer !== '' ? [{ question, answer }] : []
+  })
+}
