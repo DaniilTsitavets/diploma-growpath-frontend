@@ -249,11 +249,15 @@ Chat turn (`POST /v1/journals/{id}/chat/turns`):
   "model_effort": "low",
   "created_at": "2026-11-20T10:00:00Z",
   "sources": [
-    { "rank": 1, "section_id": "...", "document_title": "Basil care guide", "section_heading": "Watering basil", "source_url": "https://example.org/basil" }
+    { "rank": 1, "section_id": "...", "document_title": "Basil care guide", "section_heading": "Watering basil", "source_url": "https://example.org/basil", "source_name": "Example guide", "license": "CC0" }
   ],
   "related": []
 }
 ```
+
+Under an answer the page prints "Source: <source_name> · <license>" for each distinct source, linked to the page of its
+first section, so nothing about the source is written in the client. The plant profile (`GET /v1/plants/{slug}`) can carry
+`faq` (up to 10 question and answer pairs); a plant with no care fields shows them in place of the empty care blocks.
 
 `outcome` is `answered`, `not_in_kb`, `out_of_scope` or `sources_only` (the AI was unavailable: the matching
 sections come back in `related`, nothing is stored or charged, and the same `id` may be sent again).
