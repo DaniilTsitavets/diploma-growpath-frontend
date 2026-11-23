@@ -114,7 +114,9 @@ export function UpdatePage() {
               journalId={journalId}
               blockedReason={
                 missingPhotos.length > 0
-                  ? 'Add the whole-plant and soil photos above to run the check.'
+                  ? `Add the missing photos above to run the check: ${missingPhotos
+                      .map((kind) => photoSlots.find((slot) => slot.kind === kind)?.label ?? kind)
+                      .join(', ')}.`
                   : undefined
               }
             />

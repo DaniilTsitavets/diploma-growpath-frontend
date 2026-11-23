@@ -71,6 +71,7 @@ async function addPhotos() {
 /** The three-step upload and the diagnosis, recording what the page sent. */
 function backend() {
   const calls: string[] = []
+  const confirmed: string[] = []
   const sent: { update: Record<string, unknown> } = { update: {} }
   server.use(
     http.post(`${origin}/v1/journals/j1/updates`, async ({ request }) => {
@@ -94,8 +95,16 @@ function backend() {
     }),
     http.post(`${origin}/v1/updates/:id/photos/:kind/confirm`, ({ params }) => {
       calls.push(`confirm:${String(params.kind)}`)
+      confirmed.push(String(params.kind))
       return HttpResponse.json({ kind: params.kind, url: 'http://storage.test/read' })
     }),
+    // The backend says which photos it still needs; here it wants the whole plant and the soil.
+    http.get(`${origin}/v1/updates/:id/photos`, () =>
+      HttpResponse.json({
+        photos: confirmed.map((kind) => ({ kind, url: 'http://storage.test/read' })),
+        missing_required: ['overview', 'soil'].filter((kind) => !confirmed.includes(kind)),
+      }),
+    ),
     http.post(`${origin}/v1/updates/:id/diagnosis`, () => {
       calls.push('diagnosis')
       return HttpResponse.json({ status: 'completed', candidates: [] })
@@ -332,5 +341,20 @@ describe('NewUpdatePage', () => {
     expect(alert).toHaveTextContent('was not created')
     expect(alert).toHaveTextContent('Hobbyist')
     expect(screen.queryByRole('heading', { name: 'Update page' })).not.toBeInTheDocument()
+  })
+
+  it('runs the diagnosis once the backend needs no more photos, whatever the photos are', async () => {
+    const { calls } = backend()
+    server.use(
+      http.get(`${origin}/v1/updates/:id/photos`, () =>
+        HttpResponse.json({ photos: [], missing_required: [] }),
+      ),
+    )
+    renderPage()
+    await choose(lightingLabels.low)
+    await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
+
+    await screen.findByRole('heading', { name: 'Update page' })
+    expect(calls).toEqual(['update', 'diagnosis'])
   })
 })
