@@ -108,3 +108,27 @@ describe('ItemImage photos', () => {
     expect(renderImage({ slug: 'lavender' }).getAttribute('src')).toContain('pack-light')
   })
 })
+
+describe('ItemImage credits request', () => {
+  it('asks for the credits list once, however many pictures are on the page', async () => {
+    vi.stubEnv('VITE_MEDIA_BASE_URL', media)
+    let requests = 0
+    server.use(
+      http.get(`${media}/credits.json`, () => {
+        requests += 1
+        return HttpResponse.json([])
+      }),
+    )
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={client}>
+        {['a', 'b', 'c', 'd'].map((slug) => (
+          <ItemImage key={slug} itemType="pack" slug={slug} />
+        ))}
+      </QueryClientProvider>,
+    )
+
+    await waitFor(() => expect(requests).toBe(1))
+    expect(document.querySelectorAll('img')).toHaveLength(4)
+  })
+})

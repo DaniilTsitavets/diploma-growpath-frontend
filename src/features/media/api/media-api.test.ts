@@ -26,12 +26,17 @@ describe('fetchCredits', () => {
     await expect(fetchCredits(base)).resolves.toHaveLength(1)
   })
 
-  it('reports a missing list and a list of the wrong shape', async () => {
+  it('treats a missing list as no pictures, and reports a list of the wrong shape', async () => {
     server.use(http.get(`${base}/credits.json`, () => new HttpResponse(null, { status: 404 })))
-    await expect(fetchCredits(base)).rejects.toMatchObject({ status: 404 })
+    await expect(fetchCredits(base)).resolves.toEqual([])
 
     server.use(http.get(`${base}/credits.json`, () => HttpResponse.json({ not: 'a list' })))
     await expect(fetchCredits(base)).rejects.toMatchObject({ status: 502 })
+  })
+
+  it('reports a server failure', async () => {
+    server.use(http.get(`${base}/credits.json`, () => new HttpResponse(null, { status: 500 })))
+    await expect(fetchCredits(base)).rejects.toMatchObject({ status: 500 })
   })
 
   it('reports a network failure', async () => {
