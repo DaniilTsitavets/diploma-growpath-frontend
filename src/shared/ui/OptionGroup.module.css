@@ -26,6 +26,11 @@
   gap: var(--space-1) var(--space-4);
 }
 
+.list {
+  display: grid;
+  gap: 0;
+}
+
 .option {
   display: flex;
   align-items: center;
