@@ -85,7 +85,9 @@ export interface paths {
         get?: never;
         /**
          * Record Planting
-         * @description Record the planting date; the checkpoint windows are computed from it.
+         * @description Record the planting date once; the checkpoint windows are computed from it.
+         *
+         *     Repeating the same date is a no-op; another date is refused once one is recorded.
          */
         put: operations["record_planting_v1_journals__journal_id__planting_put"];
         post?: never;
@@ -134,12 +136,37 @@ export interface paths {
         put?: never;
         /**
          * Request Upload
-         * @description A presigned PUT URL for one photo of the update; repeating the request issues a new URL.
+         * @description A presigned PUT URL for one photo of the update; nothing is stored until it is confirmed.
          *
-         *     A `roots_drainage` photo is accepted only while the diagnosis awaits a clarification in which
-         *     the AI asked for it (409 otherwise).
+         *     The URL signs the declared type and size: the upload must send exactly `required_headers`.
+         *     Repeating the request issues a new URL; for a confirmed kind the photo is replaced by the
+         *     next confirmation. A `roots_drainage` photo is accepted only while the diagnosis awaits a
+         *     clarification in which the AI asked for it (409 otherwise).
          */
         post: operations["request_upload_v1_updates__update_id__photos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/updates/{update_id}/photos/{kind}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Upload
+         * @description Check the uploaded object and record the photo; confirming again changes nothing.
+         *
+         *     The object must exist (409 `photo-not-uploaded` otherwise) and be within the size and type
+         *     limits; an object that is not is deleted (422).
+         */
+        post: operations["confirm_upload_v1_updates__update_id__photos__kind__confirm_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -288,6 +315,27 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AirContextResponse */
+        AirContextResponse: {
+            /** T */
+            T: number | null;
+            /** Rh */
+            RH: number | null;
+            /** Vpd Kpa */
+            VPD_kPa: number | null;
+        };
+        /**
+         * Answer
+         * @enum {string}
+         */
+        Answer: "yes" | "no" | "unknown";
+        /** CalibrationResponse */
+        CalibrationResponse: {
+            /** N Observations */
+            n_observations: number;
+            /** Reset Reason */
+            reset_reason: string | null;
+        };
         /** CandidateResponse */
         CandidateResponse: {
             /** Rank */
@@ -373,6 +421,11 @@ export interface components {
             /** Answer */
             answer: string;
         };
+        /**
+         * DepletionSource
+         * @enum {string}
+         */
+        DepletionSource: "sensor" | "weight_grams" | "depth" | "categorical_weight" | "none";
         /** DiagnosisDetailResponse */
         DiagnosisDetailResponse: {
             status: components["schemas"]["DiagnosisStatus"];
@@ -392,6 +445,7 @@ export interface components {
             escalation_offered: boolean;
             /** Escalation Declined */
             escalation_declined: boolean;
+            watering: components["schemas"]["WateringResponse"] | null;
             /**
              * Update Id
              * Format: uuid
@@ -419,6 +473,7 @@ export interface components {
             escalation_offered: boolean;
             /** Escalation Declined */
             escalation_declined: boolean;
+            watering: components["schemas"]["WateringResponse"] | null;
         };
         /**
          * DiagnosisStatus
@@ -426,10 +481,10 @@ export interface components {
          */
         DiagnosisStatus: "diagnosis_pending" | "awaiting_clarification" | "completed" | "degraded";
         /**
-         * Drainage
+         * DryDepth
          * @enum {string}
          */
-        Drainage: "good" | "poor" | "none";
+        DryDepth: "not_dry" | "about_2_3cm" | "about_5cm" | "whole_root_ball_dry" | "unknown";
         /** EscalationDetailResponse */
         EscalationDetailResponse: {
             /**
@@ -483,6 +538,13 @@ export interface components {
          * @enum {string}
          */
         EscalationStatus: "requested" | "ticket_open" | "answered" | "cancelled";
+        /** FaqEntryResponse */
+        FaqEntryResponse: {
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string;
+        };
         /** FeedResponse */
         FeedResponse: {
             /** Items */
@@ -491,10 +553,10 @@ export interface components {
             next_cursor: string | null;
         };
         /**
-         * FingerTest
+         * Flag
          * @enum {string}
          */
-        FingerTest: "dry" | "slightly_moist" | "wet";
+        Flag: "drainage_none" | "low_light_vs_species" | "rh_below_species_range" | "temp_outside_species_range" | "top_dry_heavy_conflict";
         /** HealthStatus */
         HealthStatus: {
             /**
@@ -541,6 +603,11 @@ export interface components {
          */
         Lighting: "low" | "medium" | "bright_indirect" | "direct_sun";
         /**
+         * PSource
+         * @enum {string}
+         */
+        PSource: "profile" | "profile_clamped" | "default";
+        /**
          * PhotoKind
          * @enum {string}
          */
@@ -560,7 +627,7 @@ export interface components {
         };
         /**
          * PlantProfileResponse
-         * @description Absent facts are left out of the JSON, not sent as null.
+         * @description Absent facts, an absent FAQ and empty labels are left out of the JSON, not sent as null.
          */
         PlantProfileResponse: {
             /** Slug */
@@ -606,6 +673,10 @@ export interface components {
             pruning?: string | null;
             /** Toxicity */
             toxicity?: string | null;
+            /** Labels */
+            labels?: string[] | null;
+            /** Faq */
+            faq?: components["schemas"]["FaqEntryResponse"][] | null;
         };
         /** PlantSourceResponse */
         PlantSourceResponse: {
@@ -625,10 +696,24 @@ export interface components {
             planted_on: string;
         };
         /**
-         * PotWeight
+         * PotDiameterClass
          * @enum {string}
          */
-        PotWeight: "lighter" | "as_expected" | "heavier";
+        PotDiameterClass: "lt_10" | "10_15" | "15_20" | "20_30" | "gt_30" | "unknown";
+        /**
+         * PotWeightRelative
+         * @enum {string}
+         */
+        PotWeightRelative: "about_same" | "noticeably_lighter" | "very_light" | "unknown";
+        /** RecommendedIntervalBounds */
+        RecommendedIntervalBounds: {
+            /** Lower Days */
+            lower_days: number | null;
+            /** Upper Days */
+            upper_days: number | null;
+            /** Text */
+            text: string | null;
+        };
         /** RelatedSectionResponse */
         RelatedSectionResponse: {
             /**
@@ -642,9 +727,23 @@ export interface components {
             section_heading: string;
             /** Source Url */
             source_url: string;
+            /** Source Name */
+            source_name: string;
+            /** License */
+            license: string | null;
             /** Body */
             body: string;
         };
+        /**
+         * Reliability
+         * @enum {string}
+         */
+        Reliability: "high" | "medium" | "low";
+        /**
+         * SensorUnit
+         * @enum {string}
+         */
+        SensorUnit: "vwc_pct" | "raw";
         /** SourceResponse */
         SourceResponse: {
             /** Rank */
@@ -660,7 +759,16 @@ export interface components {
             section_heading: string;
             /** Source Url */
             source_url: string;
+            /** Source Name */
+            source_name: string;
+            /** License */
+            license: string | null;
         };
+        /**
+         * Status
+         * @enum {string}
+         */
+        Status: "underwatering" | "overwatering" | "on_track" | "unclear";
         /** SubmitUpdateRequest */
         SubmitUpdateRequest: {
             /**
@@ -668,16 +776,43 @@ export interface components {
              * Format: uuid
              */
             id: string;
+            lighting: components["schemas"]["Lighting"];
             /** Last Watered On */
             last_watered_on?: string | null;
-            /** Watering Interval Days */
-            watering_interval_days?: number | null;
-            drainage: components["schemas"]["Drainage"];
-            lighting: components["schemas"]["Lighting"];
-            finger_test: components["schemas"]["FingerTest"];
-            pot_weight: components["schemas"]["PotWeight"];
+            /** @default unknown */
+            watering_method: components["schemas"]["WateringMethod"];
+            /** @default unknown */
+            pot_diameter_class: components["schemas"]["PotDiameterClass"];
+            /** @default unknown */
+            drainage_holes: components["schemas"]["Answer"];
+            /** @default unknown */
+            standing_water_over_1h: components["schemas"]["Answer"];
+            /** @default unknown */
+            dry_depth: components["schemas"]["DryDepth"];
+            /** @default unknown */
+            pot_weight_relative: components["schemas"]["PotWeightRelative"];
+            /** Pot Weight After Watering G */
+            pot_weight_after_watering_g?: number | string | null;
+            /** Pot Weight Now G */
+            pot_weight_now_g?: number | string | null;
+            repotted_or_moved?: components["schemas"]["YesNo"] | null;
             /** Sensor Reading */
             sensor_reading?: number | string | null;
+            sensor_unit?: components["schemas"]["SensorUnit"] | null;
+            /** Air Temp C */
+            air_temp_c?: number | string | null;
+            /** Air Rh Pct */
+            air_rh_pct?: number | string | null;
+            /** Air Measured At */
+            air_measured_at?: string | null;
+            /** Air Temp Min C */
+            air_temp_min_c?: number | string | null;
+            /** Air Temp Max C */
+            air_temp_max_c?: number | string | null;
+            /** Air Rh Min Pct */
+            air_rh_min_pct?: number | string | null;
+            /** Air Rh Max Pct */
+            air_rh_max_pct?: number | string | null;
         };
         /** UpdateResponse */
         UpdateResponse: {
@@ -696,22 +831,47 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            lighting: components["schemas"]["Lighting"];
             /** Last Watered On */
             last_watered_on: string | null;
-            /** Watering Interval Days */
-            watering_interval_days: number | null;
-            drainage: components["schemas"]["Drainage"];
-            lighting: components["schemas"]["Lighting"];
-            finger_test: components["schemas"]["FingerTest"];
-            pot_weight: components["schemas"]["PotWeight"];
+            watering_method: components["schemas"]["WateringMethod"];
+            pot_diameter_class: components["schemas"]["PotDiameterClass"];
+            drainage_holes: components["schemas"]["Answer"];
+            standing_water_over_1h: components["schemas"]["Answer"];
+            dry_depth: components["schemas"]["DryDepth"];
+            pot_weight_relative: components["schemas"]["PotWeightRelative"];
+            /** Pot Weight After Watering G */
+            pot_weight_after_watering_g: string | null;
+            /** Pot Weight Now G */
+            pot_weight_now_g: string | null;
+            repotted_or_moved: components["schemas"]["YesNo"] | null;
             /** Sensor Reading */
             sensor_reading: string | null;
+            sensor_unit: components["schemas"]["SensorUnit"] | null;
+            /** Air Temp C */
+            air_temp_c: string | null;
+            /** Air Rh Pct */
+            air_rh_pct: string | null;
+            /** Air Measured At */
+            air_measured_at: string | null;
+            /** Air Temp Min C */
+            air_temp_min_c: string | null;
+            /** Air Temp Max C */
+            air_temp_max_c: string | null;
+            /** Air Rh Min Pct */
+            air_rh_min_pct: string | null;
+            /** Air Rh Max Pct */
+            air_rh_max_pct: string | null;
             diagnosis: components["schemas"]["DiagnosisResponse"] | null;
             escalation: components["schemas"]["EscalationResponse"] | null;
         };
         /** UploadRequest */
         UploadRequest: {
             kind: components["schemas"]["PhotoKind"];
+            /** Content Type */
+            content_type: string;
+            /** Size Bytes */
+            size_bytes: number;
         };
         /** UploadResponse */
         UploadResponse: {
@@ -720,7 +880,50 @@ export interface components {
             upload_url: string;
             /** Expires In Seconds */
             expires_in_seconds: number;
+            /** Required Headers */
+            required_headers: {
+                [key: string]: string;
+            };
         };
+        /**
+         * WateringMethod
+         * @enum {string}
+         */
+        WateringMethod: "through_drainage" | "partial" | "unknown";
+        /**
+         * WateringResponse
+         * @description The watering assessment computed for the diagnosis attempt (see docs/watering.md).
+         */
+        WateringResponse: {
+            status: components["schemas"]["Status"];
+            reliability: components["schemas"]["Reliability"];
+            /** Depletion D */
+            depletion_D: number | null;
+            D_source: components["schemas"]["DepletionSource"];
+            /** Target P */
+            target_p: number;
+            p_source: components["schemas"]["PSource"];
+            /** I Rec Days */
+            I_rec_days: number | null;
+            I_rec_bounds: components["schemas"]["RecommendedIntervalBounds"] | null;
+            /** I Fact Days */
+            I_fact_days: number | null;
+            /** Ratio R */
+            ratio_r: number | null;
+            /** Ks */
+            Ks: number | null;
+            /** Flags */
+            flags: components["schemas"]["Flag"][];
+            air: components["schemas"]["AirContextResponse"];
+            calibration: components["schemas"]["CalibrationResponse"];
+            /** Assumptions */
+            assumptions: string[];
+        };
+        /**
+         * YesNo
+         * @enum {string}
+         */
+        YesNo: "yes" | "no";
         /**
          * Problem
          * @description Problem details (RFC 7807); `code` is a stable kebab-case identifier of the problem, `errors` lists the invalid fields of a validation error.
@@ -1031,7 +1234,19 @@ export interface operations {
                     };
                 };
             };
-            /** @description A path or body parameter is invalid */
+            /** @description A different planting date is already recorded for the journal */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "planting-already-recorded";
+                    };
+                };
+            };
+            /** @description The body is invalid, or the planting date is in the future (UTC today) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -1403,7 +1618,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description A path or body parameter is invalid */
+            /** @description A path or body parameter is invalid, or the type or size is not allowed */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -1411,7 +1626,102 @@ export interface operations {
                 content: {
                     "application/problem+json": components["schemas"]["Problem"] & {
                         /** @enum {unknown} */
-                        code?: "validation-error";
+                        code?: "validation-error" | "photo-too-large" | "photo-type-not-allowed";
+                    };
+                };
+            };
+            /** @description Problem details */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    confirm_upload_v1_updates__update_id__photos__kind__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-user-id"?: string | null;
+                "x-user-groups"?: string | null;
+            };
+            path: {
+                update_id: string;
+                kind: components["schemas"]["PhotoKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoResponse"];
+                };
+            };
+            /** @description `X-User-Id` is missing or not a user id */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "unauthorized";
+                    };
+                };
+            };
+            /** @description The caller is not a customer: `X-User-Groups` lacks `users` or has `experts`/`admins` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "forbidden";
+                    };
+                };
+            };
+            /** @description The user has no such update */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "not-found";
+                    };
+                };
+            };
+            /** @description No roots photo was asked for, or the object was not uploaded */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "roots-photo-not-requested" | "photo-not-uploaded";
+                    };
+                };
+            };
+            /** @description The uploaded object is too large or of a type that is not allowed; it was deleted */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"] & {
+                        /** @enum {unknown} */
+                        code?: "validation-error" | "photo-too-large" | "photo-type-not-allowed";
                     };
                 };
             };
