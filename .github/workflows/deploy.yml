@@ -1,0 +1,110 @@
+name: CI and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  AWS_REGION: eu-north-1
+  DEPLOY_ROLE_ARN: arn:aws:iam::056816919483:role/GitHubActionsFrontendDeploy
+  SPA_BUCKET: growpath-prod-frontend-056816919483
+  CLOUDFRONT_DISTRIBUTION_ID: E34M2BIHVCFW9V
+
+jobs:
+  build:
+    name: Lint, test and build
+    runs-on: ubuntu-latest
+    env:
+      VITE_COGNITO_ENDPOINT: ${{ vars.VITE_COGNITO_ENDPOINT }}
+      VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+      VITE_MEDIA_BASE_URL: ${{ vars.VITE_MEDIA_BASE_URL }}
+      VITE_CSP_EXTRA_ORIGINS: ${{ vars.VITE_CSP_EXTRA_ORIGINS }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check the build variables of a release build
+        if: github.event_name != 'pull_request'
+        run: |
+          missing=0
+          for name in VITE_COGNITO_ENDPOINT VITE_COGNITO_CLIENT_ID VITE_MEDIA_BASE_URL VITE_CSP_EXTRA_ORIGINS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::The Actions variable $name is not set; the site would be built without it."
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy to S3 and CloudFront
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ env.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Files under assets/ carry a content hash in their name, so they never change and can be cached for good.
+      - name: Upload the hashed assets
+        run: |
+          aws s3 sync dist/assets "s3://$SPA_BUCKET/assets" --delete \
+            --cache-control "public,max-age=31536000,immutable"
+
+      # The other root files (favicon, robots.txt, theme-init.js) keep their names, so they must be revalidated.
+      # media/ is not part of the build and is never touched; security-headers.json is only for `vite preview`.
+      - name: Upload the unhashed root files
+        run: |
+          aws s3 sync dist "s3://$SPA_BUCKET/" --delete \
+            --exclude "assets/*" --exclude "media/*" --exclude index.html --exclude security-headers.json \
+            --cache-control "no-cache"
+
+      # The page goes last, so the old one never points to assets that are already deleted.
+      - name: Upload index.html
+        run: |
+          aws s3 cp dist/index.html "s3://$SPA_BUCKET/index.html" \
+            --cache-control "no-cache" --content-type "text/html; charset=utf-8"
+
+      - name: Invalidate the files that keep their names
+        run: |
+          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/index.html" "/theme-init.js" "/favicon.svg" "/robots.txt"

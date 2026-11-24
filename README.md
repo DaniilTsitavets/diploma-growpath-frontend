@@ -32,6 +32,7 @@ Gateway. This client talks to the backend only through that gateway.
 5. [Testing](docs/testing.md): unit, integration and end-to-end tests and how to run them.
 6. [Security](docs/security.md): the content security policy and the other measures.
 7. [Performance](docs/performance.md): Lighthouse results and what was done for them.
+8. [Deployment](docs/deployment.md): the GitHub Actions pipeline to S3 and CloudFront, access through OIDC, variables.
 
 Also: [credits](docs/credits.md) (fonts and images) and [to be done](docs/to-be-done.md).
 
