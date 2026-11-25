@@ -99,11 +99,9 @@ function backend() {
       confirmed.push(String(params.kind))
       return HttpResponse.json({ kind: params.kind, url: 'http://storage.test/read' })
     }),
-    // The backend says which photos it still needs; here it wants the whole plant.
     http.get(`${origin}/v1/updates/:id/photos`, () =>
       HttpResponse.json({
         photos: confirmed.map((kind) => ({ kind, url: 'http://storage.test/read' })),
-        missing_required: ['overview'].filter((kind) => !confirmed.includes(kind)),
       }),
     ),
     http.post(`${origin}/v1/updates/:id/diagnosis`, () => {
@@ -138,14 +136,14 @@ describe('NewUpdatePage', () => {
     expect(screen.getAllByText(/\(optional\)/).length).toBeGreaterThanOrEqual(3)
   })
 
-  it('saves an update without photos and leaves the diagnosis for when the photos are added', async () => {
+  it('saves an update without photos and runs the diagnosis, no photo is required', async () => {
     const { calls } = backend()
     renderPage()
     await choose(lightingLabels.low)
     await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
 
     expect(await screen.findByRole('heading', { name: 'Update page' })).toBeInTheDocument()
-    expect(calls).toEqual(['update'])
+    expect(calls).toEqual(['update', 'diagnosis'])
   })
 
   it('sends no photo request for a photo that was chosen and then removed', async () => {
@@ -157,17 +155,7 @@ describe('NewUpdatePage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
 
     expect(await screen.findByRole('heading', { name: 'Update page' })).toBeInTheDocument()
-    expect(calls).toEqual(['update'])
-  })
-
-  it('does not run the diagnosis while the whole-plant photo is missing', async () => {
-    const { calls } = backend()
-    renderPage()
-    await choose(lightingLabels.low)
-    await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
-
-    await screen.findByRole('heading', { name: 'Update page' })
-    expect(calls).toEqual(['update'])
+    expect(calls).toEqual(['update', 'diagnosis'])
   })
 
   it('refuses a photo of a type the backend does not accept', async () => {
@@ -354,20 +342,5 @@ describe('NewUpdatePage', () => {
     expect(alert).toHaveTextContent('was not created')
     expect(alert).toHaveTextContent('Hobbyist')
     expect(screen.queryByRole('heading', { name: 'Update page' })).not.toBeInTheDocument()
-  })
-
-  it('runs the diagnosis once the backend needs no more photos, whatever the photos are', async () => {
-    const { calls } = backend()
-    server.use(
-      http.get(`${origin}/v1/updates/:id/photos`, () =>
-        HttpResponse.json({ photos: [], missing_required: [] }),
-      ),
-    )
-    renderPage()
-    await choose(lightingLabels.low)
-    await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
-
-    await screen.findByRole('heading', { name: 'Update page' })
-    expect(calls).toEqual(['update', 'diagnosis'])
   })
 })

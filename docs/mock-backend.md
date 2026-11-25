@@ -37,7 +37,7 @@ Users the administrator creates in the mock can sign in with the password they w
   from the local backend; the twelve pictures and `credits.json` come from its media bucket.
 - Orders create journals; the planting date can be set once (a second try answers 409); the checkpoints follow
   from it.
-- A new update needs the whole-plant photo. The photo goes through the three steps (declare, PUT to the address
+- Photos are optional. A photo goes through the three steps (declare, PUT to the address
   the mock gives, confirm) and is kept in memory, so it can be shown back.
 - The diagnosis is decided from the questionnaire and is always the same for the same answers: wet soil or
   standing water gives overwatering (and asks for the roots photo when water stands), a dry root ball or a very

@@ -79,19 +79,17 @@ function renderPage() {
 }
 
 describe('UpdatePage', () => {
-  it('shows the answers and the photos that are still required', async () => {
+  it('shows the answers and the photo slots', async () => {
     server.use(
       http.get(`${origin}/v1/journals/j1/updates`, () =>
         HttpResponse.json({ items: [update], next_cursor: null }),
       ),
-      http.get(`${origin}/v1/updates/u1/photos`, () =>
-        HttpResponse.json({ photos: [], missing_required: ['overview'] }),
-      ),
+      http.get(`${origin}/v1/updates/u1/photos`, () => HttpResponse.json({ photos: [] })),
     )
     renderPage()
 
     expect(await screen.findByText('Poor, water drains slowly')).toBeInTheDocument()
-    expect(await screen.findByText('Still needed: Whole plant.')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Whole plant')).toBeInTheDocument()
   })
 
   it('uploads a chosen photo to the presigned URL and refreshes the list', async () => {
@@ -104,11 +102,8 @@ describe('UpdatePage', () => {
       http.get(`${origin}/v1/updates/u1/photos`, () =>
         HttpResponse.json(
           uploaded
-            ? {
-                photos: [{ kind: 'overview', url: 'http://storage.test/view' }],
-                missing_required: [],
-              }
-            : { photos: [], missing_required: ['overview'] },
+            ? { photos: [{ kind: 'overview', url: 'http://storage.test/view' }] }
+            : { photos: [] },
         ),
       ),
       http.post(`${origin}/v1/updates/u1/photos`, () =>
@@ -133,9 +128,8 @@ describe('UpdatePage', () => {
     const file = new File(['x'], 'plant.png', { type: 'image/png' })
     await userEvent.upload(await screen.findByLabelText('Whole plant'), file)
 
-    expect(await screen.findByText('All required photos are uploaded.')).toBeInTheDocument()
+    expect(await screen.findByAltText('Whole plant photo')).toBeInTheDocument()
     expect(puts).toBe(1)
-    expect(screen.getByAltText('Whole plant photo')).toBeInTheDocument()
   })
 
   it('rejects an unsupported file without calling the backend', async () => {
@@ -143,9 +137,7 @@ describe('UpdatePage', () => {
       http.get(`${origin}/v1/journals/j1/updates`, () =>
         HttpResponse.json({ items: [update], next_cursor: null }),
       ),
-      http.get(`${origin}/v1/updates/u1/photos`, () =>
-        HttpResponse.json({ photos: [], missing_required: ['overview'] }),
-      ),
+      http.get(`${origin}/v1/updates/u1/photos`, () => HttpResponse.json({ photos: [] })),
     )
     renderPage()
 

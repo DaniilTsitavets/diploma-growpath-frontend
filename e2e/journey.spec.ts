@@ -47,7 +47,7 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
   await page.getByRole('button', { name: /Record planting|Change date/ }).click()
   await expect(page.getByRole('list', { name: 'Checkpoints' })).toBeVisible()
 
-  // A new update: questionnaire and the required photo.
+  // A new update: questionnaire and a photo.
   await page.getByRole('link', { name: 'Add an update' }).click()
   await page.getByRole('button', { name: 'Submit update' }).click()
   await expect(page.getByText('Choose the lighting')).toBeVisible()
@@ -61,7 +61,6 @@ test('a user orders a pack, keeps a journal, submits an update with photos and r
 
   // The update page: the photos went to the presigned URLs and the diagnosis ran.
   await expect(page).toHaveURL(/\/updates\/[0-9a-f-]{36}$/, { timeout: 45_000 })
-  await expect(page.getByText('All required photos are uploaded.')).toBeVisible()
   const causes = page.getByRole('list', { name: /Possible causes/ })
   const fallback = page.getByText(
     /Nothing was charged|The AI needs one more detail|has not run yet/,
