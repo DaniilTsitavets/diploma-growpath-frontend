@@ -33,6 +33,7 @@ Gateway. This client talks to the backend only through that gateway.
 6. [Security](docs/security.md): the content security policy and the other measures.
 7. [Performance](docs/performance.md): Lighthouse results and what was done for them.
 8. [Deployment](docs/deployment.md): the GitHub Actions pipeline to S3 and CloudFront, access through OIDC, variables.
+9. [Running without the backend](docs/mock-backend.md): a stand-in backend, `npm run dev:mock` and a Docker stack with nginx.
 
 Also: [credits](docs/credits.md) (fonts and images) and [to be done](docs/to-be-done.md).
 
