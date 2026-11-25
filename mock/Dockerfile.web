@@ -1,0 +1,18 @@
+# The single-page application built for the stand-in backend and served by nginx.
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+# The address the browser opens: Cognito, the pictures and the API are all behind it.
+ARG PUBLIC_ORIGIN=http://localhost:8088
+ENV VITE_COGNITO_ENDPOINT=${PUBLIC_ORIGIN}/cognito/ \
+    VITE_COGNITO_CLIENT_ID=mock \
+    VITE_MEDIA_BASE_URL=${PUBLIC_ORIGIN}/media
+RUN npm run build
+
+FROM nginx:1.27-alpine
+# The image renders the template at start, filling in ${PUBLIC_HOST} and leaving nginx's own variables alone.
+COPY mock/nginx.conf /etc/nginx/templates/default.conf.template
+COPY mock/mock-proxy.conf /etc/nginx/mock-proxy.conf
+COPY --from=build /app/dist /usr/share/nginx/html
