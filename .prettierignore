@@ -7,3 +7,5 @@ package-lock.json
 .idea
 CLAUDE.md
 src/shared/api/schema
+mock/server/data
+mock/media
