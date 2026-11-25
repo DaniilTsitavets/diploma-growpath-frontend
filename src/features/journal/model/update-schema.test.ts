@@ -67,6 +67,20 @@ describe('updateSchema', () => {
     expect(errorsOf(answered({ sensor_reading: '-1', sensor_unit: 'raw' }))).toHaveLength(1)
   })
 
+  it('rejects what the backend rejects: a moisture reading above 100 %, a minimum above a maximum', () => {
+    expect(errorsOf(answered({ sensor_reading: '120', sensor_unit: 'vwc_pct' }))).toEqual([
+      'sensor_reading: A reading in % of volume cannot be above 100',
+    ])
+    expect(errorsOf(answered({ sensor_reading: '2000', sensor_unit: 'raw' }))).toEqual([])
+    expect(errorsOf(answered({ air_temp_min_c: '25', air_temp_max_c: '18' }))).toEqual([
+      'air_temp_min_c: The lowest temperature cannot be above the highest',
+    ])
+    expect(errorsOf(answered({ air_rh_min_pct: '70', air_rh_max_pct: '40' }))).toEqual([
+      'air_rh_min_pct: The lowest humidity cannot be above the highest',
+    ])
+    expect(errorsOf(answered({ air_rh_min_pct: '40', air_rh_max_pct: '70' }))).toEqual([])
+  })
+
   it('wants the unit of a sensor reading', () => {
     expect(errorsOf(answered({ sensor_reading: '30' }))).toEqual([
       'sensor_unit: Choose the unit of the reading',

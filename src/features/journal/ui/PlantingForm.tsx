@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Button } from '@/shared/ui/Button'
 import { DatePicker } from '@/shared/ui/DatePicker'
 import { useRecordPlanting } from '../api/queries'
-import { formatDate, todayIso } from '../model/dates'
+import { formatDate, latestDateIso } from '../model/dates'
 import { describePlantingError } from '../model/planting-errors'
 import { plantingSchema, type PlantingValues } from '../model/planting-schema'
 import styles from './PlantingForm.module.css'
@@ -21,7 +21,7 @@ export function PlantingForm({ journalId, plantedOn }: PlantingFormProps) {
     formState: { errors },
   } = useForm<PlantingValues>({
     resolver: zodResolver(plantingSchema),
-    defaultValues: { planted_on: plantedOn ?? todayIso() },
+    defaultValues: { planted_on: plantedOn ?? latestDateIso() },
   })
 
   // The backend keeps the first recorded date and refuses another one, so a saved date is shown and not edited.
@@ -49,7 +49,7 @@ export function PlantingForm({ journalId, plantedOn }: PlantingFormProps) {
             label="Planting date"
             value={field.value}
             onChange={field.onChange}
-            max={todayIso()}
+            max={latestDateIso()}
             error={errors.planted_on?.message}
           />
         )}

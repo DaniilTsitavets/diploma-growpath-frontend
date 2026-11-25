@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { todayIso } from './dates'
+import { latestDateIso } from './dates'
 import type { SubmitUpdateRequest } from './types'
 
 const choice = <const T extends [string, ...string[]]>(values: T, message = 'Choose an option') =>
@@ -28,7 +28,7 @@ export const updateSchema = z
   .object({
     /** Only asked when the previous update gave a watering date. */
     watered_since: choice(['no', 'yes', 'unknown']),
-    last_watered_on: z.string().refine((value) => isEmpty(value) || value <= todayIso(), {
+    last_watered_on: z.string().refine((value) => isEmpty(value) || value <= latestDateIso(), {
       message: 'The date cannot be in the future',
     }),
     watering_method: choice(['through_drainage', 'partial', 'unknown']),
@@ -57,6 +57,29 @@ export const updateSchema = z
         path: ['sensor_unit'],
         message: 'Choose the unit of the reading',
       })
+    }
+    if (values.sensor_unit === 'vwc_pct' && Number(values.sensor_reading) > 100) {
+      context.addIssue({
+        code: 'custom',
+        path: ['sensor_reading'],
+        message: 'A reading in % of volume cannot be above 100',
+      })
+    }
+    for (const [low, high, label] of [
+      ['air_temp_min_c', 'air_temp_max_c', 'temperature'],
+      ['air_rh_min_pct', 'air_rh_max_pct', 'humidity'],
+    ] as const) {
+      if (
+        !isEmpty(values[low]) &&
+        !isEmpty(values[high]) &&
+        Number(values[low]) > Number(values[high])
+      ) {
+        context.addIssue({
+          code: 'custom',
+          path: [low],
+          message: `The lowest ${label} cannot be above the highest`,
+        })
+      }
     }
   })
 

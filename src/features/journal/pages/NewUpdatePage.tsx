@@ -9,7 +9,7 @@ import { remaining, upgradeHint } from '@/features/entitlement/model/tiers'
 import { isAiQuotaExhausted } from '@/features/diagnosis/model/errors'
 import { useUpdates } from '../api/queries'
 import { useSubmitUpdateFlow, type SubmitStep } from '../api/submit-flow'
-import { formatDate, todayIso } from '../model/dates'
+import { formatDate, latestDateIso } from '../model/dates'
 import {
   answerLabels,
   dryDepthLabels,
@@ -142,7 +142,7 @@ export function NewUpdatePage() {
                       label="When did you water last?"
                       value={field.value}
                       onChange={field.onChange}
-                      max={todayIso()}
+                      max={latestDateIso()}
                       clearable
                       error={errors.last_watered_on?.message}
                     />
@@ -161,7 +161,7 @@ export function NewUpdatePage() {
                   hint="Leave it empty if you do not know."
                   value={field.value}
                   onChange={field.onChange}
-                  max={todayIso()}
+                  max={latestDateIso()}
                   clearable
                   error={errors.last_watered_on?.message}
                 />
