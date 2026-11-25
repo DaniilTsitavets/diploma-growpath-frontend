@@ -28,8 +28,8 @@ export async function submitUpdateFlow(
   const update = await submitUpdate(journalId, request)
 
   onStep('photos')
-  for (const [kind, file] of Object.entries(photos) as [PhotoKind, File][]) {
-    await uploadPhoto(update.id, kind, file)
+  for (const [kind, file] of Object.entries(photos) as [PhotoKind, File | undefined][]) {
+    if (file) await uploadPhoto(update.id, kind, file)
   }
 
   // Which photos the diagnosis needs is the backend's call, so it is asked and not assumed. While some are missing
