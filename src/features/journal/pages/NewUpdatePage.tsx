@@ -116,8 +116,8 @@ export function NewUpdatePage() {
       <h1>New update</h1>
       <p className={styles.lead}>
         Only the lighting is required. For anything you are unsure of, choose "Don't know": the
-        answer is simply left out. Photos are optional too, but the diagnosis needs the whole-plant
-        photo; you can add it later on the update page.
+        answer is simply left out. Photos are optional too; you can add them later on the update
+        page.
       </p>
       <form
         className={styles.form}

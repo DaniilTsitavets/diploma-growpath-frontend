@@ -32,7 +32,6 @@ const LIMITS = {
   premium: { ai: 30, expert: 4 },
 }
 
-const REQUIRED_PHOTOS = ['overview']
 const PHOTO_KINDS = ['overview', 'soil', 'symptom_closeup', 'roots_drainage']
 
 const iso = (ms) => new Date(ms).toISOString()
@@ -865,11 +864,7 @@ export function createMockServer({ publicOrigin } = {}) {
         })
       }
       if (method === 'GET') {
-        const done = confirmedOf(update.id)
-        return json(res, 200, {
-          photos: photoList(req, update.id),
-          missing_required: REQUIRED_PHOTOS.filter((kind) => !done.has(kind)),
-        })
+        return json(res, 200, { photos: photoList(req, update.id) })
       }
     }
     match = /^\/v1\/updates\/([^/]+)\/photos\/([^/]+)\/confirm$/.exec(path)
@@ -912,16 +907,6 @@ export function createMockServer({ publicOrigin } = {}) {
       if (method === 'POST') {
         const existing = state.diagnoses.get(update.id)
         if (existing) return json(res, 200, existing)
-        const done = confirmedOf(update.id)
-        if (REQUIRED_PHOTOS.some((kind) => !done.has(kind))) {
-          return problem(
-            res,
-            422,
-            'Photos missing',
-            'Add the whole-plant photo first.',
-            'photos-missing',
-          )
-        }
         if (entitlement(user).ai_quota_today.used >= entitlement(user).ai_quota_today.limit) {
           return problem(
             res,

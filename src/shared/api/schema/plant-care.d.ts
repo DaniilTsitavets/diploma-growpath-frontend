@@ -130,7 +130,7 @@ export interface paths {
         };
         /**
          * List Photos
-         * @description The photos of the update with presigned GET URLs and the required kinds still missing.
+         * @description The photos of the update with presigned GET URLs; photos are optional.
          */
         get: operations["list_photos_v1_updates__update_id__photos_get"];
         put?: never;
@@ -611,7 +611,7 @@ export interface components {
          * PhotoKind
          * @enum {string}
          */
-        PhotoKind: "overview" | "soil" | "symptom_closeup" | "roots_drainage";
+        PhotoKind: "overview" | "symptom_closeup" | "roots_drainage";
         /** PhotoResponse */
         PhotoResponse: {
             kind: components["schemas"]["PhotoKind"];
@@ -622,8 +622,6 @@ export interface components {
         PhotosResponse: {
             /** Photos */
             photos: components["schemas"]["PhotoResponse"][];
-            /** Missing Required */
-            missing_required: components["schemas"]["PhotoKind"][];
         };
         /**
          * PlantProfileResponse
@@ -1889,7 +1887,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description A path parameter is invalid, or the required photos are missing */
+            /** @description A path parameter is invalid */
             422: {
                 headers: {
                     [name: string]: unknown;

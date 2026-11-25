@@ -33,7 +33,6 @@ function Photos({ update }: { update: PlantUpdate }) {
   const photos = usePhotos(update.id)
   const slots = update.diagnosis?.roots_photo_requested ? [...photoSlots, rootsSlot] : photoSlots
   const urlByKind = new Map(photos.data?.photos.map((photo) => [photo.kind, photo.url]))
-  const missing = photos.data?.missing_required ?? []
 
   return (
     <>
@@ -42,15 +41,6 @@ function Photos({ update }: { update: PlantUpdate }) {
           <p className={styles.error}>{describeError(photos.error)}</p>
           <Button onClick={() => void photos.refetch()}>Try again</Button>
         </div>
-      )}
-      {photos.data && (
-        <p role="status">
-          {missing.length === 0
-            ? 'All required photos are uploaded.'
-            : `Still needed: ${missing
-                .map((kind) => photoSlots.find((slot) => slot.kind === kind)?.label ?? kind)
-                .join(', ')}.`}
-        </p>
       )}
       <ul className={styles.slots}>
         {slots.map((slot) => (
@@ -71,8 +61,6 @@ export function UpdatePage() {
   const updates = useUpdates(journalId)
   const update = updates.data?.items.find((item) => item.id === updateId)
   const entitlement = useEntitlement()
-  const photos = usePhotos(updateId)
-  const missingPhotos = photos.data?.missing_required ?? []
 
   return (
     <>
@@ -109,17 +97,7 @@ export function UpdatePage() {
           {entitlement.data && <QuotaSummary entitlement={entitlement.data} />}
           <section className={styles.section} aria-labelledby="diagnosis-title">
             <h2 id="diagnosis-title">Diagnosis</h2>
-            <DiagnosisPanel
-              updateId={update.id}
-              journalId={journalId}
-              blockedReason={
-                missingPhotos.length > 0
-                  ? `Add the missing photos above to run the check: ${missingPhotos
-                      .map((kind) => photoSlots.find((slot) => slot.kind === kind)?.label ?? kind)
-                      .join(', ')}.`
-                  : undefined
-              }
-            />
+            <DiagnosisPanel updateId={update.id} journalId={journalId} />
           </section>
           <section className={styles.section} aria-labelledby="expert-title">
             <h2 id="expert-title">Expert help</h2>

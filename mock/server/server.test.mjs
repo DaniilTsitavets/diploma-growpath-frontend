@@ -131,8 +131,6 @@ describe('the customer journey', () => {
     expect(created.status).toBe(201)
     expect(created.body.sensor_reading).toBe('35.5')
 
-    expect((await call('POST', `/v1/updates/${updateId}/diagnosis`, { token })).status).toBe(422)
-
     const ticket = await call('POST', `/v1/updates/${updateId}/photos`, {
       token,
       body: { kind: 'overview', content_type: 'image/png', size_bytes: 4 },
@@ -152,7 +150,7 @@ describe('the customer journey', () => {
       (await call('POST', `/v1/updates/${updateId}/photos/overview/confirm`, { token })).status,
     ).toBe(200)
     const photos = await call('GET', `/v1/updates/${updateId}/photos`, { token })
-    expect(photos.body.missing_required).toEqual([])
+    expect(photos.body.photos).toHaveLength(1)
 
     const diagnosis = await call('POST', `/v1/updates/${updateId}/diagnosis`, { token })
     expect(diagnosis.body.status).toBe('completed')

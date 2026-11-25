@@ -4,7 +4,7 @@ import { entitlementKey } from '@/features/entitlement/api/use-entitlement'
 import { runDiagnosis } from '@/features/diagnosis/api/diagnosis-api'
 import type { PhotoKind, PlantUpdate, SubmitUpdateRequest } from '../model/types'
 import { journalKeys } from './queries'
-import { listPhotos, submitUpdate } from './journal-api'
+import { submitUpdate } from './journal-api'
 import { uploadPhoto } from './photo-upload'
 
 export type SubmitStep = 'idle' | 'saving' | 'photos' | 'diagnosing'
@@ -16,9 +16,8 @@ export interface SubmitFlowInput {
 }
 
 /**
- * Saves the update, uploads the photos that were chosen and, when the backend has every photo it needs, starts the
- * diagnosis. Saving is idempotent by the request id,
- * so running the whole flow again after a failure continues with the same update.
+ * Saves the update, uploads the photos that were chosen (all are optional) and starts the diagnosis. Saving is
+ * idempotent by the request id, so running the whole flow again after a failure continues with the same update.
  */
 export async function submitUpdateFlow(
   { journalId, request, photos }: SubmitFlowInput,
@@ -32,13 +31,8 @@ export async function submitUpdateFlow(
     if (file) await uploadPhoto(update.id, kind, file)
   }
 
-  // Which photos the diagnosis needs is the backend's call, so it is asked and not assumed. While some are missing
-  // the update is kept and the check waits for them.
-  const { missing_required: missing } = await listPhotos(update.id)
-  if (missing.length === 0) {
-    onStep('diagnosing')
-    await runDiagnosis(update.id)
-  }
+  onStep('diagnosing')
+  await runDiagnosis(update.id)
   return update
 }
 

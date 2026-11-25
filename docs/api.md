@@ -112,7 +112,7 @@ Types are the generated ones; "Auth" says whether a token is needed.
 | `GET /v1/journals/{id}/updates`                      | token   | Update feed                                      | none                                 | `{ items: UpdateResponse[], next_cursor }`       |
 | `POST /v1/journals/{id}/updates`                     | token   | Submit an update                                 | `SubmitUpdateRequest`                | `UpdateResponse` (201, or 200 for a repeated id) |
 | `POST /v1/updates/{id}/photos`                       | token   | Presigned PUT URL for one photo                  | `{ kind, content_type, size_bytes }` | `{ kind, upload_url, expires_in_seconds }`       |
-| `GET /v1/updates/{id}/photos`                        | token   | Uploaded photos and the missing required ones    | none                                 | `{ photos, missing_required }`                   |
+| `GET /v1/updates/{id}/photos`                        | token   | Uploaded photos (all optional)                   | none                                 | `{ photos }`                                     |
 | `GET /v1/updates/{id}/diagnosis`                     | token   | Diagnosis with candidates                        | none                                 | `DiagnosisDetailResponse`                        |
 | `POST /v1/updates/{id}/diagnosis`                    | token   | Run or retry the diagnosis (waits for the model) | none                                 | `DiagnosisDetailResponse`                        |
 | `POST /v1/updates/{id}/diagnosis/clarification`      | token   | Answer the clarifying question (free)            | `{ answer }`                         | `DiagnosisDetailResponse`                        |
@@ -204,7 +204,7 @@ POST /v1/updates/{id}/photos/overview/confirm        (no body)
 
 The browser sets `Content-Length` itself from the body. Problem codes: `photo-too-large` and `photo-type-not-allowed`
 (422; only JPEG, PNG and WebP are accepted, so a HEIC photo has to be converted first), `photo-not-uploaded` (409, confirm
-before the PUT) and `roots-photo-not-requested` (409). The diagnosis answers 422 while a required photo is missing.
+before the PUT) and `roots-photo-not-requested` (409). No photo is required, the diagnosis runs without them.
 
 Diagnosis (`POST /v1/updates/{id}/diagnosis`):
 
