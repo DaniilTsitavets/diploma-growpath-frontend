@@ -1,0 +1,21 @@
+# The frontend alone, with a stand-in for the backend: `npm run mock:up`, then open http://localhost:8088.
+# Sign in as customer@growpath.test, starter@growpath.test, premium@growpath.test, expert@growpath.test or
+# admin@growpath.test with any password.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: mock/Dockerfile.api
+
+  web:
+    build:
+      context: .
+      dockerfile: mock/Dockerfile.web
+      args:
+        PUBLIC_ORIGIN: http://${MOCK_HOST:-localhost:8088}
+    environment:
+      PUBLIC_HOST: ${MOCK_HOST:-localhost:8088}
+    ports:
+      - '127.0.0.1:8088:80'
+    depends_on:
+      - api
