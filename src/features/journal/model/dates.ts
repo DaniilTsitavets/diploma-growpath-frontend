@@ -11,6 +11,16 @@ export function formatDateTime(isoDateTime: string): string {
   )
 }
 
+/**
+ * The latest date that may be entered as "done already". The backend compares with today's date in UTC, so a
+ * traveller or someone just after local midnight east of UTC must not pick a day that is still ahead there.
+ */
+export function latestDateIso(now = new Date()): string {
+  const utc = now.toISOString().slice(0, 10)
+  const local = todayIso(now)
+  return local < utc ? local : utc
+}
+
 export function todayIso(now = new Date()): string {
   const month = String(now.getMonth() + 1).padStart(2, '0')
   const day = String(now.getDate()).padStart(2, '0')
