@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation, useParams } from 'react-router'
 import { useSession } from '@/features/auth/model/session-store'
 import { useMediaCredits } from '@/features/media/api/use-media-credits'
@@ -10,6 +11,7 @@ import { Button } from '@/shared/ui/Button'
 import { Tag } from '@/shared/ui/Chip'
 import { Skeleton } from '@/shared/ui/Skeleton'
 import { useItem } from '../api/use-items'
+import type { Item } from '../model/types'
 import { discountedCents, formatPrice } from '../model/price'
 import { ItemImage } from '../ui/ItemImage'
 import { useOrderFlow } from '../ui/use-order-flow'
@@ -37,9 +39,12 @@ export function ItemPage() {
   const location = useLocation()
   const session = useSession((state) => state.session)
   const item = useItem(slug)
-  // A pack's plant slug equals its item slug, so the care request starts now instead of waiting for the item.
-  // The care section reads the same cache entry once the item says which plant it has.
-  usePlant(slug)
+  // Sensors have no plant profile, so the request is sent only once the item, or the shop list already
+  // loaded, says which plant it has. The care section reads the same cache entry.
+  const listed = useQueryClient()
+    .getQueryData<Item[]>(['items'])
+    ?.find((i) => i.slug === slug)
+  usePlant(item.data?.plant_slug ?? listed?.plant_slug ?? null)
   const order = useOrderFlow()
 
   if (item.isPending) {

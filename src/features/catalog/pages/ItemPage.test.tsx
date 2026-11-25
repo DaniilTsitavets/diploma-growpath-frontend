@@ -85,24 +85,30 @@ describe('ItemPage', () => {
     expect(screen.getByText(/CC BY 4.0/)).toBeInTheDocument()
   })
 
-  it('asks for the item and the plant at the same time', async () => {
-    let plantAsked: () => void = () => undefined
-    const plantRequested = new Promise<void>((resolve) => (plantAsked = resolve))
+  it('does not ask for a plant profile of a sensor', async () => {
+    let plantAsked = false
     server.use(
-      http.get(`${origin}/v1/items/lavender`, async () => {
-        await plantRequested
-        return HttpResponse.json(pack)
-      }),
-      http.get(`${origin}/v1/plants/lavender`, () => {
-        plantAsked()
-        return HttpResponse.json(plant)
+      http.get(`${origin}/v1/items/thermo-hygrometer`, () =>
+        HttpResponse.json({
+          ...pack,
+          slug: 'thermo-hygrometer',
+          name: 'Thermo-hygrometer',
+          item_type: 'sensor',
+          plant_slug: null,
+          plant_species: null,
+        }),
+      ),
+      http.get(`${origin}/v1/plants/thermo-hygrometer`, () => {
+        plantAsked = true
+        return HttpResponse.json({ title: 'Not Found', status: 404 }, { status: 404 })
       }),
     )
-    renderPage()
+    renderPage('thermo-hygrometer')
 
     expect(
-      await screen.findByRole('heading', { name: 'Lavender Starter Pack', level: 1 }),
+      await screen.findByRole('heading', { name: 'Thermo-hygrometer', level: 1 }),
     ).toBeInTheDocument()
+    expect(plantAsked).toBe(false)
   })
 
   it('keeps the item and the order button when care information is unavailable, and can retry', async () => {
