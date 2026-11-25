@@ -7,7 +7,7 @@ export function usePlant(slug: string | null) {
     queryKey: ['plants', slug],
     queryFn: ({ signal }) => getPlant(slug ?? '', signal),
     enabled: slug !== null,
-    // The item page starts this request early and the care section joins it; a failed one must not be sent again on mount.
+    // The item page and the care section share this request; a failed one must not be sent again on mount.
     retryOnMount: false,
     meta: { handledInline: true },
   })
