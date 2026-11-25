@@ -73,7 +73,12 @@ export function NewUpdatePage() {
   const largePot = isLargePot(potDiameter)
 
   function choosePhoto(kind: PhotoKind, file: File | undefined) {
-    setPhotos((current) => ({ ...current, [kind]: file }))
+    setPhotos((current) => {
+      const next = { ...current }
+      if (file) next[kind] = file
+      else delete next[kind]
+      return next
+    })
     setPhotoErrors((current) => ({
       ...current,
       [kind]: file ? (validatePhoto(file) ?? undefined) : undefined,

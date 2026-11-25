@@ -148,6 +148,18 @@ describe('NewUpdatePage', () => {
     expect(calls).toEqual(['update'])
   })
 
+  it('sends no photo request for a photo that was chosen and then removed', async () => {
+    const { calls } = backend()
+    renderPage()
+    await addPhotos()
+    await userEvent.click(screen.getByRole('button', { name: 'Remove' }))
+    await choose(lightingLabels.low)
+    await userEvent.click(screen.getByRole('button', { name: 'Submit update' }))
+
+    expect(await screen.findByRole('heading', { name: 'Update page' })).toBeInTheDocument()
+    expect(calls).toEqual(['update'])
+  })
+
   it('does not run the diagnosis while the whole-plant photo is missing', async () => {
     const { calls } = backend()
     renderPage()
